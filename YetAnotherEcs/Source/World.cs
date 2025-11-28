@@ -68,19 +68,11 @@ public class World
 
 	#region Entity API
 
-	/// <summary>
-	/// Sets a component on an entity.
-	/// </summary>
-	/// <typeparam name="T">The component type.</typeparam>
-	/// <param name="entity">The entity.</param>
-	/// <param name="value">The component.</param>
-	internal void Set<T>(Entity entity, T value = default) where T : struct
+	internal void Set<T>(Entity entity, T component = default) where T : struct
 	{
 		var id = TypeIdAssigner1<T>.Id;
 		BitmaskByEntityId[entity.Id] &= 1 << id;
-
-		var store = (ComponentStore<T>)ComponentStoreByTypeId[id];
-		// TODO: Set value
+		((ComponentStore<T>)ComponentStoreByTypeId[id]).Set(entity.Id, component);
 	}
 
 	#endregion

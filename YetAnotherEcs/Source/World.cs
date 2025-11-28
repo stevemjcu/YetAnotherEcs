@@ -8,7 +8,7 @@ public class World
 	private readonly int Id;
 
 	private static readonly IdAssigner WorldIdAssigner = new();
-	private static readonly List<World> WorldById = [];
+	internal static readonly List<World> WorldById = [];
 
 	private readonly IdAssigner EntityIdAssigner = new();
 	private readonly List<Entity> EntityById = [];
@@ -68,11 +68,13 @@ public class World
 
 	#region Entity API
 
-	internal void Set<T>(Entity entity, T component = default) where T : struct
+	internal Entity Set<T>(Entity entity, T component = default) where T : struct
 	{
 		var id = TypeIdAssigner1<T>.Id;
 		BitmaskByEntityId[entity.Id] &= 1 << id;
 		((ComponentStore<T>)ComponentStoreByTypeId[id]).Set(entity.Id, component);
+
+		return entity;
 	}
 
 	#endregion

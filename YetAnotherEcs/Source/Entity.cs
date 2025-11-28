@@ -11,7 +11,9 @@ public readonly record struct Entity(int id, int worldId, int version)
 
 	public readonly int Version = version;
 
-	public Entity Set<T>(T value = default) where T : struct => this;
+	private World World => World.WorldById[WorldId];
+
+	public Entity Set<T>(T value = default) where T : struct => World.Set(this, value);
 
 	public void Remove<T>() where T : struct { }
 

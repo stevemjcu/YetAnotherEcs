@@ -3,13 +3,13 @@
 /// <summary>
 /// An identifier associated with a component set.
 /// </summary>
-public readonly record struct Entity
+public readonly record struct Entity(int id, int worldId, int version)
 {
-	public readonly int Id;
+	public readonly int Id = id;
 
-	public readonly int WorldId;
+	public readonly int WorldId = worldId;
 
-	public readonly int Version;
+	public readonly int Version = version;
 
 	public Entity Set<T>(T value = default) where T : struct => this;
 

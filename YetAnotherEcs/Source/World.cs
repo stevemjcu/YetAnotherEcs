@@ -8,12 +8,16 @@ namespace YetAnotherEcs;
 /// </summary>
 public class World
 {
+	private readonly int Id;
+
 	private static readonly IdAssigner WorldIdAssigner = new();
 	private static readonly List<World> WorldById = [];
 
-	private int Id;
-	private List<int> BitmaskByEntityId = [];
-	private List<ComponentStore> ComponentStoreByTypeId = [];
+	private readonly IdAssigner EntityIdAssigner = new();
+	private readonly List<Entity> EntityById = [];
+
+	private readonly List<int> BitmaskByEntityId = [];
+	private readonly List<ComponentStore> ComponentStoreByTypeId = [];
 
 	public World()
 	{
@@ -24,19 +28,32 @@ public class World
 
 	~World() => WorldIdAssigner.Recycle(Id);
 
-	public Entity Create() => default;
+	public Entity Create()
+	{
+		var id = EntityIdAssigner.Assign(out var recycled);
+		EntityById.EnsureCapacity(id + 1);
 
-	public Entity Clone(Entity entity) => default;
+		var version = recycled ? EntityById[id].Version + 1 : 0;
+		EntityById[id] = new(id, Id, version);
 
-	public void Destroy(Entity entity) { }
+		return EntityById[id];
+	}
 
-	public void Index<T>() { }
+	public Entity Clone(Entity entity) => throw new NotImplementedException();
 
-	public void Filter() { }
+	public void Destroy(Entity entity)
+	{
+		BitmaskByEntityId[Id] = 0;
+		EntityIdAssigner.Recycle(entity.Id);
+	}
 
-	public Entity Get<T>() => default;
+	public void Index<T>() => throw new NotImplementedException();
 
-	public Entity Get<T>(T index) => default;
+	public void Filter() => throw new NotImplementedException();
 
-	public Entity Get(Filter filter) => default;
+	public Entity Get<T>() => throw new NotImplementedException();
+
+	public Entity Get<T>(T index) => throw new NotImplementedException();
+
+	public Entity Get(Filter filter) => throw new NotImplementedException();
 }

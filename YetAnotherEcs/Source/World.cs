@@ -1,11 +1,28 @@
-﻿namespace YetAnotherEcs;
+﻿using YetAnotherEcs.General;
+using YetAnotherEcs.Storage;
+
+namespace YetAnotherEcs;
 
 /// <summary>
-/// The storage for all entities and components.
+/// Manages all storage for the ECS.
 /// </summary>
 public class World
 {
-	private static readonly List<World> Worlds = [];
+	private static readonly IdAssigner WorldIdAssigner = new();
+	private static readonly List<World> WorldById = [];
+
+	private int Id;
+	private List<int> BitmaskByEntityId = [];
+	private List<ComponentStore> ComponentStoreByTypeId = [];
+
+	public World()
+	{
+		Id = WorldIdAssigner.Assign();
+		WorldById.EnsureCapacity(Id + 1);
+		WorldById[Id] = this;
+	}
+
+	~World() => WorldIdAssigner.Recycle(Id);
 
 	public Entity Create() => default;
 
@@ -17,9 +34,9 @@ public class World
 
 	public void Filter() { }
 
-	Entity Get<T>() => default;
+	public Entity Get<T>() => default;
 
-	Entity Get<T>(T index) => default;
+	public Entity Get<T>(T index) => default;
 
-	Entity Get(Filter filter) => default;
+	public Entity Get(Filter filter) => default;
 }

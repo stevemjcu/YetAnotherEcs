@@ -3,7 +3,7 @@
 /// <summary>
 /// An identifier associated with an entity set.
 /// </summary>
-internal record struct Filter
+public record struct Filter
 {
 	public int Signature;
 

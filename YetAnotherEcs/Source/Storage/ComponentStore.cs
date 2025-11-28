@@ -1,8 +1,8 @@
 ﻿namespace YetAnotherEcs.Storage;
 
 /// <summary>
-/// The storage for a component type.
+/// Manages the storage for a component type.
 /// </summary>
-internal class ComponentStore<T>
+internal class ComponentStore(int size)
 {
 }

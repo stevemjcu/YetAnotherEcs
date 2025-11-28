@@ -5,7 +5,7 @@
 /// </summary>
 public class World
 {
-	private readonly int Id;
+	public readonly int Id = WorldIdAssigner.Assign();
 
 	private static readonly IdAssigner WorldIdAssigner = new();
 	internal static readonly List<World> WorldById = [];
@@ -18,7 +18,6 @@ public class World
 
 	public World()
 	{
-		Id = WorldIdAssigner.Assign();
 		WorldById.EnsureCapacity(Id + 1);
 		WorldById[Id] = this;
 	}
@@ -34,6 +33,7 @@ public class World
 	public Entity Create()
 	{
 		var id = EntityIdAssigner.Assign();
+
 		EntityById.EnsureCapacity(id + 1);
 		EntityById[id] = new(id, Id, EntityById[id].Version + 1);
 
@@ -70,9 +70,11 @@ public class World
 
 	internal Entity Set<T>(Entity entity, T component = default) where T : struct
 	{
-		var id = TypeIdAssigner1<T>.Id;
+		var id = ComponentStore<T>.Id;
+		var store = (ComponentStore<T>)ComponentStoreByTypeId[id];
+
 		BitmaskByEntityId[entity.Id] &= 1 << id;
-		((ComponentStore<T>)ComponentStoreByTypeId[id]).Set(entity.Id, component);
+		store.Set(entity.Id, component);
 
 		return entity;
 	}

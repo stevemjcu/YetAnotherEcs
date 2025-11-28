@@ -25,8 +25,12 @@ public class World
 
 	~World() => WorldIdAssigner.Recycle(Id);
 
-	#region Public API
+	#region World API
 
+	/// <summary>
+	/// Create an entity.
+	/// </summary>
+	/// <returns>The entity.</returns>
 	public Entity Create()
 	{
 		var id = EntityIdAssigner.Assign();
@@ -38,6 +42,10 @@ public class World
 
 	public Entity Clone(Entity entity) => throw new NotImplementedException();
 
+	/// <summary>
+	/// Destroy an entity.
+	/// </summary>
+	/// <param name="entity">The entity.</param>
 	public void Destroy(Entity entity)
 	{
 		BitmaskByEntityId[Id] = 0;
@@ -48,16 +56,32 @@ public class World
 
 	public void Filter() => throw new NotImplementedException();
 
-	public Entity Get<T>() where T : struct => throw new NotImplementedException();
+	public Entity Single<T>() where T : struct => throw new NotImplementedException();
 
-	public Entity Get<T>(T index) where T : struct => throw new NotImplementedException();
+	public Entity Single<T>(T index) where T : struct => throw new NotImplementedException();
 
-	public Entity Get(Filter filter) => throw new NotImplementedException();
+	public IReadOnlySet<Entity> Get<T>(T index) where T : struct => throw new NotImplementedException();
+
+	public IReadOnlySet<Entity> Get(Filter filter) => throw new NotImplementedException();
 
 	#endregion
 
+	#region Entity API
+
+	/// <summary>
+	/// Sets a component on an entity.
+	/// </summary>
+	/// <typeparam name="T">The component type.</typeparam>
+	/// <param name="entity">The entity.</param>
+	/// <param name="value">The component.</param>
 	internal void Set<T>(Entity entity, T value = default) where T : struct
 	{
-		// Set bitmask and component store
+		var id = TypeIdAssigner1<T>.Id;
+		BitmaskByEntityId[entity.Id] &= 1 << id;
+
+		var store = (ComponentStore<T>)ComponentStoreByTypeId[id];
+		// TODO: Set value
 	}
+
+	#endregion
 }

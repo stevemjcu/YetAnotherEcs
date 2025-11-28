@@ -1,7 +1,4 @@
-﻿using YetAnotherEcs.General;
-using YetAnotherEcs.Storage;
-
-namespace YetAnotherEcs;
+﻿namespace YetAnotherEcs;
 
 /// <summary>
 /// Manages all storage for the ECS.
@@ -17,7 +14,7 @@ public class World
 	private readonly List<Entity> EntityById = [];
 
 	private readonly List<int> BitmaskByEntityId = [];
-	private readonly List<ComponentStore> ComponentStoreByTypeId = [];
+	private readonly List<object> ComponentStoreByTypeId = [];
 
 	public World()
 	{
@@ -28,13 +25,13 @@ public class World
 
 	~World() => WorldIdAssigner.Recycle(Id);
 
+	#region Public API
+
 	public Entity Create()
 	{
-		var id = EntityIdAssigner.Assign(out var recycled);
+		var id = EntityIdAssigner.Assign();
 		EntityById.EnsureCapacity(id + 1);
-
-		var version = recycled ? EntityById[id].Version + 1 : 0;
-		EntityById[id] = new(id, Id, version);
+		EntityById[id] = new(id, Id, EntityById[id].Version + 1);
 
 		return EntityById[id];
 	}
@@ -47,13 +44,20 @@ public class World
 		EntityIdAssigner.Recycle(entity.Id);
 	}
 
-	public void Index<T>() => throw new NotImplementedException();
+	public void Index<T>() where T : struct => throw new NotImplementedException();
 
 	public void Filter() => throw new NotImplementedException();
 
-	public Entity Get<T>() => throw new NotImplementedException();
+	public Entity Get<T>() where T : struct => throw new NotImplementedException();
 
-	public Entity Get<T>(T index) => throw new NotImplementedException();
+	public Entity Get<T>(T index) where T : struct => throw new NotImplementedException();
 
 	public Entity Get(Filter filter) => throw new NotImplementedException();
+
+	#endregion
+
+	internal void Set<T>(Entity entity, T value = default) where T : struct
+	{
+		// Set bitmask and component store
+	}
 }

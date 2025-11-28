@@ -1,4 +1,4 @@
-﻿namespace YetAnotherEcs.Storage;
+﻿namespace YetAnotherEcs;
 
 /// <summary>
 /// Manages the storage for a filter signature.

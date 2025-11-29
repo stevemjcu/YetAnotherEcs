@@ -15,13 +15,13 @@ public record struct Entity(int Id, int Version, World World)
 	/// Copy this entity's components.
 	/// </summary>
 	/// <returns></returns>
-	public Entity Copy() => World.Entities.Copy(this);
+	public readonly Entity Copy() => World.Entities.Copy(this);
 
 	/// <summary>
 	/// Destroy this entity.
 	/// </summary>
 	/// <param name="entity">The entity.</param>
-	public void Destroy() => World.Entities.Destroy(this);
+	public readonly void Destroy() => World.Entities.Destroy(this);
 
 	/// <summary>
 	/// Set a component.
@@ -29,7 +29,7 @@ public record struct Entity(int Id, int Version, World World)
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <param name="component">The component.</param>
 	/// <returns>This entity.</returns>
-	public Entity Set<T>(T component = default) where T : struct, IComponent<T>
+	public readonly Entity Set<T>(T component = default) where T : struct, IComponent<T>
 	{
 		World.Components.Set(this, component);
 		return this;
@@ -39,7 +39,7 @@ public record struct Entity(int Id, int Version, World World)
 	/// Remove a component.
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
-	public void Remove<T>() where T : struct, IComponent<T> =>
+	public readonly void Remove<T>() where T : struct, IComponent<T> =>
 		World.Components.Remove<T>(this);
 
 	/// <summary>
@@ -47,7 +47,7 @@ public record struct Entity(int Id, int Version, World World)
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <returns>True if the component exists; otherwise, false.</returns>
-	public bool Has<T>() where T : struct, IComponent<T> =>
+	public readonly bool Has<T>() where T : struct, IComponent<T> =>
 		World.Components.Has<T>(this);
 
 	/// <summary>
@@ -55,6 +55,9 @@ public record struct Entity(int Id, int Version, World World)
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <returns>The component.</returns>
-	public T Get<T>() where T : struct, IComponent<T> =>
+	public readonly T Get<T>() where T : struct, IComponent<T> =>
 		World.Components.Get<T>(this);
+
+	public readonly bool TryGet<T>(out T component) where T : struct, IComponent<T> =>
+		World.Components.TryGet<T>(this, out component);
 }

@@ -1,4 +1,6 @@
-﻿namespace YetAnotherEcs.Storage;
+﻿using System.Runtime.CompilerServices;
+
+namespace YetAnotherEcs.Storage;
 
 /// <summary>
 /// Encapsulates the storage for all components.
@@ -12,7 +14,6 @@ internal class ComponentStore
 	public void Set<T>(Entity entity, T component) where T : struct, IComponent<T>
 	{
 		var (id, store) = ParseType<T>();
-
 		store[entity.Id] = component;
 		entity.Bitmask |= 1 << id;
 	}
@@ -20,7 +21,6 @@ internal class ComponentStore
 	public void Remove<T>(Entity entity) where T : struct, IComponent<T>
 	{
 		var (id, store) = ParseType<T>();
-
 		store.Remove(entity.Id);
 		entity.Bitmask ^= 1 << id;
 	}
@@ -31,7 +31,15 @@ internal class ComponentStore
 	public T Get<T>(Entity entity) where T : struct, IComponent<T> =>
 		ParseType<T>().Store[entity.Id];
 
+	public bool TryGet<T>(Entity entity, out T component) where T : struct, IComponent<T>
+	{
+		var has = Has<T>(entity);
+		component = has ? Get<T>(entity) : default;
+		return has;
+	}
+
 	// TODO: Profile to determine if a static ID would be much better.
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	private (int Id, Dictionary<int, T> Store) ParseType<T>() where T : struct, IComponent<T>
 	{
 		RegisterType<T>(out var type);
@@ -42,6 +50,7 @@ internal class ComponentStore
 		return (id, store);
 	}
 
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	private void RegisterType<T>(out Type type) where T : struct, IComponent<T>
 	{
 		type = typeof(T);

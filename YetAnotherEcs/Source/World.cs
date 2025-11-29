@@ -5,12 +5,12 @@ using YetAnotherEcs.Storage;
 namespace YetAnotherEcs;
 
 /// <summary>
-/// Manages the storage for all entities.
+/// Manages the storage for all entities and their associated stores.
 /// </summary>
 public class World
 {
-	internal ComponentStore Components = new();
 	internal readonly List<int> BitmaskByEntityId = [];
+	internal ComponentStore Components = new();
 
 	private readonly IdAssigner EntityIdAssigner = new();
 	private readonly List<Entity> EntityById = [];

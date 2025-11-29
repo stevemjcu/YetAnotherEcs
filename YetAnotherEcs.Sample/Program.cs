@@ -5,14 +5,13 @@ internal class Program
 	static void Main(string[] _)
 	{
 		var world = new World();
-		world.Register<Position>();
 
 		var position0 = new Position(1, 2);
 		var position1 = new Position(3, 4);
 		var position2 = new Position(5, 6);
 
-		var entity0 = world.Create().Set(position0);
-		var entity1 = world.Create().Set(position1);
+		var entity0 = world.Add().Set(position0);
+		var entity1 = world.Add().Set(position1);
 
 		Assert(entity0.Has<Position>());
 		Assert(entity1.Has<Position>());
@@ -20,15 +19,15 @@ internal class Program
 		Assert(entity0.Get<Position>() == position0);
 		Assert(entity1.Get<Position>() == position1);
 
-		entity0.Set(position1);
-		Assert(entity0.Get<Position>() == position1);
+		entity0.Set(position2);
+		Assert(entity0.Get<Position>() == position2);
 
 		entity1.Remove<Position>();
 		Assert(!entity1.Has<Position>());
 
 		// Recycle entity 
 		entity0.Destroy();
-		var entity2 = world.Create();
+		var entity2 = world.Add();
 
 		Assert(!entity2.Has<Position>());
 		entity2.Set<Position>();

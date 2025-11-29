@@ -1,8 +1,8 @@
-﻿namespace YetAnotherEcs;
+﻿namespace YetAnotherEcs.Storage;
 
 /// <summary>
-/// Manages the storage for a filter signature.
+/// Manages the storage for all filters.
 /// </summary>
-internal class FilterStore
+public class FilterStore
 {
 }

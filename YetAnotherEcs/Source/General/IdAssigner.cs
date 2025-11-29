@@ -1,6 +1,6 @@
-﻿namespace YetAnotherEcs;
+﻿namespace YetAnotherEcs.General;
 
-internal class IdAssigner(int start = 0)
+public class IdAssigner(int start = 0)
 {
 	private int NextId = start;
 	private readonly Stack<int> RecycledIds = [];

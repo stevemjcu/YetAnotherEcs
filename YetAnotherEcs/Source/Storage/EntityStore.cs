@@ -1,19 +1,16 @@
 ﻿using System.Runtime.InteropServices;
 using YetAnotherEcs.General;
-using YetAnotherEcs.Storage;
 
-namespace YetAnotherEcs;
+namespace YetAnotherEcs.Storage;
 
 /// <summary>
 /// Manages the storage for all entities.
 /// </summary>
-public class World
+public class EntityStore(World world)
 {
-	internal ComponentStore Components = new();
-	internal readonly List<int> BitmaskByEntityId = [];
-
 	private readonly IdAssigner EntityIdAssigner = new();
 	private readonly List<Entity> EntityById = [];
+	private readonly List<int> BitmaskByEntityId = [];
 
 	/// <summary>
 	/// Create an entity.
@@ -30,7 +27,7 @@ public class World
 			CollectionsMarshal.SetCount(BitmaskByEntityId, id + 1);
 		}
 
-		EntityById[id] = new(id, version, this);
+		EntityById[id] = new(id, version, world);
 		return EntityById[id];
 	}
 
@@ -43,18 +40,7 @@ public class World
 		EntityIdAssigner.Recycle(entity.Id);
 	}
 
-	//public Filter Filter() =>
-	//	throw new NotImplementedException();
+	internal int GetBitmask(Entity entity) => BitmaskByEntityId[entity.Id];
 
-	//public Entity Single<T>() where T : struct, IComponent<T> =>
-	//	throw new NotImplementedException();
-
-	//public Entity Single<T>(T index) where T : struct, IComponent<T> =>
-	//	throw new NotImplementedException();
-
-	//public IReadOnlySet<Entity> Get<T>(T index) where T : struct, IComponent<T> =>
-	//	throw new NotImplementedException();
-
-	//public IReadOnlySet<Entity> Get(Filter filter) =>
-	//	throw new NotImplementedException();
+	internal void SetBitmask(Entity entity, int value) => BitmaskByEntityId[entity.Id] = value;
 }

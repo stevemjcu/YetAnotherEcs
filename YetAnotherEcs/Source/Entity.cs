@@ -13,7 +13,7 @@ public readonly record struct Entity(int Id, int Version, World World)
 	/// <returns>This entity.</returns>
 	public Entity Set<T>(T component = default) where T : struct, IComponent<T> => World.Set(this, component);
 
-	public void Remove<T>() where T : struct, IComponent<T> { }
+	public void Remove<T>() where T : struct, IComponent<T> => World.Remove<T>(this);
 
 	public bool Has<T>() where T : struct, IComponent<T> => World.Has<T>(this);
 

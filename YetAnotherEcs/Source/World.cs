@@ -85,8 +85,7 @@ public class World
 
 	internal Entity Set<T>(Entity entity, T component = default) where T : struct, IComponent<T>
 	{
-		var id = ComponentTypeIdByType[typeof(T)];
-		var store = (ComponentStore<T>)ComponentStoreByTypeId[id];
+		var (id, store) = Expand<T>();
 
 		BitmaskByEntityId[entity.Id] |= 1 << id;
 		store.Set(entity.Id, component);
@@ -94,20 +93,36 @@ public class World
 		return entity;
 	}
 
-	internal T Get<T>(Entity entity) where T : struct, IComponent<T>
+	internal void Remove<T>(Entity entity) where T : struct, IComponent<T>
 	{
-		var id = ComponentTypeIdByType[typeof(T)];
-		var store = (ComponentStore<T>)ComponentStoreByTypeId[id];
+		var (id, store) = Expand<T>();
+		store.Remove(entity.Id);
 
-		return store.Get(entity.Id);
+		BitmaskByEntityId[entity.Id] ^= 1 << id;
 	}
 
 	internal bool Has<T>(Entity entity) where T : struct, IComponent<T>
 	{
-		var id = ComponentTypeIdByType[typeof(T)];
+		var (id, _) = Expand<T>();
+		var bitmask = BitmaskByEntityId[entity.Id];
 
-		return (BitmaskByEntityId[entity.Id] & (1 << id)) > 0;
+		return (bitmask & (1 << id)) > 0;
+	}
+
+	internal T Get<T>(Entity entity) where T : struct, IComponent<T>
+	{
+		var (_, store) = Expand<T>();
+
+		return store.Get(entity.Id);
 	}
 
 	#endregion
+
+	private (int, ComponentStore<T>) Expand<T>() where T : struct, IComponent<T>
+	{
+		var id = ComponentTypeIdByType[typeof(T)];
+		var store = (ComponentStore<T>)ComponentStoreByTypeId[id];
+
+		return (id, store);
+	}
 }

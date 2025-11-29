@@ -20,6 +20,12 @@ internal class Program
 		Assert(entity0.Get<Position>() == position0);
 		Assert(entity1.Get<Position>() == position1);
 
+		entity0.Set(position1);
+		Assert(entity0.Get<Position>() == position1);
+
+		entity1.Remove<Position>();
+		Assert(!entity1.Has<Position>());
+
 		// Recycle entity 
 		world.Destroy(entity0);
 		var entity2 = world.Create();

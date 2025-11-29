@@ -18,6 +18,21 @@ public class World
 	#region World API
 
 	/// <summary>
+	/// Register a component type.
+	/// </summary>
+	/// <typeparam name="T">The component type.</typeparam>
+	/// <param name="index">Maintain an index for entity lookup.</param>
+	public void Register<T>(bool index = false) where T : struct, IComponent<T>
+	{
+		var type = typeof(T);
+		if (ComponentTypeIdByType.ContainsKey(type)) return;
+		var id = NextComponentTypeId++;
+
+		ComponentTypeIdByType[type] = id;
+		ComponentStoreByTypeId.Add(new ComponentStore<T>());
+	}
+
+	/// <summary>
 	/// Create an entity.
 	/// </summary>
 	/// <returns>The entity.</returns>
@@ -34,34 +49,6 @@ public class World
 
 		EntityById[id] = new(id, version, this);
 		return EntityById[id];
-	}
-
-	public Entity Clone(Entity entity) =>
-		throw new NotImplementedException();
-
-	/// <summary>
-	/// Destroy an entity.
-	/// </summary>
-	/// <param name="entity">The entity.</param>
-	public void Destroy(Entity entity)
-	{
-		BitmaskByEntityId[entity.Id] = 0;
-		EntityIdAssigner.Recycle(entity.Id);
-	}
-
-	/// <summary>
-	/// Register a component type.
-	/// </summary>
-	/// <typeparam name="T">The component type.</typeparam>
-	/// <param name="index">Maintain an index for entity lookup.</param>
-	public void Register<T>(bool index = false) where T : struct, IComponent<T>
-	{
-		var type = typeof(T);
-		if (ComponentTypeIdByType.ContainsKey(type)) return;
-		var id = NextComponentTypeId++;
-
-		ComponentTypeIdByType[type] = id;
-		ComponentStoreByTypeId.Add(new ComponentStore<T>());
 	}
 
 	public Filter Filter() =>
@@ -82,6 +69,15 @@ public class World
 	#endregion
 
 	#region Entity API
+
+	internal Entity Copy(Entity entity) =>
+		throw new NotImplementedException();
+
+	internal void Destroy(Entity entity)
+	{
+		BitmaskByEntityId[entity.Id] = 0;
+		EntityIdAssigner.Recycle(entity.Id);
+	}
 
 	internal Entity Set<T>(Entity entity, T component = default) where T : struct, IComponent<T>
 	{
@@ -118,6 +114,7 @@ public class World
 
 	#endregion
 
+	// TODO: Profile to determine if a static ID would be much better.
 	private (int, ComponentStore<T>) Expand<T>() where T : struct, IComponent<T>
 	{
 		var id = ComponentTypeIdByType[typeof(T)];

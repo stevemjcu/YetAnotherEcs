@@ -1,7 +1,7 @@
 ﻿namespace YetAnotherEcs;
 
 /// <summary>
-/// Represents a component set associated with an entity ID.
+/// An entity identifier associated with a component set.
 /// </summary>
 public record struct Entity(int Id, int Version, World World)
 {

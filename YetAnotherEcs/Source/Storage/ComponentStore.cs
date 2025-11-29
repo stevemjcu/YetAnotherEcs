@@ -25,6 +25,9 @@ internal class ComponentStore
 	public T Get<T>(int id) where T : struct, IComponent<T> =>
 		GetStore<T>()[id];
 
+	public int Get<T>() where T : struct, IComponent<T> =>
+		GetStore<T>().Keys.Single(); // Does this allocate?
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	private Dictionary<int, T> GetStore<T>() where T : struct, IComponent<T> =>
 		(Dictionary<int, T>)StoreByTypeId[Id<T>()];

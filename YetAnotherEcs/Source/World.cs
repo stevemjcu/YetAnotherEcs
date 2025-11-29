@@ -29,5 +29,5 @@ public class World
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <returns>The entity.</returns>
 	public Entity Singleton<T>() where T : struct, IComponent<T> =>
-		throw new NotImplementedException();
+		Entities.Get(Components.Get<T>());
 }

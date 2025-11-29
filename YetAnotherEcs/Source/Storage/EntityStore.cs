@@ -27,6 +27,8 @@ internal class EntityStore
 		return EntityById[id];
 	}
 
+	public Entity Get(int id) => EntityById[id];
+
 	public Entity Copy(Entity entity) =>
 		throw new NotImplementedException();
 

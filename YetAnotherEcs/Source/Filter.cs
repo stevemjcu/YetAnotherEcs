@@ -1,7 +1,7 @@
 ﻿namespace YetAnotherEcs;
 
 /// <summary>
-/// Represents an entity set associated with a filter signature.
+/// A filter signature associated with an entity set.
 /// </summary>
 public record struct Filter(int Signature, World World)
 {

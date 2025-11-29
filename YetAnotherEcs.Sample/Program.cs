@@ -32,6 +32,9 @@ internal class Program
 		Assert(!entity2.Has<Position>());
 		entity2.Set<Position>();
 		Assert(entity2.Has<Position>());
+
+		entity1.Set<Player>();
+		Assert(world.Singleton<Player>() == entity1);
 	}
 
 	private static void Assert(bool condition)
@@ -41,4 +44,6 @@ internal class Program
 	}
 
 	internal record struct Position(int X, int Y) : IComponent<Position>;
+
+	internal record struct Player() : IComponent<Player>;
 }

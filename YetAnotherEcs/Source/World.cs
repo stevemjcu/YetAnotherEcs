@@ -9,6 +9,7 @@ public class World
 {
 	internal EntityStore Entities = new();
 	internal ComponentStore Components = new();
+	internal FilterStore Filters = new();
 
 	/// <summary>
 	/// Create an entity.
@@ -16,18 +17,17 @@ public class World
 	/// <returns>The entity.</returns>
 	public Entity Create() => Entities.Add(this);
 
-	//public Filter Filter() =>
-	//	throw new NotImplementedException();
+	/// <summary>
+	/// Create a filter.
+	/// </summary>
+	/// <returns>The filter.</returns>
+	public Filter Filter() => Filters.Add(this);
 
-	//public Entity Single<T>() where T : struct, IComponent<T> =>
-	//	throw new NotImplementedException();
-
-	//public Entity Single<T>(T index) where T : struct, IComponent<T> =>
-	//	throw new NotImplementedException();
-
-	//public IReadOnlySet<Entity> Get<T>(T index) where T : struct, IComponent<T> =>
-	//	throw new NotImplementedException();
-
-	//public IReadOnlySet<Entity> Get(Filter filter) =>
-	//	throw new NotImplementedException();
+	/// <summary>
+	/// Get an entity by a distinctive component type.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <returns></returns>
+	public Entity Singleton<T>() where T : struct, IComponent<T> =>
+		throw new NotImplementedException();
 }

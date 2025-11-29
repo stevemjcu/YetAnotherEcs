@@ -10,7 +10,7 @@ public record struct Filter(int Signature, World World)
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <returns>This filter.</returns>
-	public Filter Include<T>() where T : struct, IComponent<T> => this;
+	public Filter Include<T>() where T : struct => this;
 
 	/// <summary>
 	/// Include a component index on the filter.
@@ -18,14 +18,14 @@ public record struct Filter(int Signature, World World)
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <param name="component">The component.</param>
 	/// <returns>This filter.</returns>
-	public Filter Include<T>(T component) where T : struct, IComponent<T> => this;
+	public Filter Include<T>(T component) where T : struct => this;
 
 	/// <summary>
 	/// Exclude a component type on the filter.
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <returns>This filter.</returns>
-	public Filter Exclude<T>() where T : struct, IComponent<T> => this;
+	public Filter Exclude<T>() where T : struct => this;
 
 	/// <summary>
 	/// Exclude a component index on the filter.
@@ -33,7 +33,7 @@ public record struct Filter(int Signature, World World)
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <param name="component">The component.</param>
 	/// <returns>This filter.</returns>
-	public Filter Exclude<T>(T component) where T : struct, IComponent<T> => this;
+	public Filter Exclude<T>(T component) where T : struct => this;
 
 	/// <summary>
 	/// Create a signature and register for automatic updates.

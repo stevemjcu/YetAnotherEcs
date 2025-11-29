@@ -43,7 +43,7 @@ internal class Program
 		throw new Exception();
 	}
 
-	internal record struct Position(int X, int Y) : IComponent<Position>;
+	internal record struct Position(int X, int Y);
 
-	internal record struct Player() : IComponent<Player>;
+	internal record struct Player();
 }

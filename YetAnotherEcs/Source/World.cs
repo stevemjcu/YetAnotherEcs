@@ -28,6 +28,6 @@ public class World
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <returns>The entity.</returns>
-	public Entity Singleton<T>() where T : struct, IComponent<T> =>
+	public Entity Singleton<T>() where T : struct =>
 		Entities.Get(Components.Get<T>());
 }

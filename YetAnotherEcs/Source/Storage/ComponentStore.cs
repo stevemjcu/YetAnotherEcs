@@ -13,27 +13,27 @@ internal class ComponentStore
 
 	// TODO: Profile to determine if a static ID would be much better.
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public int Id<T>() where T : struct, IComponent<T> =>
+	public int Id<T>() where T : struct =>
 		TypeIdByType[GetType<T>()];
 
-	public void Set<T>(int id, T component) where T : struct, IComponent<T> =>
+	public void Set<T>(int id, T component) where T : struct =>
 		GetStore<T>()[id] = component;
 
-	public void Remove<T>(int id) where T : struct, IComponent<T> =>
+	public void Remove<T>(int id) where T : struct =>
 		GetStore<T>().Remove(id);
 
-	public T Get<T>(int id) where T : struct, IComponent<T> =>
+	public T Get<T>(int id) where T : struct =>
 		GetStore<T>()[id];
 
-	public int Get<T>() where T : struct, IComponent<T> =>
+	public int Get<T>() where T : struct =>
 		GetStore<T>().Keys.Single(); // Does this allocate?
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private Dictionary<int, T> GetStore<T>() where T : struct, IComponent<T> =>
+	private Dictionary<int, T> GetStore<T>() where T : struct =>
 		(Dictionary<int, T>)StoreByTypeId[Id<T>()];
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private Type GetType<T>() where T : struct, IComponent<T>
+	private Type GetType<T>() where T : struct
 	{
 		var type = typeof(T);
 

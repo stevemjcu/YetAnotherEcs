@@ -1,47 +1,20 @@
-﻿using System.Runtime.InteropServices;
-using YetAnotherEcs.General;
-using YetAnotherEcs.Storage;
+﻿using YetAnotherEcs.Storage;
 
 namespace YetAnotherEcs;
 
 /// <summary>
-/// Manages the storage for all entities and their associated stores.
+/// Manages a set of entities and their storage. 
 /// </summary>
 public class World
 {
-	internal readonly List<int> BitmaskByEntityId = [];
+	internal EntityStore Entities = new();
 	internal ComponentStore Components = new();
-
-	private readonly IdAssigner EntityIdAssigner = new();
-	private readonly List<Entity> EntityById = [];
 
 	/// <summary>
 	/// Create an entity.
 	/// </summary>
 	/// <returns>The entity.</returns>
-	public Entity Add()
-	{
-		var id = EntityIdAssigner.Assign(out var recycled);
-		var version = recycled ? EntityById[id].Version + 1 : 0;
-
-		if (EntityById.Count < id + 1)
-		{
-			CollectionsMarshal.SetCount(EntityById, id + 1);
-			CollectionsMarshal.SetCount(BitmaskByEntityId, id + 1);
-		}
-
-		EntityById[id] = new(id, version, this);
-		return EntityById[id];
-	}
-
-	internal Entity Copy(Entity entity) =>
-		throw new NotImplementedException();
-
-	internal void Destroy(Entity entity)
-	{
-		BitmaskByEntityId[entity.Id] = 0;
-		EntityIdAssigner.Recycle(entity.Id);
-	}
+	public Entity Create() => Entities.Add(this);
 
 	//public Filter Filter() =>
 	//	throw new NotImplementedException();

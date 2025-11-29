@@ -10,8 +10,8 @@ internal class Program
 		var position1 = new Position(3, 4);
 		var position2 = new Position(5, 6);
 
-		var entity0 = world.Add().Set(position0);
-		var entity1 = world.Add().Set(position1);
+		var entity0 = world.Create().Set(position0);
+		var entity1 = world.Create().Set(position1);
 
 		Assert(entity0.Has<Position>());
 		Assert(entity1.Has<Position>());
@@ -27,7 +27,7 @@ internal class Program
 
 		// Recycle entity 
 		entity0.Destroy();
-		var entity2 = world.Add();
+		var entity2 = world.Create();
 
 		Assert(!entity2.Has<Position>());
 		entity2.Set<Position>();

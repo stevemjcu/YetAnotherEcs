@@ -1,27 +1,27 @@
 ﻿namespace YetAnotherEcs;
 
 /// <summary>
-/// An identifier associated with a component set.
+/// Manages a set of components.
 /// </summary>
-public readonly record struct Entity(int Id, int Version, World World)
+public record struct Entity(int Id, int Version, World World)
 {
-	internal int Bitmask
+	internal readonly int Bitmask
 	{
-		get => World.BitmaskByEntityId[Id];
-		set => World.BitmaskByEntityId[Id] = value;
+		get => World.Entities.GetBitmask(this);
+		set => World.Entities.SetBitmask(this, value);
 	}
 
 	/// <summary>
 	/// Copy this entity's components.
 	/// </summary>
 	/// <returns></returns>
-	public Entity Copy() => World.Copy(this);
+	public Entity Copy() => World.Entities.Copy(this);
 
 	/// <summary>
 	/// Destroy this entity.
 	/// </summary>
 	/// <param name="entity">The entity.</param>
-	public void Destroy() => World.Destroy(this);
+	public void Destroy() => World.Entities.Destroy(this);
 
 	/// <summary>
 	/// Set a component.

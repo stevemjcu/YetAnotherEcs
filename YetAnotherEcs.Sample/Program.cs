@@ -27,7 +27,7 @@ internal class Program
 		Assert(!entity1.Has<Position>());
 
 		// Recycle entity 
-		world.Destroy(entity0);
+		entity0.Destroy();
 		var entity2 = world.Create();
 
 		Assert(!entity2.Has<Position>());

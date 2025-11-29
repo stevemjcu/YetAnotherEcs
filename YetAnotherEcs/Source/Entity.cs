@@ -9,13 +9,13 @@ public readonly record struct Entity(int Id, int Version, World World)
 	/// Copy this entity's components.
 	/// </summary>
 	/// <returns></returns>
-	internal Entity Copy() => World.Copy(this);
+	public Entity Copy() => World.Copy(this);
 
 	/// <summary>
 	/// Destroy this entity.
 	/// </summary>
 	/// <param name="entity">The entity.</param>
-	internal void Destroy() => World.Destroy(this);
+	public void Destroy() => World.Destroy(this);
 
 	/// <summary>
 	/// Set a component.

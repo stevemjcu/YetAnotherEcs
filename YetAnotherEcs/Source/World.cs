@@ -1,4 +1,6 @@
-﻿namespace YetAnotherEcs;
+﻿using System.Runtime.InteropServices;
+
+namespace YetAnotherEcs;
 
 /// <summary>
 /// Manages all storage for the ECS.
@@ -7,6 +9,9 @@ public class World
 {
 	private readonly IdAssigner EntityIdAssigner = new();
 	private readonly List<Entity> EntityById = [];
+
+	private readonly IdAssigner ComponentTypeIdAssigner = new();
+	private readonly Dictionary<Type, int> ComponentTypeIdByType = [];
 
 	private readonly List<int> BitmaskByEntityId = [];
 	private readonly List<object> ComponentStoreByTypeId = [];
@@ -19,10 +24,12 @@ public class World
 	/// <returns>The entity.</returns>
 	public Entity Create()
 	{
-		var id = EntityIdAssigner.Assign();
+		var id = EntityIdAssigner.Assign(out var recycled);
+		var version = recycled ? EntityById[id].Version + 1 : 0;
 
-		EntityById.EnsureCapacity(id + 1);
-		EntityById[id] = new(id, EntityById[id].Version + 1, this);
+		if (EntityById.Count < id + 1)
+			CollectionsMarshal.SetCount(EntityById, id + 1);
+		EntityById[id] = new(id, version, this);
 
 		return EntityById[id];
 	}
@@ -40,10 +47,25 @@ public class World
 		EntityIdAssigner.Recycle(entity.Id);
 	}
 
-	public void Index<T>() where T : struct, IComponent<T> =>
-		throw new NotImplementedException();
+	/// <summary>
+	/// Register a component type.
+	/// </summary>
+	/// <typeparam name="T">The component type.</typeparam>
+	/// <param name="index">Maintain an index for entity lookup.</param>
+	public void Register<T>(bool index = false) where T : struct, IComponent<T>
+	{
+		var type = typeof(T);
+		if (ComponentTypeIdByType.ContainsKey(type)) return;
 
-	public void Filter() =>
+		var id = ComponentTypeIdAssigner.Assign();
+		ComponentTypeIdByType[type] = id;
+
+		if (ComponentStoreByTypeId.Count < id + 1)
+			CollectionsMarshal.SetCount(ComponentStoreByTypeId, id + 1);
+		ComponentStoreByTypeId[id] = new ComponentStore<T>();
+	}
+
+	public Filter Filter() =>
 		throw new NotImplementedException();
 
 	public Entity Single<T>() where T : struct, IComponent<T> =>
@@ -64,7 +86,7 @@ public class World
 
 	internal Entity Set<T>(Entity entity, T component = default) where T : struct, IComponent<T>
 	{
-		var id = IComponent<T>.Id;
+		var id = ComponentTypeIdByType[typeof(T)];
 		var store = (ComponentStore<T>)ComponentStoreByTypeId[id];
 
 		BitmaskByEntityId[entity.Id] &= 1 << id;

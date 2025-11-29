@@ -11,12 +11,11 @@ public readonly record struct Entity(int Id, int Version, World World)
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <param name="component">The component.</param>
 	/// <returns>This entity.</returns>
-	public Entity Set<T>(T component = default) where T : struct, IComponent<T> =>
-		World.Set(this, component);
+	public Entity Set<T>(T component = default) where T : struct, IComponent<T> => World.Set(this, component);
 
 	public void Remove<T>() where T : struct, IComponent<T> { }
 
-	public bool Contains<T>() where T : struct, IComponent<T> => default;
+	public bool Has<T>() where T : struct, IComponent<T> => World.Has<T>(this);
 
-	public T Get<T>() where T : struct, IComponent<T> => default;
+	public T Get<T>() where T : struct, IComponent<T> => World.Get<T>(this);
 }

@@ -1,8 +1,8 @@
 ﻿namespace YetAnotherEcs;
 
-internal class IdAssigner
+internal class IdAssigner(int start = 0)
 {
-	private int NextId;
+	private int NextId = start;
 	private readonly Stack<int> RecycledIds = [];
 
 	public int Assign() => Assign(out _);

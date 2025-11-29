@@ -88,10 +88,25 @@ public class World
 		var id = ComponentTypeIdByType[typeof(T)];
 		var store = (ComponentStore<T>)ComponentStoreByTypeId[id];
 
-		BitmaskByEntityId[entity.Id] &= 1 << id;
+		BitmaskByEntityId[entity.Id] |= 1 << id;
 		store.Set(entity.Id, component);
 
 		return entity;
+	}
+
+	internal T Get<T>(Entity entity) where T : struct, IComponent<T>
+	{
+		var id = ComponentTypeIdByType[typeof(T)];
+		var store = (ComponentStore<T>)ComponentStoreByTypeId[id];
+
+		return store.Get(entity.Id);
+	}
+
+	internal bool Has<T>(Entity entity) where T : struct, IComponent<T>
+	{
+		var id = ComponentTypeIdByType[typeof(T)];
+
+		return (BitmaskByEntityId[entity.Id] & (1 << id)) > 0;
 	}
 
 	#endregion

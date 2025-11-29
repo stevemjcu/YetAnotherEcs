@@ -11,53 +11,35 @@ internal class ComponentStore
 	private readonly Dictionary<Type, int> TypeIdByType = [];
 	private readonly List<object> StoreByTypeId = [];
 
-	public void Set<T>(Entity entity, T component) where T : struct, IComponent<T>
-	{
-		var (id, store) = ParseType<T>();
-		store[entity.Id] = component;
-		entity.Bitmask |= 1 << id;
-	}
-
-	public void Remove<T>(Entity entity) where T : struct, IComponent<T>
-	{
-		var (id, store) = ParseType<T>();
-		store.Remove(entity.Id);
-		entity.Bitmask ^= 1 << id;
-	}
-
-	public bool Has<T>(Entity entity) where T : struct, IComponent<T> =>
-		(entity.Bitmask & (1 << ParseType<T>().Id)) > 0;
-
-	public T Get<T>(Entity entity) where T : struct, IComponent<T> =>
-		ParseType<T>().Store[entity.Id];
-
-	public bool TryGet<T>(Entity entity, out T component) where T : struct, IComponent<T>
-	{
-		var has = Has<T>(entity);
-		component = has ? Get<T>(entity) : default;
-		return has;
-	}
-
 	// TODO: Profile to determine if a static ID would be much better.
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private (int Id, Dictionary<int, T> Store) ParseType<T>() where T : struct, IComponent<T>
-	{
-		RegisterType<T>(out var type);
+	public int Id<T>() where T : struct, IComponent<T> =>
+		TypeIdByType[GetType<T>()];
 
-		var id = TypeIdByType[type];
-		var store = (Dictionary<int, T>)StoreByTypeId[id];
+	public void Set<T>(int id, T component) where T : struct, IComponent<T> =>
+		GetStore<T>()[id] = component;
 
-		return (id, store);
-	}
+	public void Remove<T>(int id) where T : struct, IComponent<T> =>
+		GetStore<T>().Remove(id);
+
+	public T Get<T>(int id) where T : struct, IComponent<T> =>
+		GetStore<T>()[id];
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private void RegisterType<T>(out Type type) where T : struct, IComponent<T>
-	{
-		type = typeof(T);
-		if (TypeIdByType.ContainsKey(type)) return;
-		var id = NextTypeId++;
+	private Dictionary<int, T> GetStore<T>() where T : struct, IComponent<T> =>
+		(Dictionary<int, T>)StoreByTypeId[Id<T>()];
 
-		TypeIdByType[type] = id;
-		StoreByTypeId.Add(new Dictionary<int, T>());
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private Type GetType<T>() where T : struct, IComponent<T>
+	{
+		var type = typeof(T);
+
+		if (!TypeIdByType.ContainsKey(type))
+		{
+			TypeIdByType[type] = NextTypeId++;
+			StoreByTypeId.Add(new Dictionary<int, T>());
+		}
+
+		return type;
 	}
 }

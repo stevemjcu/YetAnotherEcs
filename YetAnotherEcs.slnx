@@ -2,5 +2,6 @@
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
   </Folder>
+  <Project Path="YetAnotherEcs.Sample/YetAnotherEcs.Sample.csproj" Id="519b48b8-7a71-4692-9994-965e80bbe895" />
   <Project Path="YetAnotherEcs/YetAnotherEcs.csproj" />
 </Solution>

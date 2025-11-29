@@ -9,11 +9,10 @@ public class World
 {
 	private readonly IdAssigner EntityIdAssigner = new();
 	private readonly List<Entity> EntityById = [];
-
-	private readonly IdAssigner ComponentTypeIdAssigner = new();
-	private readonly Dictionary<Type, int> ComponentTypeIdByType = [];
-
 	private readonly List<int> BitmaskByEntityId = [];
+
+	private int NextComponentTypeId = 0;
+	private readonly Dictionary<Type, int> ComponentTypeIdByType = [];
 	private readonly List<object> ComponentStoreByTypeId = [];
 
 	#region World API
@@ -28,9 +27,12 @@ public class World
 		var version = recycled ? EntityById[id].Version + 1 : 0;
 
 		if (EntityById.Count < id + 1)
+		{
 			CollectionsMarshal.SetCount(EntityById, id + 1);
-		EntityById[id] = new(id, version, this);
+			CollectionsMarshal.SetCount(BitmaskByEntityId, id + 1);
+		}
 
+		EntityById[id] = new(id, version, this);
 		return EntityById[id];
 	}
 
@@ -56,13 +58,10 @@ public class World
 	{
 		var type = typeof(T);
 		if (ComponentTypeIdByType.ContainsKey(type)) return;
+		var id = NextComponentTypeId++;
 
-		var id = ComponentTypeIdAssigner.Assign();
 		ComponentTypeIdByType[type] = id;
-
-		if (ComponentStoreByTypeId.Count < id + 1)
-			CollectionsMarshal.SetCount(ComponentStoreByTypeId, id + 1);
-		ComponentStoreByTypeId[id] = new ComponentStore<T>();
+		ComponentStoreByTypeId.Add(new ComponentStore<T>());
 	}
 
 	public Filter Filter() =>

@@ -7,9 +7,9 @@ public record struct Filter
 {
 	public int Signature;
 
-	public Filter Include<T>() => this;
+	public Filter Include<T>() where T : struct, IComponent<T> => this;
 
-	public Filter Exclude<T>() => this;
+	public Filter Exclude<T>() where T : struct, IComponent<T> => this;
 
 	public Filter Build() => this;
 }

@@ -14,6 +14,7 @@ public class World
 	private readonly List<Entity> EntityById = [];
 
 	private readonly List<int> BitmaskByEntityId = [];
+
 	private readonly List<object> ComponentStoreByTypeId = [];
 
 	public World()
@@ -40,7 +41,8 @@ public class World
 		return EntityById[id];
 	}
 
-	public Entity Clone(Entity entity) => throw new NotImplementedException();
+	public Entity Clone(Entity entity) =>
+		throw new NotImplementedException();
 
 	/// <summary>
 	/// Destroy an entity.
@@ -52,25 +54,31 @@ public class World
 		EntityIdAssigner.Recycle(entity.Id);
 	}
 
-	public void Index<T>() where T : struct => throw new NotImplementedException();
+	public void Index<T>() where T : struct, IComponent<T> =>
+		throw new NotImplementedException();
 
-	public void Filter() => throw new NotImplementedException();
+	public void Filter() =>
+		throw new NotImplementedException();
 
-	public Entity Single<T>() where T : struct => throw new NotImplementedException();
+	public Entity Single<T>() where T : struct, IComponent<T> =>
+		throw new NotImplementedException();
 
-	public Entity Single<T>(T index) where T : struct => throw new NotImplementedException();
+	public Entity Single<T>(T index) where T : struct, IComponent<T> =>
+		throw new NotImplementedException();
 
-	public IReadOnlySet<Entity> Get<T>(T index) where T : struct => throw new NotImplementedException();
+	public IReadOnlySet<Entity> Get<T>(T index) where T : struct, IComponent<T> =>
+		throw new NotImplementedException();
 
-	public IReadOnlySet<Entity> Get(Filter filter) => throw new NotImplementedException();
+	public IReadOnlySet<Entity> Get(Filter filter) =>
+		throw new NotImplementedException();
 
 	#endregion
 
 	#region Entity API
 
-	internal Entity Set<T>(Entity entity, T component = default) where T : struct
+	internal Entity Set<T>(Entity entity, T component = default) where T : struct, IComponent<T>
 	{
-		var id = ComponentStore<T>.Id;
+		var id = IComponent<T>.Id;
 		var store = (ComponentStore<T>)ComponentStoreByTypeId[id];
 
 		BitmaskByEntityId[entity.Id] &= 1 << id;

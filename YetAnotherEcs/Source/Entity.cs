@@ -3,16 +3,8 @@
 /// <summary>
 /// An identifier associated with a component set.
 /// </summary>
-public readonly record struct Entity(int id, int worldId, int version)
+public readonly record struct Entity(int Id, int Version, World World)
 {
-	public readonly int Id = id;
-
-	public readonly int WorldId = worldId;
-
-	public readonly int Version = version;
-
-	private World World => World.WorldById[WorldId];
-
 	/// <summary>
 	/// Set a component.
 	/// </summary>

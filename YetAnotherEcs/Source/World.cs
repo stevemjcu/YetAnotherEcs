@@ -5,25 +5,11 @@
 /// </summary>
 public class World
 {
-	public readonly int Id = WorldIdAssigner.Assign();
-
-	private static readonly IdAssigner WorldIdAssigner = new();
-	internal static readonly List<World> WorldById = [];
-
 	private readonly IdAssigner EntityIdAssigner = new();
 	private readonly List<Entity> EntityById = [];
 
 	private readonly List<int> BitmaskByEntityId = [];
-
 	private readonly List<object> ComponentStoreByTypeId = [];
-
-	public World()
-	{
-		WorldById.EnsureCapacity(Id + 1);
-		WorldById[Id] = this;
-	}
-
-	~World() => WorldIdAssigner.Recycle(Id);
 
 	#region World API
 
@@ -36,7 +22,7 @@ public class World
 		var id = EntityIdAssigner.Assign();
 
 		EntityById.EnsureCapacity(id + 1);
-		EntityById[id] = new(id, Id, EntityById[id].Version + 1);
+		EntityById[id] = new(id, EntityById[id].Version + 1, this);
 
 		return EntityById[id];
 	}
@@ -50,7 +36,7 @@ public class World
 	/// <param name="entity">The entity.</param>
 	public void Destroy(Entity entity)
 	{
-		BitmaskByEntityId[Id] = 0;
+		BitmaskByEntityId[entity.Id] = 0;
 		EntityIdAssigner.Recycle(entity.Id);
 	}
 

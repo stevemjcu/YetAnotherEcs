@@ -1,7 +1,7 @@
 ﻿namespace YetAnotherEcs;
 
 /// <summary>
-/// Manages a set of components.
+/// Represents a component set associated with an entity ID.
 /// </summary>
 public record struct Entity(int Id, int Version, World World)
 {
@@ -14,13 +14,12 @@ public record struct Entity(int Id, int Version, World World)
 	/// <summary>
 	/// Copy this entity's components.
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>The new entity.</returns>
 	public readonly Entity Copy() => World.Entities.Copy(this);
 
 	/// <summary>
 	/// Destroy this entity.
 	/// </summary>
-	/// <param name="entity">The entity.</param>
 	public readonly void Destroy() => World.Entities.Destroy(this);
 
 	/// <summary>

@@ -3,7 +3,7 @@
 namespace YetAnotherEcs;
 
 /// <summary>
-/// Manages a set of entities and their storage. 
+/// Encapsulates the storage for all objects in the system.
 /// </summary>
 public class World
 {
@@ -14,7 +14,7 @@ public class World
 	/// <summary>
 	/// Create an entity.
 	/// </summary>
-	/// <returns>The entity.</returns>
+	/// <returns>The new entity.</returns>
 	public Entity Create() => Entities.Add(this);
 
 	/// <summary>
@@ -26,8 +26,8 @@ public class World
 	/// <summary>
 	/// Get an entity by a distinctive component type.
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <returns></returns>
+	/// <typeparam name="T">The component type.</typeparam>
+	/// <returns>The entity.</returns>
 	public Entity Singleton<T>() where T : struct, IComponent<T> =>
 		throw new NotImplementedException();
 }

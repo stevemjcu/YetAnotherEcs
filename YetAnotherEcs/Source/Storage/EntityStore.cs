@@ -35,7 +35,7 @@ internal class EntityStore
 
 	public void Remove(Entity entity)
 	{
-		BitmaskByEntityId[entity.Id] = 0;
+		entity.Bitmask = 0;
 		EntityIdAssigner.Recycle(entity.Id);
 	}
 

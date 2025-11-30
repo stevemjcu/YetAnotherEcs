@@ -13,8 +13,10 @@ internal class Program
 		var entity0 = world.Create().Set(position0);
 		var entity1 = world.Create().Set(position1);
 
-		Assert(entity0.Has<Position>());
-		Assert(entity1.Has<Position>());
+		var filter1 = world.Filter().Include<Position>().Register();
+
+		Assert(entity0.Contains<Position>());
+		Assert(entity1.Contains<Position>());
 
 		Assert(entity0.Get<Position>() == position0);
 		Assert(entity1.Get<Position>() == position1);
@@ -23,15 +25,15 @@ internal class Program
 		Assert(entity0.Get<Position>() == position2);
 
 		entity1.Remove<Position>();
-		Assert(!entity1.Has<Position>());
+		Assert(!entity1.Contains<Position>());
 
 		// Recycle entity 
 		world.Destroy(entity0);
 		var entity2 = world.Create();
 
-		Assert(!entity2.Has<Position>());
+		Assert(!entity2.Contains<Position>());
 		entity2.Set<Position>();
-		Assert(entity2.Has<Position>());
+		Assert(entity2.Contains<Position>());
 
 		entity1.Set<Player>();
 		Assert(world.Get<Player>() == entity1);

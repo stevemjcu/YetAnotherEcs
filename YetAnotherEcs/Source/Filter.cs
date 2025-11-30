@@ -34,16 +34,21 @@ public record struct Filter(World World)
 	/// Register filter for automatic updates.
 	/// </summary>
 	/// <returns>This filter.</returns>
-	public void Register()
+	public Filter Register()
 	{
-		if (World.Filters.Contains(this)) return;
+		if (World.Filters.Contains(this)) return this;
+		World.Filters.Add(this);
 
-		var set = new HashSet<Entity>();
-		foreach (var it in World.Entities) if (Check(it.Bitmask)) set.Add(it);
-		World.Filters.Add(this, set);
+		foreach (var it in World.Entities)
+		{
+			if (!Matches(it.Bitmask)) continue;
+			World.Filters.AddEntity(this, it);
+		}
+
+		return this;
 	}
 
-	internal bool Check(int bitmask)
+	internal bool Matches(int bitmask)
 	{
 		return
 			(bitmask & IncludeBitmask) == IncludeBitmask &&

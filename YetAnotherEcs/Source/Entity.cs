@@ -8,7 +8,11 @@ public record struct Entity(int Id, int Version, World World)
 	internal readonly int Bitmask
 	{
 		get => World.Entities.GetBitmask(this);
-		set => World.Entities.SetBitmask(this, value);
+		set
+		{
+			OnChange(Bitmask, value);
+			World.Entities.SetBitmask(this, value);
+		}
 	}
 
 	/// <summary>
@@ -39,7 +43,7 @@ public record struct Entity(int Id, int Version, World World)
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <returns>True if the component exists.</returns>
-	public readonly bool Has<T>() where T : struct =>
+	public readonly bool Contains<T>() where T : struct =>
 		(Bitmask & (1 << World.Components.Id<T>())) > 0;
 
 	/// <summary>
@@ -57,18 +61,24 @@ public record struct Entity(int Id, int Version, World World)
 	/// <returns>True if the component exists.</returns>
 	public readonly bool TryGet<T>(out T component) where T : struct
 	{
-		var has = Has<T>();
+		var has = Contains<T>();
 		component = has ? Get<T>() : default;
 		return has;
 	}
 
 	#region Filters
 
-	internal readonly Entity OnAdd<T>() => this;
+	internal readonly void OnChange(int bitmask1, int bitmask2)
+	{
+		if (bitmask1 == bitmask2) return;
 
-	internal readonly Entity OnRemove<T>() where T : struct => this;
-
-	internal readonly Entity OnDestroy() => this;
+		var filters = World.Filters;
+		foreach (var it in filters)
+		{
+			if (it.Matches(bitmask1) && !it.Matches(bitmask2)) filters.RemoveEntity(it, this);
+			else if (!it.Matches(bitmask1) && it.Matches(bitmask2)) filters.AddEntity(it, this);
+		}
+	}
 
 	#endregion
 }

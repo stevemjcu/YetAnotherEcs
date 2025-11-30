@@ -66,7 +66,7 @@ public class World
 	/// Get the entity set associated with a filter.
 	/// </summary>
 	/// <returns>The entity set.</returns>
-	public IReadOnlySet<Entity> Query(Filter filter) => throw new NotImplementedException();
+	public IReadOnlySet<Entity> Query(Filter filter) => Filters.Query(filter);
 
 	/// <summary>
 	/// Get the entity set associated with an index.

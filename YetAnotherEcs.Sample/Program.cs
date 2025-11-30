@@ -23,17 +23,20 @@ internal class Program
 
 		entity0.Set(position2);
 		Assert(entity0.Get<Position>() == position2);
+		Assert(world.Query(filter1).Count == 1);
 
 		entity1.Remove<Position>();
 		Assert(!entity1.Contains<Position>());
+		Assert(world.Query(filter1).Count == 1);
 
-		// Recycle entity 
+		// Recycle entity
 		world.Destroy(entity0);
 		var entity2 = world.Create();
-
 		Assert(!entity2.Contains<Position>());
+
 		entity2.Set<Position>();
 		Assert(entity2.Contains<Position>());
+		Assert(world.Query(filter1).Count == 1);
 
 		entity1.Set<Player>();
 		Assert(world.Get<Player>() == entity1);
@@ -41,8 +44,7 @@ internal class Program
 
 	private static void Assert(bool condition)
 	{
-		if (condition) return;
-		throw new Exception();
+		if (!condition) throw new Exception();
 	}
 
 	internal record struct Position(int X, int Y);

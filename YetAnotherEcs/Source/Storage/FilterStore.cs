@@ -7,13 +7,21 @@ internal class FilterStore
 {
 	private readonly Dictionary<Filter, HashSet<Entity>> EntitySetByFilter = [];
 
-	public void Add(Filter filter) => EntitySetByFilter[filter] = [];
+	public void Add(Filter filter) =>
+		EntitySetByFilter[filter] = [];
 
-	public bool Contains(Filter filter) => EntitySetByFilter.ContainsKey(filter);
+	public bool Contains(Filter filter) =>
+		EntitySetByFilter.ContainsKey(filter);
 
-	public bool AddEntity(Filter filter, Entity entity) => EntitySetByFilter[filter].Add(entity);
+	public IReadOnlySet<Entity> Query(Filter filter) =>
+		EntitySetByFilter[filter];
 
-	public bool RemoveEntity(Filter filter, Entity entity) => EntitySetByFilter[filter].Remove(entity);
+	public bool AddEntity(Filter filter, Entity entity) =>
+		EntitySetByFilter[filter].Add(entity);
 
-	public Dictionary<Filter, HashSet<Entity>>.KeyCollection.Enumerator GetEnumerator() => EntitySetByFilter.Keys.GetEnumerator();
+	public bool RemoveEntity(Filter filter, Entity entity) =>
+		EntitySetByFilter[filter].Remove(entity);
+
+	public Dictionary<Filter, HashSet<Entity>>.KeyCollection.Enumerator GetEnumerator() =>
+		EntitySetByFilter.Keys.GetEnumerator();
 }

@@ -34,7 +34,7 @@ internal class Program
 		Assert(entity2.Has<Position>());
 
 		entity1.Set<Player>();
-		Assert(world.Singleton<Player>() == entity1);
+		Assert(world.Single<Player>() == entity1);
 	}
 
 	private static void Assert(bool condition)

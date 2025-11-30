@@ -29,18 +29,17 @@ internal class EntityStore
 
 	public Entity Get(int id) => EntityById[id];
 
-	public Entity Copy(Entity entity) =>
-		throw new NotImplementedException();
+	public List<Entity>.Enumerator GetEnumerator() => EntityById.GetEnumerator();
 
-	public void Destroy(Entity entity)
+	public Entity Copy(Entity entity) => throw new NotImplementedException();
+
+	public void Remove(Entity entity)
 	{
 		BitmaskByEntityId[entity.Id] = 0;
 		EntityIdAssigner.Recycle(entity.Id);
 	}
 
-	internal int GetBitmask(Entity entity) =>
-		BitmaskByEntityId[entity.Id];
+	public int GetBitmask(Entity entity) => BitmaskByEntityId[entity.Id];
 
-	internal void SetBitmask(Entity entity, int value) =>
-		BitmaskByEntityId[entity.Id] = value;
+	public void SetBitmask(Entity entity, int value) => BitmaskByEntityId[entity.Id] = value;
 }

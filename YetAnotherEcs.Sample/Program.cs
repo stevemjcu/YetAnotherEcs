@@ -26,7 +26,7 @@ internal class Program
 		Assert(!entity1.Has<Position>());
 
 		// Recycle entity 
-		entity0.Destroy();
+		world.Destroy(entity0);
 		var entity2 = world.Create();
 
 		Assert(!entity2.Has<Position>());
@@ -34,7 +34,7 @@ internal class Program
 		Assert(entity2.Has<Position>());
 
 		entity1.Set<Player>();
-		Assert(world.Single<Player>() == entity1);
+		Assert(world.Get<Player>() == entity1);
 	}
 
 	private static void Assert(bool condition)

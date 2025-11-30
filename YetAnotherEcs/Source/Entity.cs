@@ -12,17 +12,6 @@ public record struct Entity(int Id, int Version, World World)
 	}
 
 	/// <summary>
-	/// Copy this entity's components.
-	/// </summary>
-	/// <returns>The new entity.</returns>
-	public readonly Entity Copy() => World.Entities.Copy(this);
-
-	/// <summary>
-	/// Destroy this entity.
-	/// </summary>
-	public readonly void Destroy() => World.Entities.Destroy(this);
-
-	/// <summary>
 	/// Set a component.
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
@@ -58,8 +47,7 @@ public record struct Entity(int Id, int Version, World World)
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <returns>The component.</returns>
-	public readonly T Get<T>() where T : struct =>
-		World.Components.Get<T>(Id);
+	public readonly T Get<T>() where T : struct => World.Components.Get<T>(Id);
 
 	/// <summary>
 	/// Get a component if it exists.
@@ -73,4 +61,14 @@ public record struct Entity(int Id, int Version, World World)
 		component = has ? Get<T>() : default;
 		return has;
 	}
+
+	#region Filters
+
+	internal readonly Entity OnAdd<T>() => this;
+
+	internal readonly Entity OnRemove<T>() where T : struct => this;
+
+	internal readonly Entity OnDestroy() => this;
+
+	#endregion
 }

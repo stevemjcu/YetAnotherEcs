@@ -1,8 +1,11 @@
 ﻿namespace YetAnotherEcs.General;
 
-public class IdPool(int start = 0)
+/// <summary>
+/// An ID pool which assigns a 0-indexed, incrementing ID which can be recycled.
+/// </summary>
+public class IdPool
 {
-	private int NextId = start;
+	private int NextId = 0;
 	private readonly Stack<int> RecycledIds = [];
 
 	public int Assign() => Assign(out _);

@@ -1,4 +1,6 @@
-﻿namespace YetAnotherEcs;
+﻿using YetAnotherEcs.Storage;
+
+namespace YetAnotherEcs;
 
 /// <summary>
 /// A filter signature associated with an entity set.
@@ -15,7 +17,7 @@ public record struct Filter(World World)
 	/// <returns>This filter.</returns>
 	public Filter Include<T>() where T : struct
 	{
-		IncludeBitmask |= 1 << World.Components.GetTypeId<T>();
+		IncludeBitmask |= ComponentStore.Bitmask<T>();
 		return this;
 	}
 
@@ -26,7 +28,7 @@ public record struct Filter(World World)
 	/// <returns>This filter.</returns>
 	public Filter Exclude<T>() where T : struct
 	{
-		ExcludeBitmask |= 1 << World.Components.GetTypeId<T>();
+		ExcludeBitmask |= ComponentStore.Bitmask<T>();
 		return this;
 	}
 

@@ -1,4 +1,6 @@
-﻿namespace YetAnotherEcs;
+﻿using YetAnotherEcs.Storage;
+
+namespace YetAnotherEcs;
 
 /// <summary>
 /// An entity identifier associated with a component set.
@@ -30,7 +32,7 @@ public record struct Entity(int Id, int Version, World World)
 	public readonly Entity Set<T>(T component = default) where T : struct
 	{
 		World.Components.Set(Id, component);
-		Bitmask |= 1 << World.Components.GetTypeId<T>();
+		Bitmask |= ComponentStore.Bitmask<T>();
 		return this;
 	}
 
@@ -41,7 +43,7 @@ public record struct Entity(int Id, int Version, World World)
 	public readonly void Remove<T>() where T : struct
 	{
 		World.Components.Remove<T>(Id);
-		Bitmask ^= 1 << World.Components.GetTypeId<T>();
+		Bitmask ^= ComponentStore.Bitmask<T>();
 	}
 
 	/// <summary>
@@ -50,7 +52,7 @@ public record struct Entity(int Id, int Version, World World)
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <returns>True if the component exists.</returns>
 	public readonly bool Contains<T>() where T : struct =>
-		(Bitmask & (1 << World.Components.GetTypeId<T>())) > 0;
+		(Bitmask & ComponentStore.Bitmask<T>()) > 0;
 
 	/// <summary>
 	/// Get a component.

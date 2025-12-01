@@ -1,13 +1,18 @@
-﻿namespace YetAnotherEcs.Storage;
+﻿using YetAnotherEcs.General;
+
+namespace YetAnotherEcs.Storage;
 
 /// <summary>
 /// Encapsulates the storage for all components.
 /// </summary>
 internal class ComponentStore
 {
-	private int NextTypeId = 0;
-	private readonly Dictionary<Type, int> TypeIdByType = [];
-	private readonly List<object> StoreByTypeId = [];
+	private readonly Dictionary<int, object> StoreByTypeId = [];
+
+	private static int Id<T>() where T : struct => TypedIdPool<ComponentStore, T>.Id;
+
+	// FIXME: Support bitmasks for more than 32 components, if necessary
+	public static int Bitmask<T>() where T : struct => 1 << Id<T>();
 
 	public void Set<T>(int id, T component) where T : struct => GetStore<T>()[id] = component;
 
@@ -15,21 +20,16 @@ internal class ComponentStore
 
 	public T Get<T>(int id) where T : struct => GetStore<T>()[id];
 
-	// TODO: Profile to determine if a static ID would be much better.
-	public int GetTypeId<T>() where T : struct => TypeIdByType[GetType<T>()];
-
-	private Dictionary<int, T> GetStore<T>() where T : struct => (Dictionary<int, T>)StoreByTypeId[GetTypeId<T>()];
-
-	private Type GetType<T>() where T : struct
+	private Dictionary<int, T> GetStore<T>() where T : struct
 	{
-		var type = typeof(T);
+		var id = Id<T>();
 
-		if (!TypeIdByType.ContainsKey(type))
+		if (!StoreByTypeId.TryGetValue(id, out var value))
 		{
-			TypeIdByType[type] = NextTypeId++;
-			StoreByTypeId.Add(new Dictionary<int, T>());
+			value = new Dictionary<int, T>();
+			StoreByTypeId.Add(id, value);
 		}
 
-		return type;
+		return (Dictionary<int, T>)value;
 	}
 }

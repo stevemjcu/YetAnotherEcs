@@ -8,19 +8,19 @@ namespace YetAnotherEcs.Storage;
 /// </summary>
 internal class EntityStore
 {
-	private readonly IdAssigner EntityIdAssigner = new();
+	private readonly IdPool EntityIdPool = new();
 	private readonly List<Entity> EntityById = [];
-	private readonly List<int> BitmaskByEntityId = [];
+	private readonly List<int> BitmaskById = [];
 
 	public Entity Add(World world)
 	{
-		var id = EntityIdAssigner.Assign(out var recycled);
+		var id = EntityIdPool.Assign(out var recycled);
 		var version = recycled ? EntityById[id].Version + 1 : 0;
 
 		if (EntityById.Count < id + 1)
 		{
 			CollectionsMarshal.SetCount(EntityById, id + 1);
-			CollectionsMarshal.SetCount(BitmaskByEntityId, id + 1);
+			CollectionsMarshal.SetCount(BitmaskById, id + 1);
 		}
 
 		EntityById[id] = new(id, version, world);
@@ -29,17 +29,15 @@ internal class EntityStore
 
 	public Entity Get(int id) => EntityById[id];
 
-	public List<Entity>.Enumerator GetEnumerator() => EntityById.GetEnumerator();
-
-	public Entity Copy(Entity entity) => throw new NotImplementedException();
-
 	public void Remove(Entity entity)
 	{
 		entity.Bitmask = 0;
-		EntityIdAssigner.Recycle(entity.Id);
+		EntityIdPool.Recycle(entity.Id);
 	}
 
-	public int GetBitmask(Entity entity) => BitmaskByEntityId[entity.Id];
+	public List<Entity>.Enumerator GetEnumerator() => EntityById.GetEnumerator();
 
-	public void SetBitmask(Entity entity, int value) => BitmaskByEntityId[entity.Id] = value;
+	public int GetBitmask(Entity entity) => BitmaskById[entity.Id];
+
+	public void SetBitmask(Entity entity, int value) => BitmaskById[entity.Id] = value;
 }

@@ -1,9 +1,7 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace YetAnotherEcs.Storage;
+﻿namespace YetAnotherEcs.Storage;
 
 /// <summary>
-/// Encapsulates the storage for all component types.
+/// Encapsulates the storage for all components.
 /// </summary>
 internal class ComponentStore
 {
@@ -11,23 +9,18 @@ internal class ComponentStore
 	private readonly Dictionary<Type, int> TypeIdByType = [];
 	private readonly List<object> StoreByTypeId = [];
 
-	public void Set<T>(int id, T component) where T : struct => Store<T>()[id] = component;
+	public void Set<T>(int id, T component) where T : struct => GetStore<T>()[id] = component;
 
-	public void Remove<T>(int id) where T : struct => Store<T>().Remove(id);
+	public void Remove<T>(int id) where T : struct => GetStore<T>().Remove(id);
 
-	public T Get<T>(int id) where T : struct => Store<T>()[id];
-
-	public int Get<T>() where T : struct => Store<T>().Keys.Single(); // Does this allocate?
+	public T Get<T>(int id) where T : struct => GetStore<T>()[id];
 
 	// TODO: Profile to determine if a static ID would be much better.
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public int Id<T>() where T : struct => TypeIdByType[Type<T>()];
+	public int GetTypeId<T>() where T : struct => TypeIdByType[GetType<T>()];
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private Dictionary<int, T> Store<T>() where T : struct => (Dictionary<int, T>)StoreByTypeId[Id<T>()];
+	private Dictionary<int, T> GetStore<T>() where T : struct => (Dictionary<int, T>)StoreByTypeId[GetTypeId<T>()];
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private Type Type<T>() where T : struct
+	private Type GetType<T>() where T : struct
 	{
 		var type = typeof(T);
 

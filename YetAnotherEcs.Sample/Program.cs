@@ -13,7 +13,7 @@ internal class Program
 		var entity0 = world.Create().Set(position0);
 		var entity1 = world.Create().Set(position1);
 
-		var filter1 = world.Filter().Include<Position>().Register();
+		var filter1 = world.Filter().Include<Position>().Build();
 
 		Assert(entity0.Contains<Position>());
 		Assert(entity1.Contains<Position>());
@@ -23,11 +23,11 @@ internal class Program
 
 		entity0.Set(position2);
 		Assert(entity0.Get<Position>() == position2);
-		Assert(world.Query(filter1).Count == 1);
+		Assert(filter1.Query().Count == 1);
 
 		entity1.Remove<Position>();
 		Assert(!entity1.Contains<Position>());
-		Assert(world.Query(filter1).Count == 1);
+		Assert(filter1.Query().Count == 1);
 
 		// Recycle entity
 		world.Destroy(entity0);
@@ -36,10 +36,7 @@ internal class Program
 
 		entity2.Set<Position>();
 		Assert(entity2.Contains<Position>());
-		Assert(world.Query(filter1).Count == 1);
-
-		entity1.Set<Player>();
-		Assert(world.Get<Player>() == entity1);
+		Assert(filter1.Query().Count == 1);
 	}
 
 	private static void Assert(bool condition)

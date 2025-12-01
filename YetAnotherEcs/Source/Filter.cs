@@ -15,7 +15,7 @@ public record struct Filter(World World)
 	/// <returns>This filter.</returns>
 	public Filter Include<T>() where T : struct
 	{
-		IncludeBitmask |= 1 << World.Components.Id<T>();
+		IncludeBitmask |= 1 << World.Components.GetTypeId<T>();
 		return this;
 	}
 
@@ -26,7 +26,7 @@ public record struct Filter(World World)
 	/// <returns>This filter.</returns>
 	public Filter Exclude<T>() where T : struct
 	{
-		ExcludeBitmask |= 1 << World.Components.Id<T>();
+		ExcludeBitmask |= 1 << World.Components.GetTypeId<T>();
 		return this;
 	}
 
@@ -34,21 +34,26 @@ public record struct Filter(World World)
 	/// Register filter for automatic updates.
 	/// </summary>
 	/// <returns>This filter.</returns>
-	public Filter Register()
+	public readonly Filter Build()
 	{
 		if (World.Filters.Contains(this)) return this;
 		World.Filters.Add(this);
 
 		foreach (var it in World.Entities)
 		{
-			if (!Matches(it.Bitmask)) continue;
-			World.Filters.AddEntity(this, it);
+			World.Filters.Evaluate(it.Id, it.Bitmask);
 		}
 
 		return this;
 	}
 
-	internal bool Matches(int bitmask)
+	/// <summary>
+	/// Get the entity ID set associated with a filter.
+	/// </summary>
+	/// <returns>The entity set.</returns>
+	public readonly IReadOnlySet<int> Query() => World.Filters.Query(this);
+
+	internal readonly bool Matches(int bitmask)
 	{
 		return
 			(bitmask & IncludeBitmask) == IncludeBitmask &&

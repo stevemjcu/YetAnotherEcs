@@ -5,23 +5,20 @@
 /// </summary>
 internal class FilterStore
 {
-	private readonly Dictionary<Filter, HashSet<Entity>> EntitySetByFilter = [];
+	private readonly Dictionary<Filter, HashSet<int>> IdSetByFilter = [];
 
-	public void Add(Filter filter) =>
-		EntitySetByFilter[filter] = [];
+	public void Add(Filter filter) => IdSetByFilter[filter] = [];
 
-	public bool Contains(Filter filter) =>
-		EntitySetByFilter.ContainsKey(filter);
+	public bool Contains(Filter filter) => IdSetByFilter.ContainsKey(filter);
 
-	public IReadOnlySet<Entity> Query(Filter filter) =>
-		EntitySetByFilter[filter];
+	public IReadOnlySet<int> Query(Filter filter) => IdSetByFilter[filter];
 
-	public bool AddEntity(Filter filter, Entity entity) =>
-		EntitySetByFilter[filter].Add(entity);
-
-	public bool RemoveEntity(Filter filter, Entity entity) =>
-		EntitySetByFilter[filter].Remove(entity);
-
-	public Dictionary<Filter, HashSet<Entity>>.KeyCollection.Enumerator GetEnumerator() =>
-		EntitySetByFilter.Keys.GetEnumerator();
+	public void Evaluate(int id, int bitmask)
+	{
+		foreach (var (k, v) in IdSetByFilter)
+		{
+			if (!k.Matches(bitmask)) v.Remove(id);
+			else if (k.Matches(bitmask)) v.Add(id);
+		}
+	}
 }

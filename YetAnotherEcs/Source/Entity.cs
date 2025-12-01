@@ -10,8 +10,8 @@ public record struct Entity(int Id, int Version, World World)
 		get => World.Entities.GetBitmask(this);
 		set
 		{
-			OnChange(Bitmask, value);
 			World.Entities.SetBitmask(this, value);
+			World.Filters.Evaluate(Id, value);
 		}
 	}
 
@@ -24,7 +24,7 @@ public record struct Entity(int Id, int Version, World World)
 	public readonly Entity Set<T>(T component = default) where T : struct
 	{
 		World.Components.Set(Id, component);
-		Bitmask |= 1 << World.Components.Id<T>();
+		Bitmask |= 1 << World.Components.GetTypeId<T>();
 		return this;
 	}
 
@@ -35,7 +35,7 @@ public record struct Entity(int Id, int Version, World World)
 	public readonly void Remove<T>() where T : struct
 	{
 		World.Components.Remove<T>(Id);
-		Bitmask ^= 1 << World.Components.Id<T>();
+		Bitmask ^= 1 << World.Components.GetTypeId<T>();
 	}
 
 	/// <summary>
@@ -44,7 +44,7 @@ public record struct Entity(int Id, int Version, World World)
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <returns>True if the component exists.</returns>
 	public readonly bool Contains<T>() where T : struct =>
-		(Bitmask & (1 << World.Components.Id<T>())) > 0;
+		(Bitmask & (1 << World.Components.GetTypeId<T>())) > 0;
 
 	/// <summary>
 	/// Get a component.
@@ -65,20 +65,4 @@ public record struct Entity(int Id, int Version, World World)
 		component = has ? Get<T>() : default;
 		return has;
 	}
-
-	#region Filters
-
-	internal readonly void OnChange(int bitmask1, int bitmask2)
-	{
-		if (bitmask1 == bitmask2) return;
-
-		var filters = World.Filters;
-		foreach (var it in filters)
-		{
-			if (it.Matches(bitmask1) && !it.Matches(bitmask2)) filters.RemoveEntity(it, this);
-			else if (!it.Matches(bitmask1) && it.Matches(bitmask2)) filters.AddEntity(it, this);
-		}
-	}
-
-	#endregion
 }

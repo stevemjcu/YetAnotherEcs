@@ -10,10 +10,16 @@ public record struct Entity(int Id, int Version, World World)
 		get => World.Entities.GetBitmask(this);
 		set
 		{
+			if (Bitmask == value) return;
 			World.Entities.SetBitmask(this, value);
 			World.Filters.Evaluate(Id, value);
 		}
 	}
+
+	/// <summary>
+	/// Destroy this entity.
+	/// </summary>
+	public readonly void Destroy() => World.Entities.Remove(this);
 
 	/// <summary>
 	/// Set a component.

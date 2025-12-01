@@ -25,11 +25,6 @@ public class World
 	public Entity Create() => Entities.Add(this);
 
 	/// <summary>
-	/// Destroy an entity.
-	/// </summary>
-	public void Destroy(Entity entity) => Entities.Remove(entity);
-
-	/// <summary>
 	/// Create an empty filter.
 	/// </summary>
 	/// <returns>The filter.</returns>

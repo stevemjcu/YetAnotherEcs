@@ -11,7 +11,7 @@ internal class FilterStore
 
 	public bool Contains(Filter filter) => IdSetByFilter.ContainsKey(filter);
 
-	public IReadOnlySet<int> Query(Filter filter) => IdSetByFilter[filter];
+	public IReadOnlySet<int> AsSet(Filter filter) => IdSetByFilter[filter];
 
 	public void Evaluate(int id, int bitmask)
 	{

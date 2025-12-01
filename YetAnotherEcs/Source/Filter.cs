@@ -9,7 +9,7 @@ public record struct Filter(World World)
 	private int ExcludeBitmask;
 
 	/// <summary>
-	/// Include a component type on the filter.
+	/// Include a component type.
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <returns>This filter.</returns>
@@ -20,7 +20,7 @@ public record struct Filter(World World)
 	}
 
 	/// <summary>
-	/// Exclude a component type on the filter.
+	/// Exclude a component type.
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <returns>This filter.</returns>
@@ -31,7 +31,7 @@ public record struct Filter(World World)
 	}
 
 	/// <summary>
-	/// Register filter for automatic updates.
+	/// Populate and register for automatic updates.
 	/// </summary>
 	/// <returns>This filter.</returns>
 	public readonly Filter Build()
@@ -48,10 +48,10 @@ public record struct Filter(World World)
 	}
 
 	/// <summary>
-	/// Get the entity ID set associated with a filter.
+	/// Get the associated entity ID set.
 	/// </summary>
-	/// <returns>The entity set.</returns>
-	public readonly IReadOnlySet<int> Query() => World.Filters.Query(this);
+	/// <returns>The entity ID set.</returns>
+	public readonly IReadOnlySet<int> AsSet() => World.Filters.AsSet(this);
 
 	internal readonly bool Matches(int bitmask)
 	{

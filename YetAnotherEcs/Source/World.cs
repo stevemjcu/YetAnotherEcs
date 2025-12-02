@@ -34,5 +34,9 @@ public class World
 	/// Create an index.
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
-	public void Index<T>() where T : struct => Components.Index<T>();
+	public Index<T> Index<T>() where T : struct
+	{
+		Components.Index<T>();
+		return new();
+	}
 }

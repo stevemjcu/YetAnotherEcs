@@ -11,7 +11,7 @@ internal class ComponentStore
 
 	private static int Id<T>() where T : struct => TypedIdPool<ComponentStore, T>.Id;
 
-	// FIXME: Support bitmasks for more than 32 components, if necessary
+	// TODO: Support bitmasks for more than 32 components, if necessary
 	public static int Bitmask<T>() where T : struct => 1 << Id<T>();
 
 	public void Set<T>(int id, T component) where T : struct => GetStore<T>().Set(id, component);
@@ -21,6 +21,8 @@ internal class ComponentStore
 	public T Get<T>(int id) where T : struct => GetStore<T>().Get(id);
 
 	public void Index<T>() where T : struct => GetStore<T>().Indexed = true;
+
+	public IReadOnlySet<int> AsSet<T>(T index) where T : struct => GetStore<T>().AsSet(index);
 
 	private ComponentStore<T> GetStore<T>() where T : struct
 	{
@@ -65,4 +67,6 @@ internal class ComponentStore<T> where T : struct
 	}
 
 	public T Get(int id) => ComponentById[id];
+
+	public IReadOnlySet<int> AsSet(T component) => IdSetByComponent[component];
 }

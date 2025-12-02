@@ -53,6 +53,7 @@ public record struct Filter(World World)
 	/// Get the associated entity ID set.
 	/// </summary>
 	/// <returns>The entity ID set.</returns>
+	// TODO: Can expose enumerator and contains method rather than reveal implementation
 	public readonly IReadOnlySet<int> AsSet() => World.Filters.AsSet(this);
 
 	internal readonly bool Matches(int bitmask)

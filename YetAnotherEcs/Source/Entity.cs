@@ -21,6 +21,7 @@ public record struct Entity(int Id, int Version, World World)
 	/// <summary>
 	/// Destroy this entity.
 	/// </summary>
+	// TODO: This should remove entity from indexes too
 	public readonly void Destroy() => World.Entities.Remove(this);
 
 	/// <summary>

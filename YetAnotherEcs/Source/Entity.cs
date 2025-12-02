@@ -9,11 +9,11 @@ public record struct Entity(int Id, int Version, World World)
 {
 	internal readonly int Bitmask
 	{
-		get => World.Entities.GetBitmask(this);
+		get => World.Entities.GetBitmask(Id);
 		set
 		{
 			if (Bitmask == value) return;
-			World.Entities.SetBitmask(this, value);
+			World.Entities.SetBitmask(Id, value);
 			World.Filters.Evaluate(Id, value);
 		}
 	}
@@ -22,7 +22,11 @@ public record struct Entity(int Id, int Version, World World)
 	/// Destroy this entity.
 	/// </summary>
 	// TODO: This should remove entity from indexes too
-	public readonly void Destroy() => World.Entities.Remove(this);
+	public readonly void Destroy()
+	{
+		Bitmask = 0;
+		World.Entities.Recycle(Id);
+	}
 
 	/// <summary>
 	/// Set a component.

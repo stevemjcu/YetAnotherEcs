@@ -29,15 +29,11 @@ internal class EntityStore
 
 	public Entity Get(int id) => EntityById[id];
 
-	public void Remove(Entity entity)
-	{
-		entity.Bitmask = 0;
-		EntityIdPool.Recycle(entity.Id);
-	}
+	public void Recycle(int id) => EntityIdPool.Recycle(id);
 
 	public List<Entity>.Enumerator GetEnumerator() => EntityById.GetEnumerator();
 
-	public int GetBitmask(Entity entity) => BitmaskById[entity.Id];
+	public int GetBitmask(int id) => BitmaskById[id];
 
-	public void SetBitmask(Entity entity, int value) => BitmaskById[entity.Id] = value;
+	public void SetBitmask(int id, int value) => BitmaskById[id] = value;
 }

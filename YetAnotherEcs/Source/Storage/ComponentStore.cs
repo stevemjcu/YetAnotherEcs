@@ -3,7 +3,7 @@
 namespace YetAnotherEcs.Storage;
 
 /// <summary>
-/// Encapsulates the storage for all components.
+/// Encapsulates the storage for all component types.
 /// </summary>
 internal class ComponentStore
 {
@@ -20,6 +20,8 @@ internal class ComponentStore
 
 	public T Get<T>(int id) where T : struct => GetStore<T>().Get(id);
 
+	public void Index<T>() where T : struct => GetStore<T>().Indexed = true;
+
 	private ComponentStore<T> GetStore<T>() where T : struct
 	{
 		var id = Id<T>();
@@ -34,9 +36,13 @@ internal class ComponentStore
 	}
 }
 
+/// <summary>
+/// Encapsulates the storage for one component type.
+/// </summary>
+/// <typeparam name="T">The component type.</typeparam>
 internal class ComponentStore<T> where T : struct
 {
-	bool Indexed = false;
+	public bool Indexed = false;
 
 	private readonly Dictionary<int, T> ComponentById = [];
 	private readonly Dictionary<T, HashSet<int>> IdSetByComponent = [];

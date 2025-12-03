@@ -21,11 +21,11 @@ public record struct Entity(int Id, int Version, World World)
 	/// <summary>
 	/// Destroy this entity.
 	/// </summary>
-	// TODO: This should remove entity from indexes too
 	public readonly void Destroy()
 	{
+		// TODO: This should remove entity from indexes too
 		Bitmask = 0;
-		World.Entities.Recycle(Id);
+		World.Entities.Remove(Id);
 	}
 
 	/// <summary>
@@ -36,7 +36,7 @@ public record struct Entity(int Id, int Version, World World)
 	/// <returns>This entity.</returns>
 	public readonly Entity Set<T>(T component = default) where T : struct
 	{
-		World.Components.Set(Id, component);
+		World.Components.Store<T>().Set(Id, component);
 		Bitmask |= ComponentStore.Bitmask<T>();
 		return this;
 	}
@@ -47,7 +47,7 @@ public record struct Entity(int Id, int Version, World World)
 	/// <typeparam name="T">The component type.</typeparam>
 	public readonly void Remove<T>() where T : struct
 	{
-		World.Components.Remove<T>(Id);
+		World.Components.Store<T>().Remove(Id);
 		Bitmask ^= ComponentStore.Bitmask<T>();
 	}
 
@@ -56,15 +56,14 @@ public record struct Entity(int Id, int Version, World World)
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <returns>True if the component exists.</returns>
-	public readonly bool Contains<T>() where T : struct =>
-		(Bitmask & ComponentStore.Bitmask<T>()) > 0;
+	public readonly bool Contains<T>() where T : struct => (Bitmask & ComponentStore.Bitmask<T>()) > 0;
 
 	/// <summary>
 	/// Get a component.
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <returns>The component.</returns>
-	public readonly T Get<T>() where T : struct => World.Components.Get<T>(Id);
+	public readonly T Get<T>() where T : struct => World.Components.Store<T>().Get(Id);
 
 	/// <summary>
 	/// Get a component if it exists.

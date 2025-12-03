@@ -29,7 +29,7 @@ internal class EntityStore
 
 	public Entity Get(int id) => EntityById[id];
 
-	public void Recycle(int id) => EntityIdPool.Recycle(id);
+	public void Remove(int id) => EntityIdPool.Recycle(id);
 
 	public List<Entity>.Enumerator GetEnumerator() => EntityById.GetEnumerator();
 

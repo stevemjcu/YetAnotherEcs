@@ -36,7 +36,7 @@ public class World
 	/// <typeparam name="T">The component type.</typeparam>
 	public Index<T> Index<T>() where T : struct
 	{
-		Components.Index<T>();
+		Components.Store<T>().Indexed = true;
 		return new();
 	}
 }

@@ -1,16 +1,30 @@
 ﻿namespace YetAnotherEcs;
 
 /// <summary>
-/// An indexed component type associated with many entity sets.
+/// A component index associated with an entity set.
 /// </summary>
 /// <typeparam name="T">The component type.</typeparam>
 public struct Index<T>(World World) where T : struct
 {
+	private T Target;
+
+	public Index<T> On(T index)
+	{
+		Target = index;
+		return this;
+	}
+
 	/// <summary>
-	/// Get the associated entity ID set for the specified index.
+	/// Returns true if the ID exists in this entity set.
 	/// </summary>
-	/// <param name="index">The component.</param>
-	/// <returns>The entity ID set.</returns>
-	// TODO: Can expose enumerator and contains method rather than reveal implementation
-	public readonly IReadOnlySet<int> AsSet(T index) => World.Components.AsSet(index);
+	/// <param name="id">The entity ID.</param>
+	/// <returns>True if this set contains the entity ID.</returns>
+	public readonly bool Contains(int id) =>
+		World.Components.Store<T>().Contains(Target, id);
+
+	/// <summary>
+	/// Enumerates this entity set by ID.
+	/// </summary>
+	public readonly HashSet<int>.Enumerator GetEnumerator() =>
+		World.Components.Store<T>().GetEnumerator(Target);
 }

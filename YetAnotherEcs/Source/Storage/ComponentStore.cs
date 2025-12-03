@@ -14,17 +14,7 @@ internal class ComponentStore
 	// TODO: Support bitmasks for more than 32 components, if necessary
 	public static int Bitmask<T>() where T : struct => 1 << Id<T>();
 
-	public void Set<T>(int id, T component) where T : struct => GetStore<T>().Set(id, component);
-
-	public void Remove<T>(int id) where T : struct => GetStore<T>().Remove(id);
-
-	public T Get<T>(int id) where T : struct => GetStore<T>().Get(id);
-
-	public void Index<T>() where T : struct => GetStore<T>().Indexed = true;
-
-	public IReadOnlySet<int> AsSet<T>(T index) where T : struct => GetStore<T>().AsSet(index);
-
-	private ComponentStore<T> GetStore<T>() where T : struct
+	public ComponentStore<T> Store<T>() where T : struct
 	{
 		var id = Id<T>();
 
@@ -68,5 +58,9 @@ internal class ComponentStore<T> where T : struct
 
 	public T Get(int id) => ComponentById[id];
 
-	public IReadOnlySet<int> AsSet(T component) => IdSetByComponent[component];
+	public bool Contains(T index, int id) =>
+		IdSetByComponent[index].Contains(id);
+
+	public HashSet<int>.Enumerator GetEnumerator(T index) =>
+		IdSetByComponent[index].GetEnumerator();
 }

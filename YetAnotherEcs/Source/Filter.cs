@@ -50,11 +50,16 @@ public record struct Filter(World World)
 	}
 
 	/// <summary>
-	/// Get the associated entity ID set.
+	/// Returns true if the ID exists in this entity set.
 	/// </summary>
-	/// <returns>The entity ID set.</returns>
-	// TODO: Can expose enumerator and contains method rather than reveal implementation
-	public readonly IReadOnlySet<int> AsSet() => World.Filters.AsSet(this);
+	/// <param name="id">The entity ID.</param>
+	/// <returns>True if this set contains the entity ID.</returns>
+	public readonly bool Contains(int id) => Matches(World.Entities.GetBitmask(id));
+
+	/// <summary>
+	/// Enumerates this entity set by ID.
+	/// </summary>
+	public readonly HashSet<int>.Enumerator GetEnumerator() => World.Filters.GetEnumerator(this);
 
 	internal readonly bool Matches(int bitmask)
 	{

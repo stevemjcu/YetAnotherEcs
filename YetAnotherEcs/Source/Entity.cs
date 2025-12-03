@@ -36,7 +36,7 @@ public record struct Entity(int Id, int Version, World World)
 	/// <returns>This entity.</returns>
 	public readonly Entity Set<T>(T component = default) where T : struct
 	{
-		World.Components.Store<T>().Set(Id, component);
+		World.Components.Store<T>()[Id] = component;
 		Bitmask |= ComponentStore.Bitmask<T>();
 		return this;
 	}
@@ -63,7 +63,7 @@ public record struct Entity(int Id, int Version, World World)
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <returns>The component.</returns>
-	public readonly T Get<T>() where T : struct => World.Components.Store<T>().Get(Id);
+	public readonly T Get<T>() where T : struct => World.Components.Store<T>()[Id];
 
 	/// <summary>
 	/// Get a component if it exists.

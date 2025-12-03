@@ -3,27 +3,26 @@
 namespace YetAnotherEcs.Storage;
 
 /// <summary>
-/// Encapsulates the storage for all component types.
+/// Encapsulates the storage for all component types (up to 32).
 /// </summary>
 internal class ComponentStore
 {
 	private readonly Dictionary<int, object> StoreByTypeId = [];
-	private int IndexedBitmask;
+	private int IndexBitmask;
 
 	private static int Id<T>() where T : struct => TypedIdPool<ComponentStore, T>.Id;
 
-	// TODO: Support bitmasks for more than 32 components, if necessary
 	public static int Bitmask<T>() where T : struct => 1 << Id<T>();
 
 	public void Index<T>() where T : struct
 	{
-		IndexedBitmask |= Bitmask<T>();
+		IndexBitmask |= Bitmask<T>();
 		Store<T>().Indexed = true;
 	}
 
 	public void ClearIndices(int id, int bitmask)
 	{
-		bitmask &= IndexedBitmask;
+		bitmask &= IndexBitmask;
 		for (var i = 0; bitmask > 0; i++)
 		{
 			var mask = 1 << i;
@@ -58,40 +57,54 @@ internal class ComponentStore<T> : IComponentStore where T : struct
 	public bool Indexed;
 
 	private readonly Dictionary<int, T> ComponentById = [];
-	private readonly Dictionary<T, HashSet<int>> IdSetByComponent = [];
+	private readonly Dictionary<T, HashSet<int>> IdSetByIndex = []; // indexed
+	private static readonly HashSet<int> Empty = [];
 
-	public T Get(int id) => ComponentById[id];
-
-	public void Set(int id, T component)
+	public T this[int id]
 	{
-		if (Indexed)
+		get => ComponentById[id];
+		set
 		{
-			if (ComponentById.ContainsKey(id)) IdSetByComponent[Get(id)].Remove(id);
-			Initialize(component);
-			IdSetByComponent[component].Add(id);
-		}
+			if (Indexed)
+			{
+				RemoveIndex(id);
+				AddIndex(value, id);
+			}
 
-		ComponentById[id] = component;
+			ComponentById[id] = value;
+		}
 	}
 
 	public void Remove(int id)
 	{
-		if (Indexed) IdSetByComponent[Get(id)].Remove(id);
+		if (Indexed) RemoveIndex(id);
 		ComponentById.Remove(id);
 	}
 
 	#region Index
 
-	public void Initialize(T index)
-	{
-		if (!IdSetByComponent.ContainsKey(index)) IdSetByComponent[index] = [];
-	}
-
 	public bool Contains(T index, int id) =>
-		IdSetByComponent[index].Contains(id);
+		IdSetByIndex.TryGetValue(index, out var set) && set.Contains(id);
 
 	public HashSet<int>.Enumerator GetEnumerator(T index) =>
-		IdSetByComponent[index].GetEnumerator();
+		IdSetByIndex.TryGetValue(index, out var set) ? set.GetEnumerator() : Empty.GetEnumerator();
+
+	private void AddIndex(T index, int id)
+	{
+		if (IdSetByIndex.TryGetValue(index, out var set)) set.Add(id);
+		else IdSetByIndex[index] = [id];
+	}
+
+	private void RemoveIndex(int id)
+	{
+		if (!ComponentById.ContainsKey(id)) return;
+
+		var index = this[id];
+		var set = IdSetByIndex[index];
+
+		set.Remove(id);
+		if (set.Count == 0) IdSetByIndex.Remove(index);
+	}
 
 	#endregion
 }

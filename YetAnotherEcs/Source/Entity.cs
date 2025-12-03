@@ -23,7 +23,7 @@ public record struct Entity(int Id, int Version, World World)
 	/// </summary>
 	public readonly void Destroy()
 	{
-		// TODO: This should remove entity from indexes too
+		World.Components.ClearIndices(Id, Bitmask);
 		Bitmask = 0;
 		World.Entities.Remove(Id);
 	}
@@ -71,7 +71,7 @@ public record struct Entity(int Id, int Version, World World)
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <param name="component">The component.</param>
 	/// <returns>True if the component exists.</returns>
-	public readonly bool TryGet<T>(out T component) where T : struct
+	public readonly bool TryGetValue<T>(out T component) where T : struct
 	{
 		var has = Contains<T>();
 		component = has ? Get<T>() : default;

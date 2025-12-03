@@ -21,11 +21,11 @@ public class World
 	/// <summary>
 	/// Create an entity.
 	/// </summary>
-	/// <returns>The new entity.</returns>
+	/// <returns>The entity.</returns>
 	public Entity Create() => Entities.Add(this);
 
 	/// <summary>
-	/// Create an empty filter.
+	/// Create a filter.
 	/// </summary>
 	/// <returns>The filter.</returns>
 	public Filter Filter() => new(this);
@@ -34,9 +34,10 @@ public class World
 	/// Create an index.
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
+	/// <returns>The index.</returns>
 	public Index<T> Index<T>() where T : struct
 	{
-		Components.Store<T>().Indexed = true;
-		return new();
+		Components.Index<T>();
+		return new(this);
 	}
 }

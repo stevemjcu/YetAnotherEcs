@@ -13,6 +13,7 @@ public struct Index<T>(World World) : IEnumerable<int> where T : struct
 	public Index<T> On(T index)
 	{
 		Target = index;
+		World.Components.Store<T>().Initialize(index);
 		return this;
 	}
 

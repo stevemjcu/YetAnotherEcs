@@ -1,10 +1,12 @@
-﻿namespace YetAnotherEcs;
+﻿using System.Collections;
+
+namespace YetAnotherEcs;
 
 /// <summary>
 /// A component index associated with an entity set.
 /// </summary>
 /// <typeparam name="T">The component type.</typeparam>
-public struct Index<T>(World World) where T : struct
+public struct Index<T>(World World) : IEnumerable<int> where T : struct
 {
 	private T Target;
 
@@ -27,4 +29,8 @@ public struct Index<T>(World World) where T : struct
 	/// </summary>
 	public readonly HashSet<int>.Enumerator GetEnumerator() =>
 		World.Components.Store<T>().GetEnumerator(Target);
+
+	readonly IEnumerator<int> IEnumerable<int>.GetEnumerator() => GetEnumerator();
+
+	readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

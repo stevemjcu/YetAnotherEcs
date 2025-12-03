@@ -1,11 +1,12 @@
-﻿using YetAnotherEcs.Storage;
+﻿using System.Collections;
+using YetAnotherEcs.Storage;
 
 namespace YetAnotherEcs;
 
 /// <summary>
 /// A filter signature associated with an entity set.
 /// </summary>
-public record struct Filter(World World)
+public record struct Filter(World World) : IEnumerable<int>
 {
 	private int IncludeBitmask;
 	private int ExcludeBitmask;
@@ -67,4 +68,8 @@ public record struct Filter(World World)
 			(bitmask & IncludeBitmask) == IncludeBitmask &&
 			(bitmask & ExcludeBitmask) == 0;
 	}
+
+	readonly IEnumerator<int> IEnumerable<int>.GetEnumerator() => GetEnumerator();
+
+	readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

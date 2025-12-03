@@ -24,13 +24,13 @@ public class SmokeTests
 		Assert.AreEqual(entity0.Get<Position>(), position0);
 		Assert.IsTrue(entity1.Contains<Position>());
 		Assert.AreEqual(entity1.Get<Position>(), position1);
-		Assert.HasCount(2, filter1.AsSet());
+		Assert.HasCount(2, filter1);
 
 		entity0.Set(position2);
 		Assert.AreEqual(entity0.Get<Position>(), position2);
-		Assert.HasCount(2, filter1.AsSet());
+		Assert.HasCount(2, filter1);
 
-		foreach (var id in filter1.AsSet())
+		foreach (var id in filter1)
 		{
 			var entity = world.Get(id);
 			var position = entity.Get<Position>();
@@ -40,15 +40,15 @@ public class SmokeTests
 
 		entity1.Remove<Position>();
 		Assert.IsFalse(entity1.Contains<Position>());
-		Assert.HasCount(1, filter1.AsSet());
+		Assert.HasCount(1, filter1);
 
 		entity0.Destroy();
 		var entity2 = world.Create();
 		Assert.IsFalse(entity2.Contains<Position>());
-		Assert.HasCount(0, filter1.AsSet());
+		Assert.HasCount(0, filter1);
 
 		entity2.Set<Position>();
 		Assert.IsTrue(entity2.Contains<Position>());
-		Assert.HasCount(1, filter1.AsSet());
+		Assert.HasCount(1, filter1);
 	}
 }

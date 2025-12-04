@@ -1,5 +1,5 @@
 ﻿namespace YetAnotherEcs.Alt;
 
-public struct Filter
+public struct FilterBuilder
 {
 }

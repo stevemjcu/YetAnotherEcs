@@ -1,46 +1,37 @@
-﻿namespace YetAnotherEcs.Alt;
+﻿using YetAnotherEcs.Alt.Storage;
+
+namespace YetAnotherEcs.Alt;
 
 public class World
 {
-	#region Entity
+	internal EntityPool Entities;
+	internal QueryPool Queries;
 
-	public int Create(int id = -1) => throw new NotImplementedException();
+	public World()
+	{
+		Entities = new();
+		Queries = new(Entities);
+	}
 
-	public int Recycle(int id) => throw new NotImplementedException();
+	public int Create() => Entities.Create();
 
-	public bool Exists(int id) => throw new NotImplementedException();
+	public void Destroy(int id) => Entities.Destroy(id);
 
-	#endregion
+	public bool Exists(int id) => Entities.Exists(id);
 
-	#region Component
+	public void Set<T>(int id, T value) where T : struct => Entities.Set(id, value);
 
-	public void Set<T>(int id, T value) where T : struct => throw new NotImplementedException();
+	public void Remove<T>(int id) where T : struct => Entities.Remove<T>(id);
 
-	public void Remove<T>(int id, T value) where T : struct => throw new NotImplementedException();
+	public bool Has<T>(int id) where T : struct => Entities.Has<T>(id);
 
-	public void Has<T>(int id) where T : struct => throw new NotImplementedException();
+	public T Get<T>(int id) where T : struct => Entities.Get<T>(id);
 
-	public T Get<T>() where T : struct => throw new NotImplementedException();
-
-	#endregion
-
-	#region Query
-
-	public Filter Filter() => throw new NotImplementedException();
+	public FilterBuilder Filter() => throw new NotImplementedException();
 
 	public void Index<T>() => throw new NotImplementedException();
 
-	#endregion
-
-	#region Enumerate
-
-	public int Single<T>() => throw new NotImplementedException();
-
-	public int Single<T>(T index) => throw new NotImplementedException();
-
-	public IReadOnlySet<int> Query(Filter filter) => throw new NotImplementedException();
+	public IReadOnlySet<int> Query(int signature) => throw new NotImplementedException();
 
 	public IReadOnlySet<int> Query<T>(T index) => throw new NotImplementedException();
-
-	#endregion
 }

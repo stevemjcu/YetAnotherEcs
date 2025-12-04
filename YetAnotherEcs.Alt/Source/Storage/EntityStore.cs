@@ -1,9 +1,9 @@
 ﻿using System.Runtime.InteropServices;
 using YetAnotherEcs.General;
 
-namespace YetAnotherEcs.Alt.Storage;
+namespace YetAnotherEcs.Storage;
 
-internal class EntityPool
+internal class EntityStore
 {
 	public event Action<int, int>? BitmaskChanged;
 	public event Action<int, int, int, int>? IndexChanged;
@@ -26,7 +26,7 @@ internal class EntityPool
 		return (Dictionary<int, T>)value;
 	}
 
-	private static int TypeId<T>() where T : struct => TypedIdPool<EntityPool, T>.Id;
+	private static int TypeId<T>() where T : struct => TypedIdPool<EntityStore, T>.Id;
 
 	private static int TypeBitmask<T>() where T : struct => 1 << TypeId<T>();
 

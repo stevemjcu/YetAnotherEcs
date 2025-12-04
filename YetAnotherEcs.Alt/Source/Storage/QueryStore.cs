@@ -1,6 +1,6 @@
-﻿namespace YetAnotherEcs.Alt.Storage;
+﻿namespace YetAnotherEcs.Storage;
 
-internal class QueryPool
+internal class QueryStore
 {
 	// include bitmask, exclude bitmask
 	private Dictionary<(int, int), HashSet<int>> Filters = [];
@@ -8,7 +8,7 @@ internal class QueryPool
 	// type id, value hash
 	private Dictionary<(int, int), HashSet<int>> Indexes = [];
 
-	public QueryPool(EntityPool pool)
+	public QueryStore(EntityStore pool)
 	{
 		pool.BitmaskChanged += OnBitmaskChanged;
 		pool.IndexChanged += OnIndexChanged;

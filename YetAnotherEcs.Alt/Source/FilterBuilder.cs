@@ -1,4 +1,4 @@
-﻿namespace YetAnotherEcs.Alt;
+﻿namespace YetAnotherEcs;
 
 public struct FilterBuilder
 {

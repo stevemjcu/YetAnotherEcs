@@ -1,11 +1,11 @@
-﻿using YetAnotherEcs.Alt.Storage;
+﻿using YetAnotherEcs.Storage;
 
-namespace YetAnotherEcs.Alt;
+namespace YetAnotherEcs;
 
 public class World
 {
-	internal EntityPool Entities;
-	internal QueryPool Queries;
+	internal EntityStore Entities;
+	internal QueryStore Queries;
 
 	public World()
 	{

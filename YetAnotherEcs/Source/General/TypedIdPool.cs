@@ -6,11 +6,11 @@ public static class TypedIdPool<Context, T>
 
 	static TypedIdPool()
 	{
-		Id = TypedIdPool<T>.NextId++;
+		Id = TypedIdPool<Context>.NextId++;
 	}
 }
 
-internal static class TypedIdPool<T>
+internal static class TypedIdPool<Context>
 {
 	internal static int NextId = 0;
 }

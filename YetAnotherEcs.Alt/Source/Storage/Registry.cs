@@ -3,17 +3,17 @@ using YetAnotherEcs.General;
 
 namespace YetAnotherEcs.Storage;
 
-internal class EntityStore
+internal class Registry
 {
-	public event Action<int, int>? BitmaskChanged;
-	public event Action<int, int, int>? IndexChanged;
+	public event Action<int, int>? StructureChanged;
+	public event Action<int, int, int>? ValueChanged;
 	public event Action<int>? EntityDestroyed;
 
 	private readonly IdPool IdPool = new();
 	private readonly List<int> BitmaskById = [];
 	private readonly Dictionary<int, object> StorageByType = [];
 
-	public int IndexBitmask;
+	public int FlagBitmask;
 
 	// TODO: Replace with sparse dictionary
 	private Dictionary<int, T> ComponentById<T>() where T : struct
@@ -29,16 +29,15 @@ internal class EntityStore
 		return (Dictionary<int, T>)value;
 	}
 
-	public static int TypeId<T>() where T : struct => TypedIdPool<EntityStore, T>.Id;
+	public static int TypeId<T>() where T : struct => TypedIdPool<Registry, T>.Id;
 
 	public static int TypeBitmask<T>() where T : struct => 1 << TypeId<T>();
 
 	public static int Hash<T>(T value) where T : struct => (TypeId<T>(), value).GetHashCode();
 
-	public void Index<T>() where T : struct => IndexBitmask |= TypeBitmask<T>();
+	public void Flag<T>() where T : struct => FlagBitmask |= TypeBitmask<T>();
 
-	// TODO: Compare type bitmask to index bitmask
-	private bool IsIndexed<T>() where T : struct => false;
+	public bool IsFlagged<T>() where T : struct => (FlagBitmask & TypeBitmask<T>()) > 0;
 
 	public int Create()
 	{
@@ -56,17 +55,17 @@ internal class EntityStore
 		EntityDestroyed?.Invoke(id);
 	}
 
-	public bool Exists(int id) => id < BitmaskById.Count && BitmaskById[id] > 0;
+	public bool IsAlive(int id) => id < BitmaskById.Count && BitmaskById[id] > 0;
 
 	public void Set<T>(int id, T value) where T : struct
 	{
 		var bitmask = TypeBitmask<T>();
 		var store = ComponentById<T>();
 
-		if (IsIndexed<T>())
+		if (IsFlagged<T>())
 		{
 			store.TryGetValue(id, out var prev);
-			IndexChanged?.Invoke(id, Hash(prev), Hash(value));
+			ValueChanged?.Invoke(id, Hash(prev), Hash(value));
 		}
 
 		store[id] = value;
@@ -75,7 +74,7 @@ internal class EntityStore
 		var b = a | bitmask;
 
 		BitmaskById[id] |= bitmask;
-		if (a != b) BitmaskChanged?.Invoke(id, b);
+		if (a != b) StructureChanged?.Invoke(id, b);
 	}
 
 	public void Remove<T>(int id) where T : struct
@@ -83,7 +82,7 @@ internal class EntityStore
 		ComponentById<T>()[id] = default;
 
 		BitmaskById[id] ^= TypeBitmask<T>();
-		BitmaskChanged?.Invoke(id, BitmaskById[id]);
+		StructureChanged?.Invoke(id, BitmaskById[id]);
 	}
 
 	public bool Has<T>(int id) where T : struct => (BitmaskById[id] & TypeBitmask<T>()) > 0;

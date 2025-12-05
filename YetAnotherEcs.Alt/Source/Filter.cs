@@ -1,8 +1,25 @@
-﻿namespace YetAnotherEcs;
+﻿using YetAnotherEcs.Storage;
 
-public readonly record struct Filter(int IncludeBitmask, int ExcludeBitmask)
+namespace YetAnotherEcs;
+
+public record struct Filter
 {
-	public bool Compare(int bitmask)
+	private int IncludeBitmask;
+	private int ExcludeBitmask;
+
+	public Filter Include<T>() where T : struct
+	{
+		IncludeBitmask |= Registry.TypeBitmask<T>();
+		return this;
+	}
+
+	public Filter Exclude<T>() where T : struct
+	{
+		ExcludeBitmask |= Registry.TypeBitmask<T>();
+		return this;
+	}
+
+	public readonly bool Compare(int bitmask)
 	{
 		return
 			(bitmask & IncludeBitmask) == IncludeBitmask &&

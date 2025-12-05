@@ -58,7 +58,7 @@ public class Smoke
 
 		world.Set<Tag>(entity2);
 		Assert.IsTrue(world.Has<Tag>(entity2));
-		ValidateCounts(0, 0, 1);
+		ValidateCounts(1, 0, 0);
 	}
 
 	internal record struct Tag(char Value);

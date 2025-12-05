@@ -6,7 +6,8 @@ namespace YetAnotherEcs.Storage;
 internal class Registry
 {
 	public event Action<int, int>? StructureChanged;
-	public event Action<int, int, int>? ValueChanged;
+	public event Action<int, int>? ValueAdded;
+	public event Action<int, int>? ValueRemoved;
 	public event Action<int>? EntityDestroyed;
 
 	private readonly IdPool IdPool = new();
@@ -44,7 +45,9 @@ internal class Registry
 		var id = IdPool.Assign();
 
 		if (BitmaskById.Count < id + 1)
+		{
 			CollectionsMarshal.SetCount(BitmaskById, id + 1);
+		}
 
 		return id;
 	}
@@ -64,25 +67,38 @@ internal class Registry
 
 		if (IsFlagged<T>())
 		{
-			store.TryGetValue(id, out var prev);
-			ValueChanged?.Invoke(id, Hash(prev), Hash(value));
+			if (store.TryGetValue(id, out var last))
+			{
+				ValueRemoved?.Invoke(id, Hash(last));
+			}
+
+			ValueAdded?.Invoke(id, Hash(value));
 		}
 
 		store[id] = value;
 
-		var a = BitmaskById[id];
-		var b = a | bitmask;
+		var bitmask0 = BitmaskById[id];
+		var bitmask1 = bitmask0 | bitmask;
+
+		if (bitmask0 != bitmask1)
+		{
+			StructureChanged?.Invoke(id, bitmask1);
+		}
 
 		BitmaskById[id] |= bitmask;
-		if (a != b) StructureChanged?.Invoke(id, b);
 	}
 
 	public void Remove<T>(int id) where T : struct
 	{
-		ComponentById<T>()[id] = default;
-
 		BitmaskById[id] ^= TypeBitmask<T>();
 		StructureChanged?.Invoke(id, BitmaskById[id]);
+
+		if (IsFlagged<T>())
+		{
+			ValueRemoved?.Invoke(id, Hash(ComponentById<T>()[id]));
+		}
+
+		ComponentById<T>()[id] = default;
 	}
 
 	public bool Has<T>(int id) where T : struct => (BitmaskById[id] & TypeBitmask<T>()) > 0;

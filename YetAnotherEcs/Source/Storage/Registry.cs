@@ -30,15 +30,30 @@ internal class Registry
 		return (Dictionary<int, T>)value;
 	}
 
-	public static int TypeId<T>() where T : struct => TypedIdPool<Registry, T>.Id;
+	public static int TypeId<T>() where T : struct
+	{
+		return TypedIdPool<Registry, T>.Id;
+	}
 
-	public static int TypeBitmask<T>() where T : struct => 1 << TypeId<T>();
+	public static int TypeBitmask<T>() where T : struct
+	{
+		return 1 << TypeId<T>();
+	}
 
-	public static int Hash<T>(T value) where T : struct => (TypeId<T>(), value).GetHashCode();
+	public static int Hash<T>(T value) where T : struct
+	{
+		return (TypeId<T>(), value).GetHashCode();
+	}
 
-	public void Flag<T>() where T : struct => FlagBitmask |= TypeBitmask<T>();
+	public void Flag<T>() where T : struct
+	{
+		FlagBitmask |= TypeBitmask<T>();
+	}
 
-	public bool IsFlagged<T>() where T : struct => (FlagBitmask & TypeBitmask<T>()) > 0;
+	public bool IsFlagged<T>() where T : struct
+	{
+		return (FlagBitmask & TypeBitmask<T>()) > 0;
+	}
 
 	public int Create()
 	{
@@ -58,7 +73,10 @@ internal class Registry
 		EntityDestroyed?.Invoke(id);
 	}
 
-	public bool IsAlive(int id) => id < BitmaskById.Count && BitmaskById[id] > 0;
+	public bool IsAlive(int id)
+	{
+		return id < BitmaskById.Count && BitmaskById[id] > 0;
+	}
 
 	public void Set<T>(int id, T value) where T : struct
 	{
@@ -101,7 +119,13 @@ internal class Registry
 		ComponentById<T>()[id] = default;
 	}
 
-	public bool Has<T>(int id) where T : struct => (BitmaskById[id] & TypeBitmask<T>()) > 0;
+	public bool Has<T>(int id) where T : struct
+	{
+		return (BitmaskById[id] & TypeBitmask<T>()) > 0;
+	}
 
-	public T Get<T>(int id) where T : struct => ComponentById<T>()[id];
+	public T Get<T>(int id) where T : struct
+	{
+		return ComponentById<T>()[id];
+	}
 }

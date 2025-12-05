@@ -65,10 +65,18 @@ internal class Index
 		}
 	}
 
-	public void Register(Filter filter) => SetByFilter[filter] = [];
+	public void Register(Filter filter)
+	{
+		SetByFilter[filter] = [];
+	}
 
-	public IReadOnlySet<int> Query(Filter filter) => SetByFilter[filter];
+	public IReadOnlySet<int> Query(Filter filter)
+	{
+		return SetByFilter[filter];
+	}
 
-	public IReadOnlySet<int> Query<T>(T index) where T : struct => 
-		SetByHash.TryGetValue(Registry.Hash(index), out var value) ? value : Empty;
+	public IReadOnlySet<int> Query<T>(T index) where T : struct
+	{
+		return SetByHash.TryGetValue(Registry.Hash(index), out var value) ? value : Empty;
+	}
 }

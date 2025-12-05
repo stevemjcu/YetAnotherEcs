@@ -6,13 +6,16 @@ namespace YetAnotherEcs.Storage;
 internal class EntityStore
 {
 	public event Action<int, int>? BitmaskChanged;
-	public event Action<int, int, int, int>? IndexChanged;
-	private int IndexBitmask;
+	public event Action<int, int, int>? IndexChanged;
+	public event Action<int>? EntityDestroyed;
 
 	private readonly IdPool IdPool = new();
 	private readonly List<int> BitmaskById = [];
 	private readonly Dictionary<int, object> StorageByType = [];
 
+	public int IndexBitmask;
+
+	// TODO: Replace with sparse dictionary
 	private Dictionary<int, T> ComponentById<T>() where T : struct
 	{
 		var typeId = TypeId<T>();
@@ -26,18 +29,23 @@ internal class EntityStore
 		return (Dictionary<int, T>)value;
 	}
 
-	private static int TypeId<T>() where T : struct => TypedIdPool<EntityStore, T>.Id;
+	internal static int TypeId<T>() where T : struct => TypedIdPool<EntityStore, T>.Id;
 
-	private static int TypeBitmask<T>() where T : struct => 1 << TypeId<T>();
+	internal static int TypeBitmask<T>() where T : struct => 1 << TypeId<T>();
+
+	private static int Hash<T>(T value) where T : struct => (TypeId<T>(), value).GetHashCode();
+
+	public void Index<T>() where T : struct => IndexBitmask |= TypeBitmask<T>();
+
+	// TODO: Compare type bitmask to index bitmask
+	private bool IsIndexed<T>() where T : struct => false;
 
 	public int Create()
 	{
 		var id = IdPool.Assign();
 
 		if (BitmaskById.Count < id + 1)
-		{
 			CollectionsMarshal.SetCount(BitmaskById, id + 1);
-		}
 
 		return id;
 	}
@@ -45,20 +53,28 @@ internal class EntityStore
 	public void Destroy(int id)
 	{
 		BitmaskById[id] = 0;
-		BitmaskChanged?.Invoke(id, 0);
+		EntityDestroyed?.Invoke(id);
 	}
 
 	public bool Exists(int id) => id < BitmaskById.Count && BitmaskById[id] > 0;
 
-	// TODO: Check for index change
 	public void Set<T>(int id, T value) where T : struct
 	{
-		ComponentById<T>()[id] = value;
+		var bitmask = TypeBitmask<T>();
+		var store = ComponentById<T>();
+
+		if (IsIndexed<T>())
+		{
+			store.TryGetValue(id, out var prev);
+			IndexChanged?.Invoke(id, Hash(prev), Hash(value));
+		}
+
+		store[id] = value;
 
 		var a = BitmaskById[id];
-		var b = a | TypeBitmask<T>();
+		var b = a | bitmask;
 
-		BitmaskById[id] |= TypeBitmask<T>();
+		BitmaskById[id] |= bitmask;
 		if (a != b) BitmaskChanged?.Invoke(id, b);
 	}
 

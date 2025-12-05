@@ -27,11 +27,11 @@ public class World
 
 	public T Get<T>(int id) where T : struct => Entities.Get<T>(id);
 
-	public FilterBuilder Filter() => throw new NotImplementedException();
+	public FilterBuilder Filter() => new(this);
 
-	public void Index<T>() => throw new NotImplementedException();
+	public void Index<T>() where T : struct => Entities.Index<T>();
 
-	public IReadOnlySet<int> Query(int signature) => throw new NotImplementedException();
+	public IReadOnlySet<int> Query(Filter filter) => throw new NotImplementedException();
 
 	public IReadOnlySet<int> Query<T>(T index) => throw new NotImplementedException();
 }

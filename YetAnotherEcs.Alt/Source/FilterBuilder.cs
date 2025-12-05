@@ -2,7 +2,7 @@
 
 namespace YetAnotherEcs;
 
-public struct FilterBuilder
+public struct FilterBuilder(World World)
 {
 	private int IncludeBitmask;
 	private int ExcludeBitmask;
@@ -19,5 +19,11 @@ public struct FilterBuilder
 		return this;
 	}
 
-	public readonly Filter Build() => new(IncludeBitmask, ExcludeBitmask);
+	public readonly Filter Build()
+	{
+		var filter = new Filter(IncludeBitmask, ExcludeBitmask);
+		// TODO: Register filter
+		return filter;
+	}
+
 }

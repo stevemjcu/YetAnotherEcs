@@ -5,11 +5,11 @@ internal class Index
 	private readonly Dictionary<Filter, HashSet<int>> SetByFilter = [];
 	private readonly Dictionary<int, HashSet<int>> SetByHash = [];
 
-	public Index(Registry store)
+	public Index(Registry registry)
 	{
-		store.StructureChanged += OnStructureChanged;
-		store.ValueChanged += OnValueChanged;
-		store.EntityDestroyed += OnEntityDestroyed;
+		registry.StructureChanged += OnStructureChanged;
+		registry.ValueChanged += OnValueChanged;
+		registry.EntityDestroyed += OnEntityDestroyed;
 	}
 
 	private void OnStructureChanged(int id, int bitmask)
@@ -21,11 +21,16 @@ internal class Index
 		}
 	}
 
-	// TODO: Ensure set exists before operating on it, and remove if empty
 	private void OnValueChanged(int id, int index1, int index2)
 	{
-		SetByHash[index1].Remove(id);
-		SetByHash[index2].Add(id);
+		if (SetByHash.TryGetValue(index1, out var set1))
+		{
+			set1.Remove(id);
+			if (set1.Count == 0) SetByHash.Remove(index1);
+		}
+
+		if (SetByHash.TryGetValue(index1, out var set2)) set2.Add(id);
+		else SetByHash[index2] = [id];
 	}
 
 	private void OnEntityDestroyed(int id)

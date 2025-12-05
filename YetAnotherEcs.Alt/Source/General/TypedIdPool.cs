@@ -1,6 +1,6 @@
 ﻿namespace YetAnotherEcs.General;
 
-public static class TypedIdPool<T, V>
+public static class TypedIdPool<Context, T>
 {
 	public readonly static int Id;
 

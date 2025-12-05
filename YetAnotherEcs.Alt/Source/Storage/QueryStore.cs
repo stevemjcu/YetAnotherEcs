@@ -32,4 +32,8 @@ internal class QueryStore
 		foreach (var it in SetByFilter.Values) it.Remove(id);
 		foreach (var it in SetByIndex.Values) it.Remove(id);
 	}
+
+	public IReadOnlySet<int> Query(Filter filter) => SetByFilter[Filter];
+
+	public IReadOnlySet<int> Query<T>(T index) => SetByIndex[EntityStore.Hash(index)];
 }

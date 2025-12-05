@@ -29,11 +29,11 @@ internal class EntityStore
 		return (Dictionary<int, T>)value;
 	}
 
-	internal static int TypeId<T>() where T : struct => TypedIdPool<EntityStore, T>.Id;
+	public static int TypeId<T>() where T : struct => TypedIdPool<EntityStore, T>.Id;
 
-	internal static int TypeBitmask<T>() where T : struct => 1 << TypeId<T>();
+	public static int TypeBitmask<T>() where T : struct => 1 << TypeId<T>();
 
-	private static int Hash<T>(T value) where T : struct => (TypeId<T>(), value).GetHashCode();
+	public static int Hash<T>(T value) where T : struct => (TypeId<T>(), value).GetHashCode();
 
 	public void Index<T>() where T : struct => IndexBitmask |= TypeBitmask<T>();
 

@@ -11,8 +11,4 @@
     <PackageReference Include="MSTest" Version="4.0.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\YetAnotherEcs\YetAnotherEcs.csproj" />
-  </ItemGroup>
-
 </Project>

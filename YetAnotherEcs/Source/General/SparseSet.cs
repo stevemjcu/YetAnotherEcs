@@ -49,7 +49,7 @@ public class SparseSet
 		return CollectionsMarshal.AsSpan(Dense);
 	}
 
-	Enumerator GetEnumerator()
+	public Enumerator GetEnumerator()
 	{
 		throw new NotImplementedException();
 	}

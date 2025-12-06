@@ -9,13 +9,13 @@ public record struct Filter
 
 	public Filter Include<T>() where T : struct
 	{
-		IncludeBitmask |= Registry.TypeBitmask<T>();
+		IncludeBitmask |= Registry.GetBitmask<T>();
 		return this;
 	}
 
 	public Filter Exclude<T>() where T : struct
 	{
-		ExcludeBitmask |= Registry.TypeBitmask<T>();
+		ExcludeBitmask |= Registry.GetBitmask<T>();
 		return this;
 	}
 

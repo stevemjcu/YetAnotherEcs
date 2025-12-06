@@ -11,7 +11,7 @@ internal class Index
 		registry.StructureChanged += OnStructureChanged;
 		registry.ValueAdded += OnValueAdded;
 		registry.ValueRemoved += OnValueRemoved;
-		registry.EntityDestroyed += OnEntityDestroyed;
+		registry.EntityRecycled += OnEntityRecycled;
 	}
 
 	private void OnStructureChanged(int id, int bitmask)
@@ -31,12 +31,12 @@ internal class Index
 
 	private void OnValueAdded(int id, int hash)
 	{
-		if (!SetByHash.TryGetValue(hash, out var value))
+		if (!SetByHash.TryGetValue(hash, out var set))
 		{
-			SetByHash[hash] = value = [];
+			SetByHash[hash] = set = [];
 		}
 
-		value.Add(id);
+		set.Add(id);
 	}
 
 	private void OnValueRemoved(int id, int hash)
@@ -52,7 +52,7 @@ internal class Index
 		}
 	}
 
-	private void OnEntityDestroyed(int id)
+	private void OnEntityRecycled(int id)
 	{
 		foreach (var it in SetByFilter.Values)
 		{
@@ -70,13 +70,14 @@ internal class Index
 		SetByFilter[filter] = [];
 	}
 
-	public IReadOnlySet<int> Query(Filter filter)
+	public IReadOnlySet<int> View(Filter filter)
 	{
 		return SetByFilter[filter];
 	}
 
-	public IReadOnlySet<int> Query<T>(T index) where T : struct
+	public IReadOnlySet<int> View<T>(T index) where T : struct
 	{
-		return SetByHash.TryGetValue(Registry.Hash(index), out var value) ? value : Empty;
+		var any = SetByHash.TryGetValue(Registry.Hash(index), out var set);
+		return any ? set! : Empty;
 	}
 }

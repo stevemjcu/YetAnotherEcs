@@ -8,7 +8,7 @@ internal class Registry
 	public event Action<int, int>? StructureChanged;
 	public event Action<int, int>? ValueAdded;
 	public event Action<int, int>? ValueRemoved;
-	public event Action<int>? EntityDestroyed;
+	public event Action<int>? EntityRecycled;
 
 	private readonly IdPool IdPool = new();
 	private readonly List<int> BitmaskById = [];
@@ -16,10 +16,9 @@ internal class Registry
 
 	public int FlagBitmask;
 
-	// TODO: Replace with sparse dictionary
-	private Dictionary<int, T> ComponentById<T>() where T : struct
+	private Dictionary<int, T> GetComponentById<T>() where T : struct
 	{
-		var typeId = TypeId<T>();
+		var typeId = GetId<T>();
 
 		if (!StorageByType.TryGetValue(typeId, out var value))
 		{
@@ -27,32 +26,33 @@ internal class Registry
 			StorageByType.Add(typeId, value);
 		}
 
+		// TODO: Use sparse dictionary?
 		return (Dictionary<int, T>)value;
 	}
 
-	public static int TypeId<T>() where T : struct
+	public static int GetId<T>() where T : struct
 	{
 		return TypedIdPool<Registry, T>.Id;
 	}
 
-	public static int TypeBitmask<T>() where T : struct
+	public static int GetBitmask<T>() where T : struct
 	{
-		return 1 << TypeId<T>();
+		return 1 << GetId<T>();
 	}
 
 	public static int Hash<T>(T value) where T : struct
 	{
-		return (TypeId<T>(), value).GetHashCode();
+		return (GetId<T>(), value).GetHashCode();
 	}
 
 	public void Flag<T>() where T : struct
 	{
-		FlagBitmask |= TypeBitmask<T>();
+		FlagBitmask |= GetBitmask<T>();
 	}
 
 	public bool IsFlagged<T>() where T : struct
 	{
-		return (FlagBitmask & TypeBitmask<T>()) > 0;
+		return (FlagBitmask & GetBitmask<T>()) > 0;
 	}
 
 	public int Create()
@@ -67,65 +67,56 @@ internal class Registry
 		return id;
 	}
 
-	public void Destroy(int id)
+	public void Recycle(int id)
 	{
 		BitmaskById[id] = 0;
-		EntityDestroyed?.Invoke(id);
-	}
-
-	public bool IsAlive(int id)
-	{
-		return id < BitmaskById.Count && BitmaskById[id] > 0;
+		EntityRecycled?.Invoke(id);
+		IdPool.Recycle(id);
 	}
 
 	public void Set<T>(int id, T value) where T : struct
 	{
-		var bitmask = TypeBitmask<T>();
-		var store = ComponentById<T>();
+		var store = GetComponentById<T>();
 
 		if (IsFlagged<T>())
 		{
-			if (store.TryGetValue(id, out var last))
+			if (Has<T>(id))
 			{
-				ValueRemoved?.Invoke(id, Hash(last));
+				ValueRemoved?.Invoke(id, Hash(store[id]));
 			}
 
 			ValueAdded?.Invoke(id, Hash(value));
 		}
 
-		store[id] = value;
-
-		var bitmask0 = BitmaskById[id];
-		var bitmask1 = bitmask0 | bitmask;
-
-		if (bitmask0 != bitmask1)
+		if (!Has<T>(id))
 		{
-			StructureChanged?.Invoke(id, bitmask1);
+			BitmaskById[id] |= GetBitmask<T>();
+			StructureChanged?.Invoke(id, BitmaskById[id]);
 		}
 
-		BitmaskById[id] |= bitmask;
+		store[id] = value;
 	}
 
 	public void Remove<T>(int id) where T : struct
 	{
-		BitmaskById[id] ^= TypeBitmask<T>();
-		StructureChanged?.Invoke(id, BitmaskById[id]);
-
 		if (IsFlagged<T>())
 		{
-			ValueRemoved?.Invoke(id, Hash(ComponentById<T>()[id]));
+			ValueRemoved?.Invoke(id, Hash(GetComponentById<T>()[id]));
 		}
 
-		ComponentById<T>()[id] = default;
+		BitmaskById[id] ^= GetBitmask<T>();
+		StructureChanged?.Invoke(id, BitmaskById[id]);
+
+		GetComponentById<T>()[id] = default;
 	}
 
 	public bool Has<T>(int id) where T : struct
 	{
-		return (BitmaskById[id] & TypeBitmask<T>()) > 0;
+		return (BitmaskById[id] & GetBitmask<T>()) > 0;
 	}
 
 	public T Get<T>(int id) where T : struct
 	{
-		return ComponentById<T>()[id];
+		return GetComponentById<T>()[id];
 	}
 }

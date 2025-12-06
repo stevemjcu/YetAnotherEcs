@@ -19,14 +19,9 @@ public class World
 		return Registry.Create();
 	}
 
-	public void Destroy(int id)
+	public void Recycle(int id)
 	{
-		Registry.Destroy(id);
-	}
-
-	public bool IsAlive(int id)
-	{
-		return Registry.IsAlive(id);
+		Registry.Recycle(id);
 	}
 
 	public void Set<T>(int id, T value = default) where T : struct
@@ -49,23 +44,23 @@ public class World
 		return Registry.Get<T>(id);
 	}
 
-	public void IndexOn(Filter filter)
+	public void IndexBy(Filter filter)
 	{
 		Index.Register(filter);
 	}
 
-	public void IndexOn<T>() where T : struct
+	public void IndexBy<T>() where T : struct
 	{
 		Registry.Flag<T>();
 	}
 
-	public IReadOnlySet<int> Query(Filter filter)
+	public IReadOnlySet<int> View(Filter filter)
 	{
-		return Index.Query(filter);
+		return Index.View(filter);
 	}
 
-	public IReadOnlySet<int> Query<T>(T index) where T : struct
+	public IReadOnlySet<int> View<T>(T index) where T : struct
 	{
-		return Index.Query(index);
+		return Index.View(index);
 	}
 }

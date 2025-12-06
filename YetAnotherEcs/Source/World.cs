@@ -44,22 +44,6 @@ public class World
 		return Registry.Get<T>(id);
 	}
 
-	public (T, U) Get<T, U>(int id)
-		where T : struct
-		where U : struct
-	{
-		return (Registry.Get<T>(id), Registry.Get<U>(id));
-	}
-
-	public (T, U, V) Get<T, U, V>(int id)
-		where T : struct
-		where U : struct
-		where V : struct
-	{
-		var (a, b) = Get<T, U>(id);
-		return (a, b, Registry.Get<V>(id));
-	}
-
 	public Span<int> View(Filter filter)
 	{
 		return Index.View(filter);

@@ -14,13 +14,13 @@ public class Smoke
 
 		void ValidateCounts(int a, int b, int c)
 		{
-			Assert.HasCount(a, world.View(filter));
-			Assert.HasCount(b, world.View(tag0));
-			Assert.HasCount(c, world.View(tag1));
+			Assert.AreEqual(a, world.View(filter).Length);
+			Assert.AreEqual(b, world.View(tag0).Length);
+			Assert.AreEqual(c, world.View(tag1).Length);
 		}
 
-		world.IndexBy(filter);
-		world.IndexBy<Tag>();
+		world.View(filter);
+		world.View<Tag>(default);
 
 		var entity0 = world.Create();
 		var entity1 = world.Create();
@@ -44,6 +44,7 @@ public class Smoke
 
 		Assert.IsTrue(world
 			.View(filter)
+			.ToArray()
 			.Select(world.Get<Tag>)
 			.All(it => it == tag1));
 

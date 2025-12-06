@@ -44,22 +44,12 @@ public class World
 		return Registry.Get<T>(id);
 	}
 
-	public void IndexBy(Filter filter)
-	{
-		Index.Register(filter);
-	}
-
-	public void IndexBy<T>() where T : struct
-	{
-		Registry.Flag<T>();
-	}
-
-	public IReadOnlySet<int> View(Filter filter)
+	public Span<int> View(Filter filter)
 	{
 		return Index.View(filter);
 	}
 
-	public IReadOnlySet<int> View<T>(T index) where T : struct
+	public Span<int> View<T>(T index) where T : struct
 	{
 		return Index.View(index);
 	}

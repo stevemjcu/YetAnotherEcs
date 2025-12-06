@@ -1,17 +1,22 @@
-﻿namespace YetAnotherEcs.Storage;
+﻿using YetAnotherEcs.General;
+
+namespace YetAnotherEcs.Storage;
 
 internal class Index
 {
-	private readonly Dictionary<Filter, HashSet<int>> SetByFilter = [];
-	private readonly Dictionary<int, HashSet<int>> SetByHash = [];
-	private readonly HashSet<int> Empty = [];
+	private readonly Registry Registry;
+	private readonly Dictionary<Filter, SparseSet> SetByFilter = [];
+	private readonly Dictionary<int, SparseSet> SetByHash = [];
+	private readonly SparseSet Empty = new();
 
 	public Index(Registry registry)
 	{
-		registry.StructureChanged += OnStructureChanged;
-		registry.ValueAdded += OnValueAdded;
-		registry.ValueRemoved += OnValueRemoved;
-		registry.EntityRecycled += OnEntityRecycled;
+		Registry = registry;
+
+		Registry.StructureChanged += OnStructureChanged;
+		Registry.ValueAdded += OnValueAdded;
+		Registry.ValueRemoved += OnValueRemoved;
+		Registry.EntityRecycled += OnEntityRecycled;
 	}
 
 	private void OnStructureChanged(int id, int bitmask)
@@ -33,7 +38,7 @@ internal class Index
 	{
 		if (!SetByHash.TryGetValue(hash, out var set))
 		{
-			SetByHash[hash] = set = [];
+			SetByHash[hash] = set = new();
 		}
 
 		set.Add(id);
@@ -65,19 +70,27 @@ internal class Index
 		}
 	}
 
-	public void Register(Filter filter)
+	public Span<int> View(Filter filter)
 	{
-		SetByFilter[filter] = [];
+		if (!SetByFilter.TryGetValue(filter, out var set))
+		{
+			set = new();
+			SetByFilter[filter] = set;
+			// TODO: For each entity, try adding to set
+		}
+
+		return set.AsSpan();
 	}
 
-	public IReadOnlySet<int> View(Filter filter)
+	public Span<int> View<T>(T index) where T : struct
 	{
-		return SetByFilter[filter];
-	}
+		if (!Registry.IsFlagged<T>())
+		{
+			Registry.Flag<T>();
+			// TODO: For each entity, try adding to set
+		}
 
-	public IReadOnlySet<int> View<T>(T index) where T : struct
-	{
-		var any = SetByHash.TryGetValue(Registry.Hash(index), out var set);
-		return any ? set! : Empty;
+		return SetByHash.TryGetValue(Registry.Hash(index), out var set)
+			? set.AsSpan() : Empty.AsSpan();
 	}
 }

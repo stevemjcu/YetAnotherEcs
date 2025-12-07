@@ -16,6 +16,19 @@ internal class Registry
 
 	public int FlagBitmask;
 
+	internal IEnumerable<(int, int)> Enumerate()
+	{
+		for (var i = 0; i < BitmaskById.Count; i++)
+		{
+			var bitmask = BitmaskById[i];
+
+			if (bitmask > 0)
+			{
+				yield return (i, bitmask);
+			}
+		}
+	}
+
 	private Dictionary<int, T> GetComponentById<T>() where T : struct
 	{
 		var typeId = GetId<T>();

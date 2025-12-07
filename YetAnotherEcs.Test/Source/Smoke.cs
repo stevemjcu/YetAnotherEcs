@@ -19,9 +19,6 @@ public class Smoke
 			Assert.AreEqual(c, world.View(tag1).Count);
 		}
 
-		world.View(filter);
-		world.View<Tag>(default);
-
 		var entity0 = world.Create();
 		var entity1 = world.Create();
 		Assert.AreEqual(0, entity0);

@@ -12,7 +12,6 @@ internal class Index
 	public Index(Registry registry)
 	{
 		Registry = registry;
-
 		Registry.StructureChanged += OnStructureChanged;
 		Registry.ValueAdded += OnValueAdded;
 		Registry.ValueRemoved += OnValueRemoved;
@@ -74,9 +73,8 @@ internal class Index
 	{
 		if (!SetByFilter.TryGetValue(filter, out var set))
 		{
-			set = [];
-			SetByFilter[filter] = set;
-			// TODO: For each entity, try adding to set
+			Build(filter);
+			set = SetByFilter[filter];
 		}
 
 		return set;
@@ -86,11 +84,34 @@ internal class Index
 	{
 		if (!Registry.IsFlagged<T>())
 		{
-			Registry.Flag<T>();
-			// TODO: For each entity, try adding to set
+			Build<T>();
 		}
 
 		var hash = Registry.Hash(index);
 		return SetByHash.TryGetValue(hash, out var set) ? set : Empty;
+	}
+
+	private void Build(Filter filter)
+	{
+		SetByFilter[filter] = [];
+
+		foreach (var (id, bitmask) in Registry.Enumerate())
+		{
+			OnStructureChanged(id, bitmask);
+		}
+	}
+
+	private void Build<T>() where T : struct
+	{
+		Registry.Flag<T>();
+
+		foreach (var (id, _) in Registry.Enumerate())
+		{
+			if (Registry.Has<T>(id))
+			{
+				var hash = Registry.Hash(Registry.Get<T>(id));
+				OnValueAdded(id, hash);
+			}
+		}
 	}
 }

@@ -8,11 +8,16 @@ public interface IIndexableSet<T> : IEnumerable<T>
 
 	public T this[int index] { get; }
 
-	public bool Contains(int key);
+	public bool Contains(T key);
 
 	new public Enumerator GetEnumerator()
 	{
 		return new(this);
+	}
+
+	public Enumerator Intersect(IIndexableSet<T> set)
+	{
+		return GetEnumerator().Intersect(set);
 	}
 
 	IEnumerator<T> IEnumerable<T>.GetEnumerator()
@@ -27,6 +32,9 @@ public interface IIndexableSet<T> : IEnumerable<T>
 
 	public struct Enumerator(IIndexableSet<T> Set) : IEnumerator<T>
 	{
+		private IIndexableSet<T>? Include;
+		private IIndexableSet<T>? Exclude; // TODO
+
 		private int Index = 0;
 
 		public readonly T Current => Set[Index];
@@ -37,12 +45,31 @@ public interface IIndexableSet<T> : IEnumerable<T>
 
 		public bool MoveNext()
 		{
-			return ++Index < Set.Count;
+			while (++Index < Set.Count)
+			{
+				if (Include?.Contains(Current) ?? true)
+				{
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		public void Reset()
 		{
 			Index = 0;
+		}
+
+		readonly public Enumerator GetEnumerator()
+		{
+			return this;
+		}
+
+		public Enumerator Intersect(IIndexableSet<T> set)
+		{
+			Include = set;
+			return this;
 		}
 	}
 }

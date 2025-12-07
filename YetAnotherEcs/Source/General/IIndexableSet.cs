@@ -35,7 +35,7 @@ public interface IIndexableSet<T> : IEnumerable<T>
 		private IIndexableSet<T>? Include;
 		private IIndexableSet<T>? Exclude; // TODO
 
-		private int Index = 0;
+		private int Index = -1;
 
 		public readonly T Current => Set[Index];
 
@@ -58,7 +58,7 @@ public interface IIndexableSet<T> : IEnumerable<T>
 
 		public void Reset()
 		{
-			Index = 0;
+			Index = -1;
 		}
 
 		readonly public Enumerator GetEnumerator()

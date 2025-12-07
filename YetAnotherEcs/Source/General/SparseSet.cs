@@ -2,12 +2,14 @@
 
 namespace YetAnotherEcs.General;
 
-public class SparseSet
+public class SparseSet : IIndexableSet<int>
 {
 	private readonly List<int> Sparse = []; // subkey by key
 	private readonly List<int> Dense = []; // key by subkey
 
 	public int Count => Dense.Count;
+
+	public int this[int index] => Dense[index];
 
 	public void Add(int key)
 	{
@@ -41,26 +43,5 @@ public class SparseSet
 	{
 		Sparse.Clear();
 		Dense.Clear();
-	}
-
-	public Span<int> AsSpan()
-	{
-		// FIXME: Dangerous if resize occurs?
-		return CollectionsMarshal.AsSpan(Dense);
-	}
-
-	Enumerator GetEnumerator()
-	{
-		throw new NotImplementedException();
-	}
-
-	public struct Enumerator
-	{
-		// TODO:
-		// Current
-		// MoveNext
-		// Reset
-		// Contains
-		// Intersect
 	}
 }

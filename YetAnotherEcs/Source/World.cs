@@ -1,4 +1,5 @@
-﻿using YetAnotherEcs.Storage;
+﻿using YetAnotherEcs.General;
+using YetAnotherEcs.Storage;
 using Index = YetAnotherEcs.Storage.Index;
 
 namespace YetAnotherEcs;
@@ -44,12 +45,12 @@ public class World
 		return Registry.Get<T>(id);
 	}
 
-	public Span<int> View(Filter filter)
+	public IIndexableSet<int> View(Filter filter)
 	{
 		return Index.View(filter);
 	}
 
-	public Span<int> View<T>(T index) where T : struct
+	public IIndexableSet<int> View<T>(T index) where T : struct
 	{
 		return Index.View(index);
 	}

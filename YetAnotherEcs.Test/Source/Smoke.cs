@@ -14,9 +14,9 @@ public class Smoke
 
 		void ValidateCounts(int a, int b, int c)
 		{
-			Assert.AreEqual(a, world.View(filter).Length);
-			Assert.AreEqual(b, world.View(tag0).Length);
-			Assert.AreEqual(c, world.View(tag1).Length);
+			Assert.AreEqual(a, world.View(filter).Count);
+			Assert.AreEqual(b, world.View(tag0).Count);
+			Assert.AreEqual(c, world.View(tag1).Count);
 		}
 
 		world.View(filter);
@@ -44,7 +44,6 @@ public class Smoke
 
 		Assert.IsTrue(world
 			.View(filter)
-			.ToArray()
 			.Select(world.Get<Tag>)
 			.All(it => it == tag1));
 

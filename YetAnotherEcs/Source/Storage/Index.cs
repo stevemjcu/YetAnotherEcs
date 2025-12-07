@@ -7,7 +7,7 @@ internal class Index
 	private readonly Registry Registry;
 	private readonly Dictionary<Filter, SparseSet> SetByFilter = [];
 	private readonly Dictionary<int, SparseSet> SetByHash = [];
-	private readonly SparseSet Empty = new();
+	private readonly SparseSet Empty = [];
 
 	public Index(Registry registry)
 	{
@@ -38,7 +38,7 @@ internal class Index
 	{
 		if (!SetByHash.TryGetValue(hash, out var set))
 		{
-			SetByHash[hash] = set = new();
+			SetByHash[hash] = set = [];
 		}
 
 		set.Add(id);
@@ -70,19 +70,19 @@ internal class Index
 		}
 	}
 
-	public Span<int> View(Filter filter)
+	public IIndexableSet<int> View(Filter filter)
 	{
 		if (!SetByFilter.TryGetValue(filter, out var set))
 		{
-			set = new();
+			set = [];
 			SetByFilter[filter] = set;
 			// TODO: For each entity, try adding to set
 		}
 
-		return set.AsSpan();
+		return set;
 	}
 
-	public Span<int> View<T>(T index) where T : struct
+	public IIndexableSet<int> View<T>(T index) where T : struct
 	{
 		if (!Registry.IsFlagged<T>())
 		{
@@ -90,7 +90,7 @@ internal class Index
 			// TODO: For each entity, try adding to set
 		}
 
-		return SetByHash.TryGetValue(Registry.Hash(index), out var set)
-			? set.AsSpan() : Empty.AsSpan();
+		var hash = Registry.Hash(index);
+		return SetByHash.TryGetValue(hash, out var set) ? set : Empty;
 	}
 }

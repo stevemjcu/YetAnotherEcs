@@ -66,9 +66,16 @@ public interface IIndexableSet<T> : IEnumerable<T>
 			return this;
 		}
 
-		public Enumerator Intersect(IIndexableSet<T> set)
+		internal Enumerator Intersect(IIndexableSet<T> set)
 		{
 			Include = set;
+
+			// Enumerate shorter set
+			if (Include.Count < Set.Count)
+			{
+				(Set, Include) = (Include!, Set);
+			}
+
 			return this;
 		}
 	}

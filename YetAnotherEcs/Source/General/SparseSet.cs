@@ -13,6 +13,11 @@ public class SparseSet : IIndexableSet<int>
 
 	public void Add(int key)
 	{
+		if (Contains(key))
+		{
+			return;
+		}
+
 		if (key >= Sparse.Count)
 		{
 			CollectionsMarshal.SetCount(Sparse, key + 1);
@@ -24,11 +29,16 @@ public class SparseSet : IIndexableSet<int>
 
 	public bool Contains(int key)
 	{
-		return key == Dense[Sparse[key]];
+		return key < Sparse.Count && key == Dense[Sparse[key]];
 	}
 
 	public void Remove(int key)
 	{
+		if (!Contains(key))
+		{
+			return;
+		}
+
 		var subkey = Sparse[key];
 		var end = Dense.Count - 1;
 

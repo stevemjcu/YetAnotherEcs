@@ -6,13 +6,13 @@ namespace YetAnotherEcs;
 
 public class World
 {
-	internal Registry Registry;
 	internal Index Index;
+	internal Registry Registry;
 
 	public World()
 	{
-		Registry = new();
-		Index = new(Registry);
+		Index = new();
+		Registry = new(Index);
 	}
 
 	public int Create()

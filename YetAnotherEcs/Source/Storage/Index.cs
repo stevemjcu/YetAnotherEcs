@@ -4,21 +4,11 @@ namespace YetAnotherEcs.Storage;
 
 internal class Index
 {
-	private readonly Registry Registry;
 	private readonly Dictionary<Filter, SparseSet> SetByFilter = [];
 	private readonly Dictionary<int, SparseSet> SetByHash = [];
 	private readonly SparseSet Empty = [];
 
-	public Index(Registry registry)
-	{
-		Registry = registry;
-		Registry.StructureChanged += OnStructureChanged;
-		Registry.ValueAdded += OnValueAdded;
-		Registry.ValueRemoved += OnValueRemoved;
-		Registry.EntityRecycled += OnEntityRecycled;
-	}
-
-	private void OnStructureChanged(int id, int bitmask)
+	public void OnStructureChanged(int id, int bitmask)
 	{
 		foreach (var it in SetByFilter)
 		{
@@ -33,7 +23,7 @@ internal class Index
 		}
 	}
 
-	private void OnValueAdded(int id, int hash)
+	public void OnIndexAdded(int id, int hash)
 	{
 		if (!SetByHash.TryGetValue(hash, out var set))
 		{
@@ -43,7 +33,7 @@ internal class Index
 		set.Add(id);
 	}
 
-	private void OnValueRemoved(int id, int hash)
+	public void OnIndexRemoved(int id, int hash)
 	{
 		if (SetByHash.TryGetValue(hash, out var set))
 		{
@@ -56,7 +46,7 @@ internal class Index
 		}
 	}
 
-	private void OnEntityRecycled(int id)
+	public void OnEntityRecycled(int id)
 	{
 		foreach (var it in SetByFilter.Values)
 		{
@@ -71,47 +61,12 @@ internal class Index
 
 	public IIndexableSet<int> View(Filter filter)
 	{
-		if (!SetByFilter.TryGetValue(filter, out var set))
-		{
-			Build(filter);
-			set = SetByFilter[filter];
-		}
-
-		return set;
+		return SetByFilter[filter];
 	}
 
 	public IIndexableSet<int> View<T>(T index) where T : struct
 	{
-		if (!Registry.IsFlagged<T>())
-		{
-			Build<T>();
-		}
-
 		var hash = Registry.Hash(index);
 		return SetByHash.TryGetValue(hash, out var set) ? set : Empty;
-	}
-
-	private void Build(Filter filter)
-	{
-		SetByFilter[filter] = [];
-
-		foreach (var (id, bitmask) in Registry.Enumerate())
-		{
-			OnStructureChanged(id, bitmask);
-		}
-	}
-
-	private void Build<T>() where T : struct
-	{
-		Registry.Flag<T>();
-
-		foreach (var (id, _) in Registry.Enumerate())
-		{
-			if (Registry.Has<T>(id))
-			{
-				var hash = Registry.Hash(Registry.Get<T>(id));
-				OnValueAdded(id, hash);
-			}
-		}
 	}
 }

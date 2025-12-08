@@ -3,18 +3,13 @@ using YetAnotherEcs.General;
 
 namespace YetAnotherEcs.Storage;
 
-internal class Registry
+internal class Registry(Index Index)
 {
-	public event Action<int, int>? StructureChanged;
-	public event Action<int, int>? ValueAdded;
-	public event Action<int, int>? ValueRemoved;
-	public event Action<int>? EntityRecycled;
-
 	private readonly IdPool IdPool = new();
 	private readonly List<int> BitmaskById = [];
 	private readonly Dictionary<int, object> StorageByType = [];
 
-	public int FlagBitmask;
+	public int IndexBitmask;
 
 	internal IEnumerable<(int, int)> Enumerate()
 	{
@@ -58,14 +53,14 @@ internal class Registry
 		return (GetId<T>(), value).GetHashCode();
 	}
 
-	public void Flag<T>() where T : struct
+	public void IndexBy<T>() where T : struct
 	{
-		FlagBitmask |= GetBitmask<T>();
+		IndexBitmask |= GetBitmask<T>();
 	}
 
-	public bool IsFlagged<T>() where T : struct
+	public bool IsIndexed<T>() where T : struct
 	{
-		return (FlagBitmask & GetBitmask<T>()) > 0;
+		return (IndexBitmask & GetBitmask<T>()) > 0;
 	}
 
 	public int Create()
@@ -83,7 +78,7 @@ internal class Registry
 	public void Recycle(int id)
 	{
 		BitmaskById[id] = 0;
-		EntityRecycled?.Invoke(id);
+		Index.OnEntityRecycled(id);
 		IdPool.Recycle(id);
 	}
 
@@ -91,20 +86,20 @@ internal class Registry
 	{
 		var store = GetComponentById<T>();
 
-		if (IsFlagged<T>())
+		if (IsIndexed<T>())
 		{
 			if (Has<T>(id))
 			{
-				ValueRemoved?.Invoke(id, Hash(store[id]));
+				Index.OnIndexRemoved(id, Hash(store[id]));
 			}
 
-			ValueAdded?.Invoke(id, Hash(value));
+			Index.OnIndexAdded(id, Hash(value));
 		}
 
 		if (!Has<T>(id))
 		{
 			BitmaskById[id] |= GetBitmask<T>();
-			StructureChanged?.Invoke(id, BitmaskById[id]);
+			Index.OnStructureChanged(id, BitmaskById[id]);
 		}
 
 		store[id] = value;
@@ -112,13 +107,13 @@ internal class Registry
 
 	public void Remove<T>(int id) where T : struct
 	{
-		if (IsFlagged<T>())
+		if (IsIndexed<T>())
 		{
-			ValueRemoved?.Invoke(id, Hash(GetComponentById<T>()[id]));
+			Index.OnIndexRemoved(id, Hash(GetComponentById<T>()[id]));
 		}
 
 		BitmaskById[id] ^= GetBitmask<T>();
-		StructureChanged?.Invoke(id, BitmaskById[id]);
+		Index.OnStructureChanged(id, BitmaskById[id]);
 
 		GetComponentById<T>()[id] = default;
 	}

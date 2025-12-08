@@ -7,6 +7,8 @@ public class SparseSet : IIndexableSet<int>
 	private readonly List<int> Sparse = []; // subkey by key
 	private readonly List<int> Dense = []; // key by subkey
 
+	public static readonly SparseSet Empty = [];
+
 	public int Count => Dense.Count;
 
 	public int this[int index] => Dense[index];

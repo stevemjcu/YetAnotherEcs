@@ -13,9 +13,4 @@ public interface IComponent
 	{
 		return 1 << GetId<T>();
 	}
-
-	public static int GetHashCode<T>(T value) where T : struct, IComponent
-	{
-		return (GetId<T>(), value).GetHashCode();
-	}
 }

@@ -11,6 +11,7 @@ internal class Registry(Manifest Manifest)
 
 	private int IndexBitmask;
 
+	// Indexes component by entity ID
 	private Dictionary<int, T> GetComponentStore<T>() where T : struct, IComponent
 	{
 		var typeId = IComponent.GetId<T>();
@@ -21,7 +22,6 @@ internal class Registry(Manifest Manifest)
 			ComponentStoreByType.Add(typeId, value);
 		}
 
-		// TODO: Use sparse dictionary?
 		return (Dictionary<int, T>)value;
 	}
 
@@ -57,19 +57,19 @@ internal class Registry(Manifest Manifest)
 	public void Set<T>(int id, T value) where T : struct, IComponent
 	{
 		var store = GetComponentStore<T>();
-		var had = Has<T>(id);
+		var has = TryGet<T>(id, out var last);
 
 		if (IsIndexed<T>())
 		{
-			if (had)
+			if (has)
 			{
-				Manifest.OnIndexRemoved(id, IComponent.GetHashCode(store[id]));
+				Manifest.OnIndexRemoved(id, last);
 			}
 
-			Manifest.OnIndexAdded(id, IComponent.GetHashCode(value));
+			Manifest.OnIndexAdded(id, value);
 		}
 
-		if (!had)
+		if (!has)
 		{
 			BitmaskById[id] |= IComponent.GetBitmask<T>();
 			Manifest.OnStructureChanged(id, BitmaskById[id]);
@@ -84,7 +84,7 @@ internal class Registry(Manifest Manifest)
 
 		if (IsIndexed<T>())
 		{
-			Manifest.OnIndexRemoved(id, IComponent.GetHashCode(store[id]));
+			Manifest.OnIndexRemoved(id, store[id]);
 		}
 
 		BitmaskById[id] ^= IComponent.GetBitmask<T>();
@@ -101,5 +101,12 @@ internal class Registry(Manifest Manifest)
 	public T Get<T>(int id) where T : struct, IComponent
 	{
 		return GetComponentStore<T>()[id];
+	}
+
+	public bool TryGet<T>(int id, out T value) where T : struct, IComponent
+	{
+		var has = Has<T>(id);
+		value = has ? Get<T>(id) : default;
+		return has;
 	}
 }

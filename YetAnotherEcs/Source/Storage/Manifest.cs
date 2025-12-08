@@ -1,12 +1,26 @@
-﻿using YetAnotherEcs.General;
+﻿using System.Collections;
+using YetAnotherEcs.General;
 
 namespace YetAnotherEcs.Storage;
 
 internal class Manifest
 {
 	private readonly Dictionary<Filter, SparseSet> SetByFilter = [];
-	private readonly Dictionary<int, SparseSet> SetByHash = [];
-	private readonly SparseSet Empty = [];
+	private readonly Dictionary<int, object> IndexStoreByType = [];
+
+	// Indexes entity ID set by component
+	private Dictionary<T, SparseSet> GetIndexStore<T>() where T : struct, IComponent
+	{
+		var typeId = IComponent.GetId<T>();
+
+		if (!IndexStoreByType.TryGetValue(typeId, out var value))
+		{
+			value = new Dictionary<int, T>();
+			IndexStoreByType.Add(typeId, value);
+		}
+
+		return (Dictionary<T, SparseSet>)value;
+	}
 
 	public void OnStructureChanged(int id, int bitmask)
 	{
@@ -23,25 +37,29 @@ internal class Manifest
 		}
 	}
 
-	public void OnIndexAdded(int id, int hash)
+	public void OnIndexAdded<T>(int id, T index) where T : struct, IComponent
 	{
-		if (!SetByHash.TryGetValue(hash, out var set))
+		var store = GetIndexStore<T>();
+
+		if (!store.TryGetValue(index, out var set))
 		{
-			SetByHash[hash] = set = [];
+			store[index] = set = [];
 		}
 
 		set.Add(id);
 	}
 
-	public void OnIndexRemoved(int id, int hash)
+	public void OnIndexRemoved<T>(int id, T index) where T : struct, IComponent
 	{
-		if (SetByHash.TryGetValue(hash, out var set))
+		var store = GetIndexStore<T>();
+
+		if (store.TryGetValue(index, out var set))
 		{
 			set.Remove(id);
 
 			if (set.Count == 0)
 			{
-				SetByHash.Remove(hash);
+				store.Remove(index);
 			}
 		}
 	}
@@ -53,9 +71,12 @@ internal class Manifest
 			it.Remove(id);
 		}
 
-		foreach (var it in SetByHash.Values)
+		foreach (var store in IndexStoreByType.Values.Cast<IDictionary>())
 		{
-			it.Remove(id);
+			foreach (var it in store.Values.Cast<SparseSet>())
+			{
+				it.Remove(id);
+			}
 		}
 	}
 
@@ -66,7 +87,6 @@ internal class Manifest
 
 	public IIndexableSet<int> View<T>(T index) where T : struct, IComponent
 	{
-		var hash = IComponent.GetHashCode(index);
-		return SetByHash.TryGetValue(hash, out var set) ? set : Empty;
+		return GetIndexStore<T>().TryGetValue(index, out var set) ? set : SparseSet.Empty;
 	}
 }

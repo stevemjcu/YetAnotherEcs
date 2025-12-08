@@ -45,6 +45,13 @@ public class World
 		return Registry.Get<T>(id);
 	}
 
+	public bool TryGet<T>(int id, out T value) where T : struct
+	{
+		var has = Registry.Has<T>(id);
+		value = has ? Registry.Get<T>(id) : default;
+		return has;
+	}
+
 	public IIndexableSet<int> View(Filter filter)
 	{
 		return Index.View(filter);

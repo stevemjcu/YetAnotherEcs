@@ -12,9 +12,6 @@ public class Smoke
 		var tag0 = new Tag('0');
 		var tag1 = new Tag('1');
 
-		world.Register(filter);
-		world.Register<Tag>();
-
 		void ValidateCounts(int a, int b, int c)
 		{
 			Assert.AreEqual(a, world.View(filter).Count);

@@ -52,16 +52,6 @@ public class World
 		return has;
 	}
 
-	public void Register(Filter filter)
-	{
-		Manifest.Register(filter);
-	}
-
-	public void Register<T>() where T : struct, IComponent
-	{
-		Registry.Register<T>();
-	}
-
 	public IIndexableSet<int> View(Filter filter)
 	{
 		return Manifest.View(filter);

@@ -9,30 +9,17 @@ internal class Registry(Manifest Manifest)
 	private readonly List<int> BitmaskById = [];
 	private readonly Dictionary<int, object> ComponentStoreByType = [];
 
-	private int IndexBitmask;
-
-	// Indexes component by entity ID
-	private Dictionary<int, T> GetComponentStore<T>() where T : struct, IComponent
+	public IEnumerable<(int, int)> GetEntities()
 	{
-		var typeId = IComponent.GetId<T>();
-
-		if (!ComponentStoreByType.TryGetValue(typeId, out var value))
+		for (var i = 0; i < BitmaskById.Count; i++)
 		{
-			value = new Dictionary<int, T>();
-			ComponentStoreByType.Add(typeId, value);
+			var bitmask = BitmaskById[i];
+
+			if (bitmask > 0)
+			{
+				yield return (i, bitmask);
+			}
 		}
-
-		return (Dictionary<int, T>)value;
-	}
-
-	public void Register<T>() where T : struct, IComponent
-	{
-		IndexBitmask |= IComponent.GetBitmask<T>();
-	}
-
-	public bool IsIndexed<T>() where T : struct, IComponent
-	{
-		return (IndexBitmask & IComponent.GetBitmask<T>()) > 0;
 	}
 
 	public int Create()
@@ -59,7 +46,7 @@ internal class Registry(Manifest Manifest)
 		var store = GetComponentStore<T>();
 		var has = TryGet<T>(id, out var last);
 
-		if (IsIndexed<T>())
+		if (Manifest.IsIndexed<T>())
 		{
 			if (has)
 			{
@@ -82,7 +69,7 @@ internal class Registry(Manifest Manifest)
 	{
 		var store = GetComponentStore<T>();
 
-		if (IsIndexed<T>())
+		if (Manifest.IsIndexed<T>())
 		{
 			Manifest.OnIndexRemoved(id, store[id]);
 		}
@@ -108,5 +95,19 @@ internal class Registry(Manifest Manifest)
 		var has = Has<T>(id);
 		value = has ? Get<T>(id) : default;
 		return has;
+	}
+
+	private Dictionary<int, T> GetComponentStore<T>() where T : struct, IComponent
+	{
+		var typeId = IComponent.GetId<T>();
+
+		if (!ComponentStoreByType.TryGetValue(typeId, out var value))
+		{
+			value = new Dictionary<int, T>();
+			ComponentStoreByType.Add(typeId, value);
+		}
+
+		// component by entity
+		return (Dictionary<int, T>)value;
 	}
 }

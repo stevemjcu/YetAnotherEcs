@@ -1,88 +1,86 @@
-﻿using YetAnotherEcs.Storage;
-
-namespace YetAnotherEcs;
+﻿namespace YetAnotherEcs;
 
 public record struct Filter
 {
 	private int IncludeBitmask;
 	private int ExcludeBitmask;
 
-	public Filter Include<T>() where T : struct
+	public Filter Include<T>() where T : struct, IComponent
 	{
-		IncludeBitmask |= Registry.GetBitmask<T>();
+		IncludeBitmask |= IComponent.GetBitmask<T>();
 		return this;
 	}
 
 	public Filter Include<T, U>()
-		where T : struct
-		where U : struct
+		where T : struct, IComponent
+		where U : struct, IComponent
 	{
 		return Include<T>().Include<U>();
 	}
 
 	public Filter Include<T, U, V>()
-		where T : struct
-		where U : struct
-		where V : struct
+		where T : struct, IComponent
+		where U : struct, IComponent
+		where V : struct, IComponent
 	{
 		return Include<T, U>().Include<V>();
 	}
 
 	public Filter Include<T, U, V, W>()
-		where T : struct
-		where U : struct
-		where V : struct
-		where W : struct
+		where T : struct, IComponent
+		where U : struct, IComponent
+		where V : struct, IComponent
+		where W : struct, IComponent
 	{
 		return Include<T, U, V>().Include<W>();
 	}
 
 	public Filter Include<T, U, V, W, X>()
-		where T : struct
-		where U : struct
-		where V : struct
-		where W : struct
-		where X : struct
+		where T : struct, IComponent
+		where U : struct, IComponent
+		where V : struct, IComponent
+		where W : struct, IComponent
+		where X : struct, IComponent
 	{
 		return Include<T, U, V, W>().Include<X>();
 	}
 
-	public Filter Exclude<T>() where T : struct
+	public Filter Exclude<T>() where T : struct, IComponent
 	{
-		ExcludeBitmask |= Registry.GetBitmask<T>();
+		ExcludeBitmask |= IComponent.GetBitmask<T>();
 		return this;
 	}
 
 	public Filter Exclude<T, U>()
-		where T : struct
-		where U : struct
+		where T : struct, IComponent
+		where U : struct, IComponent
 	{
 		return Exclude<T>().Exclude<U>();
 	}
 
 	public Filter Exclude<T, U, V>()
-		where T : struct
-		where U : struct
-		where V : struct
+		where T : struct, IComponent
+		where U : struct, IComponent
+		where V : struct, IComponent
 	{
 		return Exclude<T, U>().Exclude<V>();
 	}
 
 	public Filter Exclude<T, U, V, W>()
-		where T : struct
-		where U : struct
-		where V : struct
-		where W : struct
+		where T : struct, IComponent
+		where U : struct, IComponent
+		where V : struct, IComponent
+		where W : struct, IComponent
 	{
 		return Exclude<T, U, V>().Exclude<W>();
 	}
 
 	public Filter Exclude<T, U, V, W, X>()
-		where T : struct
-		where U : struct
-		where V : struct
-		where W : struct
-		where X : struct
+		where T : struct, IComponent
+		where U : struct, IComponent
+		where V : struct, IComponent
+		where W : struct, IComponent
+		where X : struct, IComponent
 	{
 		return Exclude<T, U, V, W>().Exclude<X>();
 	}

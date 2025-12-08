@@ -64,9 +64,9 @@ internal class Index
 		return SetByFilter[filter];
 	}
 
-	public IIndexableSet<int> View<T>(T index) where T : struct
+	public IIndexableSet<int> View<T>(T index) where T : struct, IComponent
 	{
-		var hash = Registry.Hash(index);
+		var hash = IComponent.GetHashCode(index);
 		return SetByHash.TryGetValue(hash, out var set) ? set : Empty;
 	}
 }

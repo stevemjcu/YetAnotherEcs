@@ -2,7 +2,7 @@
 
 namespace YetAnotherEcs.Storage;
 
-internal class Index
+internal class Manifest
 {
 	private readonly Dictionary<Filter, SparseSet> SetByFilter = [];
 	private readonly Dictionary<int, SparseSet> SetByHash = [];

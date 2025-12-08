@@ -3,7 +3,7 @@ using YetAnotherEcs.General;
 
 namespace YetAnotherEcs.Storage;
 
-internal class Registry(Index Index)
+internal class Registry(Manifest Manifest)
 {
 	private readonly IdPool IdPool = new();
 	private readonly List<int> BitmaskById = [];
@@ -50,7 +50,7 @@ internal class Registry(Index Index)
 	public void Recycle(int id)
 	{
 		BitmaskById[id] = 0;
-		Index.OnEntityRecycled(id);
+		Manifest.OnEntityRecycled(id);
 		IdPool.Recycle(id);
 	}
 
@@ -63,16 +63,16 @@ internal class Registry(Index Index)
 		{
 			if (had)
 			{
-				Index.OnIndexRemoved(id, IComponent.GetHashCode(store[id]));
+				Manifest.OnIndexRemoved(id, IComponent.GetHashCode(store[id]));
 			}
 
-			Index.OnIndexAdded(id, IComponent.GetHashCode(value));
+			Manifest.OnIndexAdded(id, IComponent.GetHashCode(value));
 		}
 
 		if (!had)
 		{
 			BitmaskById[id] |= IComponent.GetBitmask<T>();
-			Index.OnStructureChanged(id, BitmaskById[id]);
+			Manifest.OnStructureChanged(id, BitmaskById[id]);
 		}
 
 		store[id] = value;
@@ -84,11 +84,11 @@ internal class Registry(Index Index)
 
 		if (IsIndexed<T>())
 		{
-			Index.OnIndexRemoved(id, IComponent.GetHashCode(store[id]));
+			Manifest.OnIndexRemoved(id, IComponent.GetHashCode(store[id]));
 		}
 
 		BitmaskById[id] ^= IComponent.GetBitmask<T>();
-		Index.OnStructureChanged(id, BitmaskById[id]);
+		Manifest.OnStructureChanged(id, BitmaskById[id]);
 
 		store[id] = default;
 	}

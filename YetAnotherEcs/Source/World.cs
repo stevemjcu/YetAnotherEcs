@@ -1,12 +1,12 @@
 ﻿using YetAnotherEcs.General;
 using YetAnotherEcs.Storage;
-using Index = YetAnotherEcs.Storage.Index;
+using Manifest = YetAnotherEcs.Storage.Manifest;
 
 namespace YetAnotherEcs;
 
 public class World
 {
-	internal Index Index;
+	internal Manifest Index;
 	internal Registry Registry;
 
 	public World()

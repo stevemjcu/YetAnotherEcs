@@ -25,7 +25,7 @@ internal class Registry(Manifest Manifest)
 		return (Dictionary<int, T>)value;
 	}
 
-	public void IndexBy<T>() where T : struct, IComponent
+	public void Register<T>() where T : struct, IComponent
 	{
 		IndexBitmask |= IComponent.GetBitmask<T>();
 	}

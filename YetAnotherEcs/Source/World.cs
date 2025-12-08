@@ -6,13 +6,13 @@ namespace YetAnotherEcs;
 
 public class World
 {
-	internal Manifest Index;
+	internal Manifest Manifest;
 	internal Registry Registry;
 
 	public World()
 	{
-		Index = new();
-		Registry = new(Index);
+		Manifest = new();
+		Registry = new(Manifest);
 	}
 
 	public int Create()
@@ -52,13 +52,23 @@ public class World
 		return has;
 	}
 
+	public void Register(Filter filter)
+	{
+		Manifest.Register(filter);
+	}
+
+	public void Register<T>() where T : struct, IComponent
+	{
+		Registry.Register<T>();
+	}
+
 	public IIndexableSet<int> View(Filter filter)
 	{
-		return Index.View(filter);
+		return Manifest.View(filter);
 	}
 
 	public IIndexableSet<int> View<T>(T index) where T : struct, IComponent
 	{
-		return Index.View(index);
+		return Manifest.View(index);
 	}
 }

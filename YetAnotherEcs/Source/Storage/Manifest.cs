@@ -5,6 +5,8 @@ namespace YetAnotherEcs.Storage;
 
 internal class Manifest
 {
+	private static readonly SparseSet Empty = [];
+
 	private readonly Dictionary<Filter, SparseSet> IdSetByFilter = [];
 	private readonly Dictionary<int, object> IndexStoreByType = [];
 
@@ -15,7 +17,7 @@ internal class Manifest
 
 		if (!IndexStoreByType.TryGetValue(typeId, out var value))
 		{
-			value = new Dictionary<int, T>();
+			value = new Dictionary<T, SparseSet>();
 			IndexStoreByType.Add(typeId, value);
 		}
 
@@ -56,11 +58,6 @@ internal class Manifest
 		if (store.TryGetValue(index, out var set))
 		{
 			set.Remove(id);
-
-			if (set.Count == 0)
-			{
-				store.Remove(index);
-			}
 		}
 	}
 
@@ -80,13 +77,18 @@ internal class Manifest
 		}
 	}
 
+	public void Register(Filter filter)
+	{
+		IdSetByFilter[filter] = [];
+	}
+
 	public IIndexableSet<int> View(Filter filter)
 	{
-		return IdSetByFilter[filter];
+		return IdSetByFilter.TryGetValue(filter, out var set) ? set : Empty;
 	}
 
 	public IIndexableSet<int> View<T>(T index) where T : struct, IComponent
 	{
-		return GetIndexStore<T>().TryGetValue(index, out var set) ? set : SparseSet.Empty;
+		return GetIndexStore<T>().TryGetValue(index, out var set) ? set : Empty;
 	}
 }

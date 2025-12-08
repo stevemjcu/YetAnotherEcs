@@ -4,51 +4,52 @@ namespace YetAnotherEcs.General;
 
 public class SparseSet : IIndexableSet<int>
 {
-	private readonly List<int> Sparse = []; // subkey by key
-	private readonly List<int> Dense = []; // key by subkey
-
-	public static readonly SparseSet Empty = [];
+	private readonly List<int> Sparse = []; // index by element
+	private readonly List<int> Dense = []; // element by index
 
 	public int Count => Dense.Count;
 
-	public int this[int index] => Dense[index];
+	public int this[int element] => Dense[element];
 
-	public void Add(int key)
+	public void Add(int element)
 	{
-		if (Contains(key))
+		if (Contains(element))
 		{
 			return;
 		}
 
-		if (key >= Sparse.Count)
+		if (element >= Sparse.Count)
 		{
-			CollectionsMarshal.SetCount(Sparse, key + 1);
+			CollectionsMarshal.SetCount(Sparse, element + 1);
 		}
 
-		Sparse[key] = Dense.Count;
-		Dense.Add(key);
+		Sparse[element] = Dense.Count;
+		Dense.Add(element);
 	}
 
-	public bool Contains(int key)
+	public bool Contains(int element)
 	{
-		return key < Sparse.Count && key == Dense[Sparse[key]];
+		return
+			element < Sparse.Count &&
+			Sparse[element] < Dense.Count &&
+			element == Dense[Sparse[element]];
 	}
 
-	public void Remove(int key)
+	public void Remove(int element)
 	{
-		if (!Contains(key))
+		if (!Contains(element))
 		{
 			return;
 		}
 
-		var subkey = Sparse[key];
-		var end = Dense.Count - 1;
+		var index0 = Sparse[element];
+		var index1 = Dense.Count - 1;
 
-		Sparse[key] = end;
-		Sparse[Dense[end]] = subkey;
-		Dense[subkey] = key;
+		Sparse[element] = index1;
+		Sparse[Dense[index1]] = index0;
+		Dense[index0] = Dense[index1];
 
-		Dense.RemoveAt(end);
+		Dense.RemoveAt(index1);
 	}
 
 	public void Clear()

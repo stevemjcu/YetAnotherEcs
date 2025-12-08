@@ -5,7 +5,7 @@ namespace YetAnotherEcs.Storage;
 
 internal class Manifest
 {
-	private readonly Dictionary<Filter, SparseSet> SetByFilter = [];
+	private readonly Dictionary<Filter, SparseSet> IdSetByFilter = [];
 	private readonly Dictionary<int, object> IndexStoreByType = [];
 
 	// Indexes entity ID set by component
@@ -24,7 +24,7 @@ internal class Manifest
 
 	public void OnStructureChanged(int id, int bitmask)
 	{
-		foreach (var it in SetByFilter)
+		foreach (var it in IdSetByFilter)
 		{
 			if (it.Key.Compare(bitmask))
 			{
@@ -66,14 +66,14 @@ internal class Manifest
 
 	public void OnEntityRecycled(int id)
 	{
-		foreach (var it in SetByFilter.Values)
+		foreach (var it in IdSetByFilter.Values)
 		{
 			it.Remove(id);
 		}
 
-		foreach (var store in IndexStoreByType.Values.Cast<IDictionary>())
+		foreach (IDictionary store in IndexStoreByType.Values)
 		{
-			foreach (var it in store.Values.Cast<SparseSet>())
+			foreach (SparseSet it in store.Values)
 			{
 				it.Remove(id);
 			}
@@ -82,7 +82,7 @@ internal class Manifest
 
 	public IIndexableSet<int> View(Filter filter)
 	{
-		return SetByFilter[filter];
+		return IdSetByFilter[filter];
 	}
 
 	public IIndexableSet<int> View<T>(T index) where T : struct, IComponent

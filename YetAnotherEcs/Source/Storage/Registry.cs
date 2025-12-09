@@ -41,7 +41,7 @@ internal class Registry(Manifest Manifest)
 		IdPool.Recycle(id);
 	}
 
-	public void Set<T>(int id, T value) where T : struct, IComponent
+	public void Set<T>(int id, T value) where T : struct
 	{
 		var store = GetComponentStore<T>();
 		var has = TryGet<T>(id, out var last);
@@ -58,14 +58,14 @@ internal class Registry(Manifest Manifest)
 
 		if (!has)
 		{
-			BitmaskById[id] |= IComponent.GetBitmask<T>();
+			BitmaskById[id] |= Component<T>.Bitmask;
 			Manifest.OnStructureChanged(id, BitmaskById[id]);
 		}
 
 		store[id] = value;
 	}
 
-	public void Remove<T>(int id) where T : struct, IComponent
+	public void Remove<T>(int id) where T : struct
 	{
 		var store = GetComponentStore<T>();
 
@@ -74,32 +74,32 @@ internal class Registry(Manifest Manifest)
 			Manifest.OnIndexRemoved(id, store[id]);
 		}
 
-		BitmaskById[id] ^= IComponent.GetBitmask<T>();
+		BitmaskById[id] ^= Component<T>.Bitmask;
 		Manifest.OnStructureChanged(id, BitmaskById[id]);
 
 		store[id] = default;
 	}
 
-	public bool Has<T>(int id) where T : struct, IComponent
+	public bool Has<T>(int id) where T : struct
 	{
-		return (BitmaskById[id] & IComponent.GetBitmask<T>()) > 0;
+		return (BitmaskById[id] & Component<T>.Bitmask) > 0;
 	}
 
-	public T Get<T>(int id) where T : struct, IComponent
+	public T Get<T>(int id) where T : struct
 	{
 		return GetComponentStore<T>()[id];
 	}
 
-	public bool TryGet<T>(int id, out T value) where T : struct, IComponent
+	public bool TryGet<T>(int id, out T value) where T : struct
 	{
 		var has = Has<T>(id);
 		value = has ? Get<T>(id) : default;
 		return has;
 	}
 
-	private Dictionary<int, T> GetComponentStore<T>() where T : struct, IComponent
+	private Dictionary<int, T> GetComponentStore<T>() where T : struct
 	{
-		var typeId = IComponent.GetId<T>();
+		var typeId = Component<T>.Id;
 
 		if (!ComponentStoreByType.TryGetValue(typeId, out var value))
 		{

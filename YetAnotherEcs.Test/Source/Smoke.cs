@@ -61,7 +61,7 @@ public class Smoke
 		ValidateCounts(1, 0, 0);
 	}
 
-	internal record struct Tag(char Value) : IComponent;
+	internal record struct Tag(char Value);
 
-	internal record struct Unique() : IComponent;
+	internal record struct Unique();
 }

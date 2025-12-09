@@ -12,14 +12,14 @@ internal class Manifest
 
 	private int IndexBitmask;
 
-	public void Index<T>() where T : struct, IComponent
+	public void Index<T>() where T : struct
 	{
-		IndexBitmask |= IComponent.GetBitmask<T>();
+		IndexBitmask |= Component<T>.Bitmask;
 	}
 
-	public bool IsIndexed<T>() where T : struct, IComponent
+	public bool IsIndexed<T>() where T : struct
 	{
-		return (IndexBitmask & IComponent.GetBitmask<T>()) > 0;
+		return (IndexBitmask & Component<T>.Bitmask) > 0;
 	}
 
 	public void OnStructureChanged(int id, int bitmask)
@@ -37,7 +37,7 @@ internal class Manifest
 		}
 	}
 
-	public void OnIndexAdded<T>(int id, T index) where T : struct, IComponent
+	public void OnIndexAdded<T>(int id, T index) where T : struct
 	{
 		var store = GetIndexStore<T>();
 
@@ -49,7 +49,7 @@ internal class Manifest
 		set.Add(id);
 	}
 
-	public void OnIndexRemoved<T>(int id, T index) where T : struct, IComponent
+	public void OnIndexRemoved<T>(int id, T index) where T : struct
 	{
 		var store = GetIndexStore<T>();
 
@@ -81,15 +81,15 @@ internal class Manifest
 		return IdSetByFilter.TryGetValue(filter, out var set) ? set : Empty;
 	}
 
-	public IIndexableSet<int> View<T>(T index) where T : struct, IComponent
+	public IIndexableSet<int> View<T>(T index) where T : struct
 	{
 		// TODO: Build up if first time calling
 		return GetIndexStore<T>().TryGetValue(index, out var set) ? set : Empty;
 	}
 
-	private Dictionary<T, SparseSet> GetIndexStore<T>() where T : struct, IComponent
+	private Dictionary<T, SparseSet> GetIndexStore<T>() where T : struct
 	{
-		var typeId = IComponent.GetId<T>();
+		var typeId = Component<T>.Id;
 
 		if (!IndexStoreByType.TryGetValue(typeId, out var value))
 		{

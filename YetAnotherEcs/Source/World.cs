@@ -25,27 +25,27 @@ public class World
 		Registry.Recycle(id);
 	}
 
-	public void Set<T>(int id, T value = default) where T : struct, IComponent
+	public void Set<T>(int id, T value = default) where T : struct
 	{
 		Registry.Set(id, value);
 	}
 
-	public void Remove<T>(int id) where T : struct, IComponent
+	public void Remove<T>(int id) where T : struct
 	{
 		Registry.Remove<T>(id);
 	}
 
-	public bool Has<T>(int id) where T : struct, IComponent
+	public bool Has<T>(int id) where T : struct
 	{
 		return Registry.Has<T>(id);
 	}
 
-	public T Get<T>(int id) where T : struct, IComponent
+	public T Get<T>(int id) where T : struct
 	{
 		return Registry.Get<T>(id);
 	}
 
-	public bool TryGet<T>(int id, out T value) where T : struct, IComponent
+	public bool TryGet<T>(int id, out T value) where T : struct
 	{
 		var has = Registry.Has<T>(id);
 		value = has ? Registry.Get<T>(id) : default;
@@ -57,7 +57,7 @@ public class World
 		return Manifest.View(filter);
 	}
 
-	public IIndexableSet<int> View<T>(T index) where T : struct, IComponent
+	public IIndexableSet<int> View<T>(T index) where T : struct
 	{
 		return Manifest.View(index);
 	}

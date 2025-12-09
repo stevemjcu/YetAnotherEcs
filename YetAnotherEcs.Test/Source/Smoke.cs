@@ -1,4 +1,6 @@
-﻿namespace YetAnotherEcs.Test.Source;
+﻿using System.Numerics;
+
+namespace YetAnotherEcs.Test.Source;
 
 [TestClass]
 public class Smoke
@@ -63,4 +65,6 @@ public class Smoke
 
 	[Indexed]
 	internal record struct Tag(char Value);
+
+	internal record struct Position(Vector2 Value);
 }

@@ -109,7 +109,7 @@ internal class Registry(World World)
 			ComponentStoreByType.Add(typeId, value);
 		}
 
-		// component by entity
+		// Maps entity to component
 		return (Dictionary<int, T>)value;
 	}
 }

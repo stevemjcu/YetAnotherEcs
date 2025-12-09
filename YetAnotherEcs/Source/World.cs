@@ -1,18 +1,17 @@
 ﻿using YetAnotherEcs.General;
 using YetAnotherEcs.Storage;
-using Manifest = YetAnotherEcs.Storage.Manifest;
 
 namespace YetAnotherEcs;
 
 public class World
 {
-	internal Manifest Manifest;
 	internal Registry Registry;
+	internal Manifest Manifest;
 
 	public World()
 	{
-		Manifest = new(this);
 		Registry = new(this);
+		Manifest = new(this);
 	}
 
 	public int Create()
@@ -47,9 +46,7 @@ public class World
 
 	public bool TryGet<T>(int id, out T value) where T : struct
 	{
-		var has = Registry.Has<T>(id);
-		value = has ? Registry.Get<T>(id) : default;
-		return has;
+		return Registry.TryGet<T>(id, out value);
 	}
 
 	public IIndexableSet<int> View(Filter filter)

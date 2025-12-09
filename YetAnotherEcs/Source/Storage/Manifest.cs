@@ -101,7 +101,7 @@ internal class Manifest(World World)
 			IndexStoreByType.Add(typeId, value);
 		}
 
-		// entity set by component
+		// Maps component to entity set
 		return (Dictionary<T, SparseSet>)value;
 	}
 
@@ -117,6 +117,12 @@ internal class Manifest(World World)
 
 	private void Build<T>() where T : struct
 	{
+		if (!Component<T>.Indexed)
+		{
+			throw new InvalidOperationException(
+				$"Cannot build an index for the non-indexed component {typeof(T)}.");
+		}
+
 		foreach (var (id, _) in Registry.GetEntities())
 		{
 			if (Registry.TryGet<T>(id, out var value))

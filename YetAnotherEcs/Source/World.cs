@@ -24,7 +24,7 @@ public class World
 		Registry.Recycle(id);
 	}
 
-	public void Set<T>(int id, T value = default) where T : struct
+	public void Set<T>(int id, T value) where T : struct
 	{
 		Registry.Set(id, value);
 	}

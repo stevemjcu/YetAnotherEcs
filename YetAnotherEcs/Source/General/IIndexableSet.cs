@@ -32,8 +32,7 @@ public interface IIndexableSet<T> : IEnumerable<T>
 
 	public struct Enumerator(IIndexableSet<T> Set) : IEnumerator<T>
 	{
-		private IIndexableSet<T>? InnerSet0;
-		private IIndexableSet<T>? InnerSet1;
+		private IIndexableSet<T>? InnerSet;
 
 		private int Index = -1;
 
@@ -47,9 +46,7 @@ public interface IIndexableSet<T> : IEnumerable<T>
 		{
 			while (++Index < Set.Count)
 			{
-				if (
-					(InnerSet0?.Contains(Current) ?? true) &&
-					(InnerSet1?.Contains(Current) ?? true))
+				if (InnerSet?.Contains(Current) ?? true)
 				{
 					return true;
 				}
@@ -70,13 +67,7 @@ public interface IIndexableSet<T> : IEnumerable<T>
 
 		internal Enumerator Intersect(IIndexableSet<T> set)
 		{
-			InnerSet0 = set;
-			return this;
-		}
-
-		internal Enumerator Intersect(IIndexableSet<T> set1, IIndexableSet<T> set2)
-		{
-			(InnerSet0, InnerSet1) = (set1, set2);
+			InnerSet = set;
 			return this;
 		}
 	}

@@ -6,6 +6,11 @@ namespace YetAnotherEcs.Test;
 [TestClass]
 public class SmokeTests
 {
+	[Indexed]
+	private record struct Tag(char Value);
+
+	private record struct Position(Vector2 Value);
+
 	[TestMethod]
 	public void WorldOperations()
 	{
@@ -70,6 +75,7 @@ public class SmokeTests
 		var set1 = new SparseSet() { 1, 2, 3 };
 		var set2 = (SparseSet)([1, 2, 3]);
 		Assert.IsTrue(SetEquals(set1, set2));
+		Assert.AreEqual(1, set1[0]);
 
 		set1.Add(1);
 		Assert.IsTrue(set1.Contains(1));
@@ -85,6 +91,7 @@ public class SmokeTests
 		Assert.IsFalse(set1.Contains(1));
 		Assert.HasCount(3, set1);
 		Assert.IsFalse(SetEquals(set1, set2));
+		Assert.AreEqual(4, set1[0]);
 
 		var count = 0;
 		foreach (var it in ((IIndexableSet<int>)set1).Intersect(set2))
@@ -100,12 +107,7 @@ public class SmokeTests
 		Assert.IsTrue(SetEquals(set1, set2));
 	}
 
-	[Indexed]
-	internal record struct Tag(char Value);
-
-	internal record struct Position(Vector2 Value);
-
-	internal bool SetEquals<T>(IIndexableSet<T> set1, IIndexableSet<T> set2)
+	private static bool SetEquals<T>(IIndexableSet<T> set1, IIndexableSet<T> set2)
 	{
 		if (set1.Count != set2.Count)
 		{

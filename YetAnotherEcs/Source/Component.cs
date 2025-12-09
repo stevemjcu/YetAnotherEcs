@@ -14,6 +14,6 @@ public static class Component<T> where T : struct
 	{
 		Id = TypedIdPool<World, T>.Id;
 		Bitmask = 1 << Id;
-		Indexed = false; // TODO: Read attribute on T
+		Indexed = Attribute.GetCustomAttribute(typeof(T), typeof(IndexedAttribute)) is not null;
 	}
 }

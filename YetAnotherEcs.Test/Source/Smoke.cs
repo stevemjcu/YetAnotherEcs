@@ -61,7 +61,6 @@ public class Smoke
 		ValidateCounts(1, 0, 0);
 	}
 
+	[Indexed]
 	internal record struct Tag(char Value);
-
-	internal record struct Unique();
 }

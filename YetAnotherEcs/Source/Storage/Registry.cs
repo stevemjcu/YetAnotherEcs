@@ -5,10 +5,11 @@ namespace YetAnotherEcs.Storage;
 
 internal class Registry(World World)
 {
-	private readonly Manifest Manifest = World.Manifest;
 	private readonly IdPool IdPool = new();
 	private readonly List<int> BitmaskById = [];
 	private readonly Dictionary<int, object> ComponentStoreByType = [];
+
+	private Manifest Manifest => World.Manifest;
 
 	public IEnumerable<(int, int)> GetEntities()
 	{

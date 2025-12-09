@@ -7,12 +7,13 @@ internal class Manifest(World World)
 {
 	private static readonly SparseSet Empty = [];
 
-	private readonly Registry Registry = World.Registry;
 	private readonly Dictionary<Filter, SparseSet> IdSetByFilter = [];
 	private readonly Dictionary<int, object> IndexStoreByType = [];
 
 	private readonly HashSet<Filter> Filters = [];
 	private readonly HashSet<int> Indexes = [];
+
+	private Registry Registry => World.Registry;
 
 	public void OnStructureChanged(int id, int bitmask)
 	{

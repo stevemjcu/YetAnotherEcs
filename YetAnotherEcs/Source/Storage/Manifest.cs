@@ -3,24 +3,16 @@ using YetAnotherEcs.General;
 
 namespace YetAnotherEcs.Storage;
 
-internal class Manifest
+internal class Manifest(World World)
 {
 	private static readonly SparseSet Empty = [];
 
+	private readonly Registry Registry = World.Registry;
 	private readonly Dictionary<Filter, SparseSet> IdSetByFilter = [];
 	private readonly Dictionary<int, object> IndexStoreByType = [];
 
-	private int IndexBitmask;
-
-	public void Index<T>() where T : struct
-	{
-		IndexBitmask |= Component<T>.Bitmask;
-	}
-
-	public bool IsIndexed<T>() where T : struct
-	{
-		return (IndexBitmask & Component<T>.Bitmask) > 0;
-	}
+	private readonly HashSet<Filter> Filters = [];
+	private readonly HashSet<int> Indexes = [];
 
 	public void OnStructureChanged(int id, int bitmask)
 	{
@@ -66,6 +58,7 @@ internal class Manifest
 			it.Remove(id);
 		}
 
+		// FIXME: Is this cast ok?
 		foreach (IDictionary store in IndexStoreByType.Values)
 		{
 			foreach (SparseSet it in store.Values)
@@ -77,13 +70,23 @@ internal class Manifest
 
 	public IIndexableSet<int> View(Filter filter)
 	{
-		// TODO: Build up if first time calling
-		return IdSetByFilter.TryGetValue(filter, out var set) ? set : Empty;
+		if (!Filters.Contains(filter))
+		{
+			Build(filter);
+			Filters.Add(filter);
+		}
+
+		return IdSetByFilter[filter];
 	}
 
 	public IIndexableSet<int> View<T>(T index) where T : struct
 	{
-		// TODO: Build up if first time calling
+		if (!Indexes.Contains(Component<T>.Id))
+		{
+			Build<T>();
+			Indexes.Add(Component<T>.Id);
+		}
+
 		return GetIndexStore<T>().TryGetValue(index, out var set) ? set : Empty;
 	}
 
@@ -99,5 +102,26 @@ internal class Manifest
 
 		// entity set by component
 		return (Dictionary<T, SparseSet>)value;
+	}
+
+	private void Build(Filter filter)
+	{
+		IdSetByFilter[filter] = [];
+
+		foreach (var (id, bitmask) in Registry.GetEntities())
+		{
+			OnStructureChanged(id, bitmask);
+		}
+	}
+
+	private void Build<T>() where T : struct
+	{
+		foreach (var (id, _) in Registry.GetEntities())
+		{
+			if (Registry.TryGet<T>(id, out var value))
+			{
+				OnIndexAdded<T>(id, value);
+			}
+		}
 	}
 }

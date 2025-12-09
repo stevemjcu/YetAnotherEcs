@@ -11,8 +11,8 @@ public class World
 
 	public World()
 	{
-		Manifest = new();
-		Registry = new(Manifest);
+		Manifest = new(this);
+		Registry = new(this);
 	}
 
 	public int Create()

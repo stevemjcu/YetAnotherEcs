@@ -3,8 +3,9 @@ using YetAnotherEcs.General;
 
 namespace YetAnotherEcs.Storage;
 
-internal class Registry(Manifest Manifest)
+internal class Registry(World World)
 {
+	private readonly Manifest Manifest = World.Manifest;
 	private readonly IdPool IdPool = new();
 	private readonly List<int> BitmaskById = [];
 	private readonly Dictionary<int, object> ComponentStoreByType = [];
@@ -46,7 +47,7 @@ internal class Registry(Manifest Manifest)
 		var store = GetComponentStore<T>();
 		var has = TryGet<T>(id, out var last);
 
-		if (Manifest.IsIndexed<T>())
+		if (Component<T>.Indexed)
 		{
 			if (has)
 			{
@@ -69,7 +70,7 @@ internal class Registry(Manifest Manifest)
 	{
 		var store = GetComponentStore<T>();
 
-		if (Manifest.IsIndexed<T>())
+		if (Component<T>.Indexed)
 		{
 			Manifest.OnIndexRemoved(id, store[id]);
 		}

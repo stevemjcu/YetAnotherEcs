@@ -58,7 +58,7 @@ public class Smoke
 		Assert.IsFalse(world.Has<Tag>(entity2));
 		ValidateCounts(0, 0, 0);
 
-		world.Set<Tag>(entity2);
+		world.Set<Tag>(entity2, new());
 		Assert.IsTrue(world.Has<Tag>(entity2));
 		ValidateCounts(1, 0, 0);
 	}

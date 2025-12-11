@@ -76,7 +76,7 @@ internal class Registry(World World)
 			Manifest.OnIndexRemoved(id, store[id]);
 		}
 
-		BitmaskById[id] ^= Component<T>.Bitmask;
+		BitmaskById[id] &= ~Component<T>.Bitmask;
 		Manifest.OnStructureChanged(id, BitmaskById[id]);
 
 		store[id] = default;

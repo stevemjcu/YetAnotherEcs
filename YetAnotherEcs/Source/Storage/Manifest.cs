@@ -10,45 +10,48 @@ internal class Manifest(World World)
 	private readonly Dictionary<Filter, SparseSet> IdSetByFilter = [];
 	private readonly Dictionary<int, object> IndexStoreByType = [];
 
+	// Rename to signatures? An index is sort of a filter too.
 	private readonly HashSet<Filter> Filters = [];
 	private readonly HashSet<int> Indexes = [];
 
 	private Registry Registry => World.Registry;
 
-	public void OnStructureChanged(int id, int bitmask)
+	public void OnStructureChanged(Entity entity)
 	{
 		foreach (var it in IdSetByFilter)
 		{
-			if (it.Key.Compare(bitmask))
+			if (it.Key.Compare(entity.Bitmask))
 			{
-				it.Value.Add(id);
+				it.Value.Add(entity.Id);
 			}
 			else
 			{
-				it.Value.Remove(id);
+				it.Value.Remove(entity.Id);
 			}
 		}
 	}
 
-	public void OnIndexAdded<T>(int id, T index) where T : struct
+	public void OnIndexAdded<T>(Entity entity) where T : struct
 	{
 		var store = GetIndexStore<T>();
+		var index = entity.Get<T>();
 
 		if (!store.TryGetValue(index, out var set))
 		{
 			store[index] = set = [];
 		}
 
-		set.Add(id);
+		set.Add(entity.Id);
 	}
 
-	public void OnIndexRemoved<T>(int id, T index) where T : struct
+	public void OnIndexRemoved<T>(Entity entity) where T : struct
 	{
 		var store = GetIndexStore<T>();
+		var index = entity.Get<T>();
 
 		if (store.TryGetValue(index, out var set))
 		{
-			set.Remove(id);
+			set.Remove(entity.Id);
 		}
 	}
 
@@ -59,7 +62,6 @@ internal class Manifest(World World)
 			it.Remove(id);
 		}
 
-		// FIXME: Is this cast ok?
 		foreach (IDictionary store in IndexStoreByType.Values)
 		{
 			foreach (SparseSet it in store.Values)
@@ -109,9 +111,9 @@ internal class Manifest(World World)
 	{
 		IdSetByFilter[filter] = [];
 
-		foreach (var (id, bitmask) in Registry.GetEntities())
+		foreach (var it in Registry.GetEntities())
 		{
-			OnStructureChanged(id, bitmask);
+			OnStructureChanged(it);
 		}
 	}
 
@@ -123,11 +125,11 @@ internal class Manifest(World World)
 				$"Cannot build an index for the non-indexed component {typeof(T)}.");
 		}
 
-		foreach (var (id, _) in Registry.GetEntities())
+		foreach (var it in Registry.GetEntities())
 		{
-			if (Registry.TryGet<T>(id, out var value))
+			if (it.Has<T>())
 			{
-				OnIndexAdded<T>(id, value);
+				OnIndexAdded<T>(it);
 			}
 		}
 	}

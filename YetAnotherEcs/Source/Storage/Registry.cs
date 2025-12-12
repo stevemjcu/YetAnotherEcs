@@ -6,23 +6,24 @@ namespace YetAnotherEcs.Storage;
 internal class Registry(World World)
 {
 	private readonly IdPool IdPool = new();
-	private readonly List<int> BitmaskById = [];
+	internal readonly List<int> BitmaskById = [];
+	private readonly List<int> VersionById = [];
 	private readonly Dictionary<int, object> ComponentStoreByType = [];
 
 	private Manifest Manifest => World.Manifest;
 
-	public IEnumerable<(int, int)> GetEntities()
+	public IEnumerable<Entity> GetEntities()
 	{
 		for (var i = 0; i < BitmaskById.Count; i++)
 		{
 			if (BitmaskById[i] > 0)
 			{
-				yield return (i, BitmaskById[i]);
+				yield return new(i, BitmaskById[i], World.Id);
 			}
 		}
 	}
 
-	public int Create()
+	public Entity Create()
 	{
 		var id = IdPool.Assign();
 
@@ -31,10 +32,10 @@ internal class Registry(World World)
 			CollectionsMarshal.SetCount(BitmaskById, id + 1);
 		}
 
-		return id;
+		return new(id, ++VersionById[id], World.Id);
 	}
 
-	public void Recycle(int id)
+	public void Destroy(int id)
 	{
 		BitmaskById[id] = 0;
 		Manifest.OnEntityRecycled(id);

@@ -15,11 +15,9 @@ internal class Registry(World World)
 	{
 		for (var i = 0; i < BitmaskById.Count; i++)
 		{
-			var bitmask = BitmaskById[i];
-
-			if (bitmask > 0)
+			if (BitmaskById[i] > 0)
 			{
-				yield return (i, bitmask);
+				yield return (i, BitmaskById[i]);
 			}
 		}
 	}

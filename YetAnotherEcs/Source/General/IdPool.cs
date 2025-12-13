@@ -3,7 +3,7 @@
 public class IdPool
 {
 	private int NextId = 0;
-	private readonly Stack<int> RecycledIds = [];
+	private readonly Queue<int> RecycledIds = [];
 
 	public int Assign()
 	{
@@ -12,12 +12,12 @@ public class IdPool
 
 	public int Assign(out bool recycled)
 	{
-		recycled = RecycledIds.TryPop(out var id);
+		recycled = RecycledIds.TryDequeue(out var id);
 		return recycled ? id : NextId++;
 	}
 
 	public void Recycle(int id)
 	{
-		RecycledIds.Push(id);
+		RecycledIds.Enqueue(id);
 	}
 }

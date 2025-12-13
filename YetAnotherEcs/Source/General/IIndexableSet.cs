@@ -15,9 +15,9 @@ public interface IIndexableSet<T> : IEnumerable<T>
 		return new(this);
 	}
 
-	public Enumerator Intersect(IIndexableSet<T> set)
+	public Enumerator Intersect(IIndexableSet<T> set, bool swap = false)
 	{
-		return GetEnumerator().Intersect(set);
+		return GetEnumerator().Intersect(set, swap);
 	}
 
 	IEnumerator<T> IEnumerable<T>.GetEnumerator()
@@ -65,9 +65,15 @@ public interface IIndexableSet<T> : IEnumerable<T>
 			return this;
 		}
 
-		internal Enumerator Intersect(IIndexableSet<T> set)
+		internal Enumerator Intersect(IIndexableSet<T> set, bool swap)
 		{
 			InnerSet = set;
+
+			if (swap)
+			{
+				(Set, InnerSet) = (InnerSet, Set);
+			}
+
 			return this;
 		}
 	}

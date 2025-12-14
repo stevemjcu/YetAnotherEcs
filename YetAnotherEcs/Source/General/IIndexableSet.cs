@@ -34,7 +34,7 @@ public interface IIndexableSet<T> : IEnumerable<T>
 	{
 		private IIndexableSet<T>? InnerSet;
 
-		private int Index = -1;
+		private int Index = Set.Count;
 
 		public readonly T Current => Set[Index];
 
@@ -44,7 +44,7 @@ public interface IIndexableSet<T> : IEnumerable<T>
 
 		public bool MoveNext()
 		{
-			while (++Index < Set.Count)
+			while (--Index >= 0)
 			{
 				if (InnerSet?.Contains(Current) ?? true)
 				{
@@ -57,7 +57,7 @@ public interface IIndexableSet<T> : IEnumerable<T>
 
 		public void Reset()
 		{
-			Index = -1;
+			Index = Set.Count;
 		}
 
 		readonly public Enumerator GetEnumerator()

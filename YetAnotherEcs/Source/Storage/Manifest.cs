@@ -68,7 +68,7 @@ internal class Manifest(World World)
 		}
 	}
 
-	public IIndexableSet<int> View(Filter filter)
+	public SparseSet View(Filter filter)
 	{
 		if (Filters.Add(filter))
 		{
@@ -78,7 +78,7 @@ internal class Manifest(World World)
 		return IdSetByFilter[filter];
 	}
 
-	public IIndexableSet<int> View<T>(T index) where T : struct
+	public SparseSet View<T>(T index) where T : struct
 	{
 		if (Indexes.Add(Component<T>.Id))
 		{

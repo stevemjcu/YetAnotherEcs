@@ -1,17 +1,17 @@
 ﻿namespace YetAnotherEcs;
 
-public readonly record struct Entity(int Id, int WorldId)
+public readonly record struct Entity(World World, int Id)
 {
-	private readonly World World => World.WorldById[WorldId]!;
-
-	public readonly void Set<T>(T value = default) where T : struct
+	public readonly Entity Set<T>(T value = default) where T : struct
 	{
 		World.Set(Id, value);
+		return this;
 	}
 
-	public readonly void Remove<T>() where T : struct
+	public readonly Entity Remove<T>() where T : struct
 	{
 		World.Remove<T>(Id);
+		return this;
 	}
 
 	public readonly bool Has<T>() where T : struct

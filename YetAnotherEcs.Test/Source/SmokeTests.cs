@@ -47,12 +47,6 @@ public class SmokeTests
 		Assert.AreEqual(entity0.Get<Tag>(), tag1);
 		ValidateCounts(2, 0, 2);
 
-		Assert.IsTrue(world
-			.View(filter)
-			.Select(world.Get)
-			.Select(it => it.Get<Tag>())
-			.All(it => it == tag1));
-
 		entity1.Remove<Tag>();
 		Assert.IsFalse(entity1.Has<Tag>());
 		ValidateCounts(1, 0, 1);
@@ -80,44 +74,35 @@ public class SmokeTests
 
 		set1.Add(1);
 		Assert.IsTrue(set1.Contains(1));
-		Assert.HasCount(3, set1);
+		Assert.AreEqual(3, set1.Count);
 		Assert.IsTrue(SetEquals(set1, set2));
 
 		set1.Add(4);
 		Assert.IsTrue(set1.Contains(4));
-		Assert.HasCount(4, set1);
+		Assert.AreEqual(4, set1.Count);
 		Assert.IsFalse(SetEquals(set1, set2));
 
 		set1.Remove(1);
 		Assert.IsFalse(set1.Contains(1));
-		Assert.HasCount(3, set1);
+		Assert.AreEqual(3, set1.Count);
 		Assert.IsFalse(SetEquals(set1, set2));
 		Assert.AreEqual(4, set1[0]);
-
-		var count = 0;
-		foreach (var it in ((IIndexableSet<int>)set1).Intersect(set2))
-		{
-			Assert.IsTrue(set1.Contains(it));
-			Assert.IsTrue(set2.Contains(it));
-			count++;
-		}
-		Assert.AreEqual(2, count);
 
 		set2.Remove(1);
 		set2.Add(4);
 		Assert.IsTrue(SetEquals(set1, set2));
 	}
 
-	private static bool SetEquals<T>(IIndexableSet<T> set1, IIndexableSet<T> set2)
+	private static bool SetEquals(SparseSet a, SparseSet b)
 	{
-		if (set1.Count != set2.Count)
+		if (a.Count != b.Count)
 		{
 			return false;
 		}
 
-		foreach (var it in set1)
+		foreach (var it in a)
 		{
-			if (!set2.Contains(it))
+			if (!b.Contains(it))
 			{
 				return false;
 			}

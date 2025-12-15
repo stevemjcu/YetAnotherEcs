@@ -1,22 +1,23 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Collections;
+using System.Runtime.InteropServices;
 
 namespace YetAnotherEcs.General;
 
-public class SparseSet : IIndexableSet<int>
+public class SparseSet : IEnumerable<int>
 {
-	private readonly List<int> Sparse = []; // index by item
-	private readonly List<int> Dense = []; // item by index
+	private readonly List<int> IndexByItem = []; // sparse
+	private readonly List<int> ItemByIndex = []; // dense
 
-	public int Count => Dense.Count;
+	public int Count => ItemByIndex.Count;
 
-	public int this[int item] => Dense[item];
+	public int this[int item] => ItemByIndex[item];
 
 	public bool Contains(int item)
 	{
 		return
-			item < Sparse.Count &&
-			Sparse[item] < Dense.Count &&
-			item == Dense[Sparse[item]];
+			item < IndexByItem.Count &&
+			IndexByItem[item] < ItemByIndex.Count &&
+			item == ItemByIndex[IndexByItem[item]];
 	}
 
 	public void Add(int item)
@@ -26,13 +27,13 @@ public class SparseSet : IIndexableSet<int>
 			return;
 		}
 
-		if (item >= Sparse.Count)
+		if (item >= IndexByItem.Count)
 		{
-			CollectionsMarshal.SetCount(Sparse, item + 1);
+			CollectionsMarshal.SetCount(IndexByItem, item + 1);
 		}
 
-		Sparse[item] = Dense.Count;
-		Dense.Add(item);
+		IndexByItem[item] = ItemByIndex.Count;
+		ItemByIndex.Add(item);
 	}
 
 	public void Remove(int item)
@@ -42,19 +43,29 @@ public class SparseSet : IIndexableSet<int>
 			return;
 		}
 
-		var index0 = Sparse[item];
-		var index1 = Dense.Count - 1;
+		var index0 = IndexByItem[item];
+		var index1 = ItemByIndex.Count - 1;
 
-		Sparse[item] = index1;
-		Sparse[Dense[index1]] = index0;
-		Dense[index0] = Dense[index1];
+		IndexByItem[item] = index1;
+		IndexByItem[ItemByIndex[index1]] = index0;
+		ItemByIndex[index0] = ItemByIndex[index1];
 
-		Dense.RemoveAt(index1);
+		ItemByIndex.RemoveAt(index1);
 	}
 
 	public void Clear()
 	{
-		Sparse.Clear();
-		Dense.Clear();
+		IndexByItem.Clear();
+		ItemByIndex.Clear();
+	}
+
+	IEnumerator<int> IEnumerable<int>.GetEnumerator()
+	{
+		return ((IEnumerable<int>)ItemByIndex).GetEnumerator();
+	}
+
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return ((IEnumerable)ItemByIndex).GetEnumerator();
 	}
 }

@@ -1,22 +1,48 @@
-﻿using YetAnotherEcs.General;
+﻿using System.Runtime.InteropServices;
+using YetAnotherEcs.General;
 using YetAnotherEcs.Storage;
 
 namespace YetAnotherEcs;
 
-public class World
+public class World : IDisposable
 {
 	internal Registry Registry;
 	internal Manifest Manifest;
 
+	private static readonly IdPool IdPool = new();
+	internal static readonly List<World?> WorldById = [];
+	internal readonly int Id;
+
 	public World()
 	{
+		Id = IdPool.Assign();
+
+		if (WorldById.Count < Id + 1)
+		{
+			CollectionsMarshal.SetCount(WorldById, Id + 1);
+		}
+
+		WorldById[Id] = this;
+
 		Registry = new(this);
 		Manifest = new(this);
 	}
 
-	public int Create()
+	public void Dispose()
 	{
-		return Registry.Create();
+		IdPool.Recycle(Id);
+		WorldById[Id] = null;
+		GC.SuppressFinalize(this);
+	}
+
+	public Entity Create()
+	{
+		return new(Registry.Create(), Id);
+	}
+
+	public Entity Get(int id)
+	{
+		return new(id, Id);
 	}
 
 	public void Recycle(int id)
@@ -24,30 +50,28 @@ public class World
 		Registry.Recycle(id);
 	}
 
-	public void Set<T>(int id, T value = default) where T : struct
+	#region Component API
+	internal void Set<T>(int id, T value = default) where T : struct
 	{
 		Registry.Set(id, value);
 	}
 
-	public void Remove<T>(int id) where T : struct
+	internal void Remove<T>(int id) where T : struct
 	{
 		Registry.Remove<T>(id);
 	}
 
-	public bool Has<T>(int id) where T : struct
+	internal bool Has<T>(int id) where T : struct
 	{
 		return Registry.Has<T>(id);
 	}
 
-	public T Get<T>(int id) where T : struct
+	internal T Get<T>(int id) where T : struct
 	{
 		return Registry.Get<T>(id);
 	}
 
-	public bool TryGet<T>(int id, out T value) where T : struct
-	{
-		return Registry.TryGet<T>(id, out value);
-	}
+	#endregion
 
 	public IIndexableSet<int> View(Filter filter)
 	{

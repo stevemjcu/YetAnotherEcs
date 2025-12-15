@@ -59,7 +59,6 @@ internal class Manifest(World World)
 			it.Remove(id);
 		}
 
-		// FIXME: Is this cast ok?
 		foreach (IDictionary store in IndexStoreByType.Values)
 		{
 			foreach (SparseSet it in store.Values)
@@ -71,10 +70,9 @@ internal class Manifest(World World)
 
 	public IIndexableSet<int> View(Filter filter)
 	{
-		if (!Filters.Contains(filter))
+		if (Filters.Add(filter))
 		{
 			Build(filter);
-			Filters.Add(filter);
 		}
 
 		return IdSetByFilter[filter];
@@ -82,10 +80,9 @@ internal class Manifest(World World)
 
 	public IIndexableSet<int> View<T>(T index) where T : struct
 	{
-		if (!Indexes.Contains(Component<T>.Id))
+		if (Indexes.Add(Component<T>.Id))
 		{
-			Build<T>();
-			Indexes.Add(Component<T>.Id);
+			Build<T>(); // Is this needed anymore?
 		}
 
 		return GetIndexStore<T>().TryGetValue(index, out var set) ? set : Empty;

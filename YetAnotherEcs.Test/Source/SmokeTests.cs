@@ -29,43 +29,44 @@ public class SmokeTests
 
 		var entity0 = world.Create();
 		var entity1 = world.Create();
-		Assert.AreEqual(0, entity0);
-		Assert.AreEqual(1, entity1);
+		Assert.AreEqual(0, entity0.Id);
+		Assert.AreEqual(1, entity1.Id);
 		ValidateCounts(0, 0, 0);
 
-		world.Set(entity0, tag0);
-		Assert.IsTrue(world.Has<Tag>(entity0));
-		Assert.AreEqual(world.Get<Tag>(entity0), tag0);
+		entity0.Set(tag0);
+		Assert.IsTrue(entity0.Has<Tag>());
+		Assert.AreEqual(entity0.Get<Tag>(), tag0);
 		ValidateCounts(1, 1, 0);
 
-		world.Set(entity1, tag1);
-		Assert.IsTrue(world.Has<Tag>(entity1));
-		Assert.AreEqual(world.Get<Tag>(entity1), tag1);
+		entity1.Set(tag1);
+		Assert.IsTrue(entity1.Has<Tag>());
+		Assert.AreEqual(entity1.Get<Tag>(), tag1);
 		ValidateCounts(2, 1, 1);
 
-		world.Set(entity0, tag1);
-		Assert.AreEqual(world.Get<Tag>(entity0), tag1);
+		entity0.Set(tag1);
+		Assert.AreEqual(entity0.Get<Tag>(), tag1);
 		ValidateCounts(2, 0, 2);
 
 		Assert.IsTrue(world
 			.View(filter)
-			.Select(world.Get<Tag>)
+			.Select(world.Get)
+			.Select(it => it.Get<Tag>())
 			.All(it => it == tag1));
 
-		world.Remove<Tag>(entity1);
-		Assert.IsFalse(world.Has<Tag>(entity1));
+		entity1.Remove<Tag>();
+		Assert.IsFalse(entity1.Has<Tag>());
 		ValidateCounts(1, 0, 1);
 
-		world.Recycle(entity0);
+		world.Recycle(entity0.Id);
 		ValidateCounts(0, 0, 0);
 
 		var entity2 = world.Create();
-		Assert.AreEqual(0, entity2);
-		Assert.IsFalse(world.Has<Tag>(entity2));
+		Assert.AreEqual(0, entity2.Id);
+		Assert.IsFalse(entity2.Has<Tag>());
 		ValidateCounts(0, 0, 0);
 
-		world.Set<Tag>(entity2, new());
-		Assert.IsTrue(world.Has<Tag>(entity2));
+		entity2.Set<Tag>();
+		Assert.IsTrue(entity2.Has<Tag>());
 		ValidateCounts(1, 0, 0);
 	}
 

@@ -13,12 +13,12 @@ public struct View(World World, SparseSet Set)
 		return Set.Contains(entity.Id);
 	}
 
-	public readonly Enumerator GetEnumerator()
+	public readonly ReverseEnumerator GetEnumerator()
 	{
 		return new(World, Set);
 	}
 
-	public struct Enumerator(World World, SparseSet Set)
+	public struct ReverseEnumerator(World World, SparseSet Set)
 	{
 		private int Index = Set.Count;
 

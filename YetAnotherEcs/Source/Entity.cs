@@ -17,6 +17,13 @@ public readonly record struct Entity(World World, int Id)
 		return World.Has<T>(Id);
 	}
 
+	public readonly bool TryGet<T>(out T value) where T : struct
+	{
+		var has = World.Has<T>(Id);
+		value = has ? World.Get<T>(Id) : default;
+		return has;
+	}
+
 	public readonly T Get<T>() where T : struct
 	{
 		return World.Get<T>(Id);

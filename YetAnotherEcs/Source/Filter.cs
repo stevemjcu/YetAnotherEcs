@@ -39,6 +39,27 @@ public record struct Filter {
 		return Include<T, U, V, W>().Include<X>();
 	}
 
+	public Filter Include<T, U, V, W, X, Y>()
+		where T : struct
+		where U : struct
+		where V : struct
+		where W : struct
+		where X : struct
+		where Y : struct {
+		return Include<T, U, V, W, X>().Include<Y>();
+	}
+
+	public Filter Include<T, U, V, W, X, Y, Z>()
+		where T : struct
+		where U : struct
+		where V : struct
+		where W : struct
+		where X : struct
+		where Y : struct
+		where Z : struct {
+		return Include<T, U, V, W, X, Y>().Include<Z>();
+	}
+
 	public Filter Exclude<T>() where T : struct {
 		ExcludeBitmask |= Component<T>.Bitmask;
 		return this;
@@ -72,6 +93,27 @@ public record struct Filter {
 		where W : struct
 		where X : struct {
 		return Exclude<T, U, V, W>().Exclude<X>();
+	}
+
+	public Filter Exclude<T, U, V, W, X, Y>()
+		where T : struct
+		where U : struct
+		where V : struct
+		where W : struct
+		where X : struct
+		where Y : struct {
+		return Exclude<T, U, V, W, X>().Exclude<Y>();
+	}
+
+	public Filter Exclude<T, U, V, W, X, Y, Z>()
+		where T : struct
+		where U : struct
+		where V : struct
+		where W : struct
+		where X : struct
+		where Y : struct
+		where Z : struct {
+		return Exclude<T, U, V, W, X, Y>().Exclude<Z>();
 	}
 
 	public readonly bool Compare(int bitmask) {

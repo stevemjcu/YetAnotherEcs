@@ -13,6 +13,16 @@ public struct View(World World, SparseSet Set)
 		return Set.Contains(entity.Id);
 	}
 
+	public readonly bool Any()
+	{
+		return Set.Count > 0;
+	}
+
+	public readonly Entity Single()
+	{
+		return this[0];
+	}
+
 	public readonly ReverseEnumerator GetEnumerator()
 	{
 		return new(World, Set);

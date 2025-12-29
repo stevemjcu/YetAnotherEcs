@@ -3,61 +3,50 @@ using YetAnotherEcs.General;
 
 namespace YetAnotherEcs.Storage;
 
-internal class Registry(World World)
-{
+internal class Registry(World World) {
 	private readonly IdPool IdPool = new();
 	private readonly List<int> BitmaskById = [];
 	private readonly Dictionary<int, object> ComponentStoreByType = [];
 
 	private Manifest Manifest => World.Manifest;
 
-	public IEnumerable<(int, int)> GetEntities()
-	{
-		for (var i = 0; i < BitmaskById.Count; i++)
-		{
-			if (BitmaskById[i] > 0)
-			{
+	public IEnumerable<(int, int)> GetEntities() {
+		for (var i = 0; i < BitmaskById.Count; i++) {
+			if (BitmaskById[i] > 0) {
 				yield return (i, BitmaskById[i]);
 			}
 		}
 	}
 
-	public int Create()
-	{
+	public int Create() {
 		var id = IdPool.Assign();
 
-		if (BitmaskById.Count < id + 1)
-		{
+		if (BitmaskById.Count < id + 1) {
 			CollectionsMarshal.SetCount(BitmaskById, id + 1);
 		}
 
 		return id;
 	}
 
-	public void Recycle(int id)
-	{
+	public void Recycle(int id) {
 		BitmaskById[id] = 0;
 		Manifest.OnEntityRecycled(id);
 		IdPool.Recycle(id);
 	}
 
-	public void Set<T>(int id, T value) where T : struct
-	{
+	public void Set<T>(int id, T value) where T : struct {
 		var store = GetComponentStore<T>();
 		var has = TryGet<T>(id, out var last);
 
-		if (Component<T>.Indexed)
-		{
-			if (has)
-			{
+		if (Component<T>.Indexed) {
+			if (has) {
 				Manifest.OnIndexRemoved(id, last);
 			}
 
 			Manifest.OnIndexAdded(id, value);
 		}
 
-		if (!has)
-		{
+		if (!has) {
 			BitmaskById[id] |= Component<T>.Bitmask;
 			Manifest.OnStructureChanged(id, BitmaskById[id]);
 		}
@@ -65,12 +54,10 @@ internal class Registry(World World)
 		store[id] = value;
 	}
 
-	public void Remove<T>(int id) where T : struct
-	{
+	public void Remove<T>(int id) where T : struct {
 		var store = GetComponentStore<T>();
 
-		if (Component<T>.Indexed)
-		{
+		if (Component<T>.Indexed) {
 			Manifest.OnIndexRemoved(id, store[id]);
 		}
 
@@ -80,29 +67,24 @@ internal class Registry(World World)
 		store[id] = default;
 	}
 
-	public bool Has<T>(int id) where T : struct
-	{
+	public bool Has<T>(int id) where T : struct {
 		return (BitmaskById[id] & Component<T>.Bitmask) > 0;
 	}
 
-	public T Get<T>(int id) where T : struct
-	{
+	public T Get<T>(int id) where T : struct {
 		return GetComponentStore<T>()[id];
 	}
 
-	public bool TryGet<T>(int id, out T value) where T : struct
-	{
+	public bool TryGet<T>(int id, out T value) where T : struct {
 		var has = Has<T>(id);
 		value = has ? Get<T>(id) : default;
 		return has;
 	}
 
-	private Dictionary<int, T> GetComponentStore<T>() where T : struct
-	{
+	private Dictionary<int, T> GetComponentStore<T>() where T : struct {
 		var typeId = Component<T>.Id;
 
-		if (!ComponentStoreByType.TryGetValue(typeId, out var value))
-		{
+		if (!ComponentStoreByType.TryGetValue(typeId, out var value)) {
 			value = new Dictionary<int, T>();
 			ComponentStoreByType.Add(typeId, value);
 		}

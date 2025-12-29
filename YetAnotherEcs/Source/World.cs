@@ -23,6 +23,14 @@ public class World {
 		Registry.Recycle(id);
 	}
 
+	public View View(Filter filter) {
+		return new(this, Manifest.View(filter));
+	}
+
+	public View View<T>(T index) where T : struct {
+		return new(this, Manifest.View(index));
+	}
+
 	#region Component API
 
 	internal void Set<T>(int id, T value = default) where T : struct {
@@ -42,12 +50,4 @@ public class World {
 	}
 
 	#endregion
-
-	public View View(Filter filter) {
-		return new(this, Manifest.View(filter));
-	}
-
-	public View View<T>(T index) where T : struct {
-		return new(this, Manifest.View(index));
-	}
 }

@@ -4,21 +4,24 @@ using YetAnotherEcs.General;
 namespace YetAnotherEcs.Test;
 
 [TestClass]
-public class SmokeTests {
+public class SmokeTests
+{
 	[Indexed]
 	private record struct Tag(char Value);
 
 	private record struct Position(Vector2 Value);
 
 	[TestMethod]
-	public void WorldOperations() {
+	public void WorldOperations()
+	{
 		var world = new World();
 
 		var filter = new Filter().Include<Tag>();
 		var tag0 = new Tag('0');
 		var tag1 = new Tag('1');
 
-		void ValidateCounts(int a, int b, int c) {
+		void ValidateCounts(int a, int b, int c)
+		{
 			Assert.AreEqual(a, world.View(filter).Count);
 			Assert.AreEqual(b, world.View(tag0).Count);
 			Assert.AreEqual(c, world.View(tag1).Count);
@@ -62,7 +65,8 @@ public class SmokeTests {
 	}
 
 	[TestMethod]
-	public void SetOperations() {
+	public void SetOperations()
+	{
 		var set1 = new SparseSet() { 1, 2, 3 };
 		var set2 = (SparseSet)([1, 2, 3]);
 		Assert.IsTrue(SetEquals(set1, set2));
@@ -89,13 +93,17 @@ public class SmokeTests {
 		Assert.IsTrue(SetEquals(set1, set2));
 	}
 
-	private static bool SetEquals(SparseSet a, SparseSet b) {
-		if (a.Count != b.Count) {
+	private static bool SetEquals(SparseSet a, SparseSet b)
+	{
+		if (a.Count != b.Count)
+		{
 			return false;
 		}
 
-		foreach (var it in a) {
-			if (!b.Contains(it)) {
+		foreach (var it in a)
+		{
+			if (!b.Contains(it))
+			{
 				return false;
 			}
 		}

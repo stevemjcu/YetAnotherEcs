@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Runtime.InteropServices;
+using YetAnotherEcs.Source.General;
 
 namespace YetAnotherEcs.General;
 
@@ -18,6 +19,16 @@ public class SparseSet : IEnumerable<int>
 			item < IndexByItem.Count &&
 			IndexByItem[item] < ItemByIndex.Count &&
 			item == ItemByIndex[IndexByItem[item]];
+	}
+
+	public bool Any()
+	{
+		return Count > 0;
+	}
+
+	public int Single()
+	{
+		return this[0];
 	}
 
 	public void Add(int item)
@@ -59,13 +70,18 @@ public class SparseSet : IEnumerable<int>
 		ItemByIndex.Clear();
 	}
 
+	public ReverseEnumerator GetEnumerator()
+	{
+		return new(this);
+	}
+
 	IEnumerator<int> IEnumerable<int>.GetEnumerator()
 	{
-		return ((IEnumerable<int>)ItemByIndex).GetEnumerator();
+		return ItemByIndex.GetEnumerator();
 	}
 
 	IEnumerator IEnumerable.GetEnumerator()
 	{
-		return ((IEnumerable)ItemByIndex).GetEnumerator();
+		return ItemByIndex.GetEnumerator();
 	}
 }

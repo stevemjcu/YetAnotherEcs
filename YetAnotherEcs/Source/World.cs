@@ -1,63 +1,234 @@
-﻿using YetAnotherEcs.Storage;
+﻿using System.Collections;
+using System.Runtime.InteropServices;
+using YetAnotherEcs.General;
 
 namespace YetAnotherEcs;
 
 public class World
 {
-	internal Registry Registry;
-	internal Manifest Manifest;
+	private readonly IdPool EntityIdPool = new();
+	private readonly List<int> BitmaskByEntityId = [];
+	private readonly Dictionary<int, object> ComponentStoreByTypeId = [];
 
-	public World()
+	private static readonly SparseSet EmptySet = [];
+	private readonly Dictionary<Filter, SparseSet> EntityIdSetByFilter = [];
+	private readonly Dictionary<int, object> IndexStoreByTypeId = [];
+
+	#region Entities
+
+	/// <summary>
+	/// Create an entity and return its ID.
+	/// </summary>
+	/// <returns>The entity ID.</returns>
+	public int CreateEntity()
 	{
-		Registry = new(this);
-		Manifest = new(this);
+		var id = EntityIdPool.Assign();
+
+		if (BitmaskByEntityId.Count < id + 1)
+		{
+			CollectionsMarshal.SetCount(BitmaskByEntityId, id + 1);
+		}
+
+		return id;
 	}
 
-	public Entity Create()
+	/// <summary>
+	/// Delete the entity and recycle its ID.
+	/// </summary>
+	/// <param name="id">The entity ID.</param>
+	public void DeleteEntity(int id)
 	{
-		return new(this, Registry.Create());
+		BitmaskByEntityId[id] = 0;
+		OnEntityDeleted(id);
+		EntityIdPool.Recycle(id);
 	}
 
-	public Entity Get(int id)
+	#endregion
+
+	#region Components
+
+	/// <summary>
+	/// Check if the entity has the component.
+	/// </summary>
+	/// <typeparam name="T">The component type.</typeparam>
+	/// <param name="id">The entity ID.</param>
+	/// <returns>True if the component exists; otherwise, false.</returns>
+	public bool HasComponent<T>(int id) where T : struct
 	{
-		return new(this, id);
+		return (BitmaskByEntityId[id] & Component<T>.Bitmask) > 0;
 	}
 
-	public void Recycle(int id)
+	/// <summary>
+	/// Get the component associated with the entity.
+	/// </summary>
+	/// <typeparam name="T">The component type.</typeparam>
+	/// <param name="id">The entity ID.</param>
+	/// <returns>The component.</returns>
+	public T GetComponent<T>(int id) where T : struct
 	{
-		Registry.Recycle(id);
+		return GetComponentStore<T>()[id];
 	}
 
-	public View View(Filter filter)
+	/// <summary>
+	/// Set the component associated with the entity.
+	/// </summary>
+	/// <typeparam name="T">The component type.</typeparam>
+	/// <param name="id">The entity ID.</param>
+	/// <param name="value">The component.</param>
+	public void SetComponent<T>(int id, T value = default) where T : struct
 	{
-		return new(this, Manifest.View(filter));
+		var store = GetComponentStore<T>();
+		var exists = HasComponent<T>(id);
+
+		if (Component<T>.Indexed)
+		{
+			if (exists)
+			{
+				OnIndexRemoved(id, store[id]);
+			}
+
+			OnIndexAdded(id, value);
+		}
+
+		if (!exists)
+		{
+			BitmaskByEntityId[id] |= Component<T>.Bitmask;
+			OnStructureChanged(id, BitmaskByEntityId[id]);
+		}
+
+		store[id] = value;
 	}
 
-	public View View<T>(T index) where T : struct
+	/// <summary>
+	/// Remove the component associated with the entity.
+	/// </summary>
+	/// <typeparam name="T">The component type.</typeparam>
+	/// <param name="id">The entity ID.</param>
+	public void RemoveComponent<T>(int id) where T : struct
 	{
-		return new(this, Manifest.View(index));
+		var store = GetComponentStore<T>();
+
+		if (Component<T>.Indexed)
+		{
+			OnIndexRemoved(id, store[id]);
+		}
+
+		BitmaskByEntityId[id] &= ~Component<T>.Bitmask;
+		OnStructureChanged(id, BitmaskByEntityId[id]);
+
+		store[id] = default;
 	}
 
-	#region Component API
-
-	internal void Set<T>(int id, T value = default) where T : struct
+	private Dictionary<int, T> GetComponentStore<T>() where T : struct
 	{
-		Registry.Set(id, value);
+		var typeId = Component<T>.Id;
+
+		if (!ComponentStoreByTypeId.TryGetValue(typeId, out var value))
+		{
+			value = new Dictionary<int, T>();
+			ComponentStoreByTypeId.Add(typeId, value);
+		}
+
+		// Maps component by entity ID
+		return (Dictionary<int, T>)value;
 	}
 
-	internal void Remove<T>(int id) where T : struct
+	#endregion
+
+	#region Views
+
+	/// <summary>
+	/// Get the entity IDs matching the filter.
+	/// </summary>
+	/// <param name="filter">The filter.</param>
+	/// <returns>The entity ID set.</returns>
+	public SparseSet GetView(Filter filter)
 	{
-		Registry.Remove<T>(id);
+		if (!EntityIdSetByFilter.TryGetValue(filter, out var value))
+		{
+			value = [];
+			EntityIdSetByFilter[filter] = value;
+		}
+
+		return value;
 	}
 
-	internal bool Has<T>(int id) where T : struct
+	/// <summary>
+	/// Get the entity IDs matching the index.
+	/// </summary>
+	/// <typeparam name="T">The index component type.</typeparam>
+	/// <param name="index">The index component.</param>
+	/// <returns>The entity ID set.</returns>
+	public SparseSet GetView<T>(T index) where T : struct
 	{
-		return Registry.Has<T>(id);
+		return GetIndexStore<T>().TryGetValue(index, out var set) ? set : EmptySet;
 	}
 
-	internal T Get<T>(int id) where T : struct
+	private void OnStructureChanged(int id, int bitmask)
 	{
-		return Registry.Get<T>(id);
+		foreach (var it in EntityIdSetByFilter)
+		{
+			if (it.Key.Compare(bitmask))
+			{
+				it.Value.Add(id);
+			}
+			else
+			{
+				it.Value.Remove(id);
+			}
+		}
+	}
+
+	private void OnIndexAdded<T>(int id, T index) where T : struct
+	{
+		var store = GetIndexStore<T>();
+
+		if (!store.TryGetValue(index, out var set))
+		{
+			store[index] = set = [];
+		}
+
+		set.Add(id);
+	}
+
+	private void OnIndexRemoved<T>(int id, T index) where T : struct
+	{
+		var store = GetIndexStore<T>();
+
+		if (store.TryGetValue(index, out var set))
+		{
+			set.Remove(id);
+		}
+	}
+
+	private void OnEntityDeleted(int id)
+	{
+		foreach (var it in EntityIdSetByFilter.Values)
+		{
+			it.Remove(id);
+		}
+
+		foreach (var store in IndexStoreByTypeId.Values.Cast<IDictionary>())
+		{
+			foreach (SparseSet it in store.Values)
+			{
+				it.Remove(id);
+			}
+		}
+	}
+
+	private Dictionary<T, SparseSet> GetIndexStore<T>() where T : struct
+	{
+		var typeId = Component<T>.Id;
+
+		if (!IndexStoreByTypeId.TryGetValue(typeId, out var value))
+		{
+			value = new Dictionary<T, SparseSet>();
+			IndexStoreByTypeId.Add(typeId, value);
+		}
+
+		// Maps entity ID set by component
+		return (Dictionary<T, SparseSet>)value;
 	}
 
 	#endregion

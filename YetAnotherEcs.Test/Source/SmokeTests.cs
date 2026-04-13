@@ -6,9 +6,10 @@ namespace YetAnotherEcs.Test;
 [TestClass]
 public class SmokeTests
 {
-	[Indexed]
+	[IndexedComponent]
 	private record struct Tag(char Value);
 
+	[Component]
 	private record struct Position(Vector2 Value);
 
 	[TestMethod]
@@ -22,45 +23,45 @@ public class SmokeTests
 
 		void ValidateCounts(int a, int b, int c)
 		{
-			Assert.AreEqual(a, world.View(filter).Count);
-			Assert.AreEqual(b, world.View(tag0).Count);
-			Assert.AreEqual(c, world.View(tag1).Count);
+			Assert.AreEqual(a, world.GetView(filter).Count);
+			Assert.AreEqual(b, world.GetView(tag0).Count);
+			Assert.AreEqual(c, world.GetView(tag1).Count);
 		}
 
-		var entity0 = world.Create();
-		var entity1 = world.Create();
-		Assert.AreEqual(0, entity0.Id);
-		Assert.AreEqual(1, entity1.Id);
+		var entity0 = world.CreateEntity();
+		var entity1 = world.CreateEntity();
+		Assert.AreEqual(0, entity0);
+		Assert.AreEqual(1, entity1);
 		ValidateCounts(0, 0, 0);
 
-		entity0.Set(tag0);
-		Assert.IsTrue(entity0.Has<Tag>());
-		Assert.AreEqual(entity0.Get<Tag>(), tag0);
+		world.SetComponent(entity0, tag0);
+		Assert.IsTrue(world.HasComponent<Tag>(entity0));
+		Assert.AreEqual(world.GetComponent<Tag>(entity0), tag0);
 		ValidateCounts(1, 1, 0);
 
-		entity1.Set(tag1);
-		Assert.IsTrue(entity1.Has<Tag>());
-		Assert.AreEqual(entity1.Get<Tag>(), tag1);
+		world.SetComponent(entity1, tag1);
+		Assert.IsTrue(world.HasComponent<Tag>(entity1));
+		Assert.AreEqual(world.GetComponent<Tag>(entity1), tag1);
 		ValidateCounts(2, 1, 1);
 
-		entity0.Set(tag1);
-		Assert.AreEqual(entity0.Get<Tag>(), tag1);
+		world.SetComponent(entity0, tag1);
+		Assert.AreEqual(world.GetComponent<Tag>(entity0), tag1);
 		ValidateCounts(2, 0, 2);
 
-		entity1.Remove<Tag>();
-		Assert.IsFalse(entity1.Has<Tag>());
+		world.RemoveComponent<Tag>(entity1);
+		Assert.IsFalse(world.HasComponent<Tag>(entity1));
 		ValidateCounts(1, 0, 1);
 
-		world.Recycle(entity0.Id);
+		world.DeleteEntity(entity0);
 		ValidateCounts(0, 0, 0);
 
-		var entity2 = world.Create();
-		Assert.AreEqual(0, entity2.Id);
-		Assert.IsFalse(entity2.Has<Tag>());
+		var entity2 = world.CreateEntity();
+		Assert.AreEqual(0, entity2);
+		Assert.IsFalse(world.HasComponent<Tag>(entity2));
 		ValidateCounts(0, 0, 0);
 
-		entity2.Set<Tag>();
-		Assert.IsTrue(entity2.Has<Tag>());
+		world.SetComponent<Tag>(entity2);
+		Assert.IsTrue(world.HasComponent<Tag>(entity2));
 		ValidateCounts(1, 0, 0);
 	}
 

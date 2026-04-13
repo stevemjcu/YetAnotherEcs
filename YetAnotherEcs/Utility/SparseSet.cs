@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using YetAnotherEcs.Source.General;
 
-namespace YetAnotherEcs.General;
+namespace YetAnotherEcs.Utility;
 
 public class SparseSet : IEnumerable<int>
 {

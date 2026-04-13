@@ -1,4 +1,4 @@
-﻿namespace YetAnotherEcs.General;
+﻿namespace YetAnotherEcs.Utility;
 
 public class IdPool
 {

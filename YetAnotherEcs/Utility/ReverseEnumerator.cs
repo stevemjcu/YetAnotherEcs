@@ -1,4 +1,4 @@
-﻿using YetAnotherEcs.General;
+﻿using YetAnotherEcs.Utility;
 
 namespace YetAnotherEcs.Source.General;
 

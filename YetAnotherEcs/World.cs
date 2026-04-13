@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Runtime.InteropServices;
-using YetAnotherEcs.General;
+using YetAnotherEcs.Utility;
 
 namespace YetAnotherEcs;
 

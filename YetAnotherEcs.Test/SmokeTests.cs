@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using YetAnotherEcs.General;
+using YetAnotherEcs.Utility;
 
 namespace YetAnotherEcs.Test;
 

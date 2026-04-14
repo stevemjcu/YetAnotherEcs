@@ -1,17 +1,21 @@
 ﻿using System.Collections;
 using System.Runtime.InteropServices;
-using YetAnotherEcs.Source.General;
 
 namespace YetAnotherEcs.Utility;
 
-public class SparseSet : IEnumerable<int>
+/// <summary>
+/// Represents a set of non-negative integers stored contiguously.
+/// </summary>
+public class SparseSet : IEnumerable<int>, ICollection<int>
 {
 	private readonly List<int> IndexByItem = []; // sparse
 	private readonly List<int> ItemByIndex = []; // dense
 
 	public int Count => ItemByIndex.Count;
 
-	public int this[int item] => ItemByIndex[item];
+	public bool IsReadOnly => false;
+
+	public int this[int index] => ItemByIndex[index];
 
 	public bool Contains(int item)
 	{
@@ -19,16 +23,6 @@ public class SparseSet : IEnumerable<int>
 			item < IndexByItem.Count &&
 			IndexByItem[item] < ItemByIndex.Count &&
 			item == ItemByIndex[IndexByItem[item]];
-	}
-
-	public bool Any()
-	{
-		return Count > 0;
-	}
-
-	public int Single()
-	{
-		return this[0];
 	}
 
 	public void Add(int item)
@@ -47,11 +41,11 @@ public class SparseSet : IEnumerable<int>
 		ItemByIndex.Add(item);
 	}
 
-	public void Remove(int item)
+	public bool Remove(int item)
 	{
 		if (!Contains(item))
 		{
-			return;
+			return false;
 		}
 
 		var index0 = IndexByItem[item];
@@ -62,6 +56,7 @@ public class SparseSet : IEnumerable<int>
 		ItemByIndex[index0] = ItemByIndex[index1];
 
 		ItemByIndex.RemoveAt(index1);
+		return true;
 	}
 
 	public void Clear()
@@ -70,9 +65,35 @@ public class SparseSet : IEnumerable<int>
 		ItemByIndex.Clear();
 	}
 
+	/// <summary>
+	/// Traverses the set in reverse to avoid invalidation.
+	/// </summary>
+	/// <returns>The reverse enumerator.</returns>
 	public ReverseEnumerator GetEnumerator()
 	{
 		return new(this);
+	}
+
+	public struct ReverseEnumerator(SparseSet Set)
+	{
+		private int Index = Set.Count;
+
+		public readonly int Current => Set[Index];
+
+		public bool MoveNext()
+		{
+			while (--Index >= 0)
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		public void Reset()
+		{
+			Index = Set.Count;
+		}
 	}
 
 	IEnumerator<int> IEnumerable<int>.GetEnumerator()
@@ -83,5 +104,10 @@ public class SparseSet : IEnumerable<int>
 	IEnumerator IEnumerable.GetEnumerator()
 	{
 		return ItemByIndex.GetEnumerator();
+	}
+
+	public void CopyTo(int[] array, int arrayIndex)
+	{
+		throw new NotImplementedException();
 	}
 }

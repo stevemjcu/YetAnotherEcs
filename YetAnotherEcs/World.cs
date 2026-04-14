@@ -4,6 +4,9 @@ using YetAnotherEcs.Utility;
 
 namespace YetAnotherEcs;
 
+/// <summary>
+/// Manages a collection of entities and their components.
+/// </summary>
 public class World
 {
 	private readonly IdPool EntityIdPool = new();
@@ -17,7 +20,7 @@ public class World
 	#region Entities
 
 	/// <summary>
-	/// Create an entity and return its ID.
+	/// Creates an entity with a unique ID.
 	/// </summary>
 	/// <returns>The entity ID.</returns>
 	public int CreateEntity()
@@ -33,7 +36,7 @@ public class World
 	}
 
 	/// <summary>
-	/// Delete the entity and recycle its ID.
+	/// Deletes an entity and recycles its ID.
 	/// </summary>
 	/// <param name="id">The entity ID.</param>
 	public void DeleteEntity(int id)
@@ -48,18 +51,18 @@ public class World
 	#region Components
 
 	/// <summary>
-	/// Check if the entity has the component.
+	/// Checks if an entity has a component.
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <param name="id">The entity ID.</param>
 	/// <returns>True if the component exists; otherwise, false.</returns>
 	public bool HasComponent<T>(int id) where T : struct
 	{
-		return (BitmaskByEntityId[id] & Component<T>.Bitmask) > 0;
+		return (BitmaskByEntityId[id] & ComponentMetadata<T>.Bitmask) > 0;
 	}
 
 	/// <summary>
-	/// Get the component associated with the entity.
+	/// Gets the component associated with an entity.
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <param name="id">The entity ID.</param>
@@ -70,7 +73,21 @@ public class World
 	}
 
 	/// <summary>
-	/// Set the component associated with the entity.
+	/// Gets the component associated with an entity, if it exists.
+	/// </summary>
+	/// <typeparam name="T">The component type.</typeparam>
+	/// <param name="id">The entity ID.</param>
+	/// <param name="value">The component.</param>
+	/// <returns>True if the component exists; otherwise, false.</returns>
+	public bool TryGetComponent<T>(int id, out T value) where T : struct
+	{
+		var has = HasComponent<T>(id);
+		value = has ? GetComponent<T>(id) : default;
+		return has;
+	}
+
+	/// <summary>
+	/// Sets the component associated with an entity.
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <param name="id">The entity ID.</param>
@@ -80,7 +97,7 @@ public class World
 		var store = GetComponentStore<T>();
 		var exists = HasComponent<T>(id);
 
-		if (Component<T>.Indexed)
+		if (ComponentMetadata<T>.Indexed)
 		{
 			if (exists)
 			{
@@ -92,7 +109,7 @@ public class World
 
 		if (!exists)
 		{
-			BitmaskByEntityId[id] |= Component<T>.Bitmask;
+			BitmaskByEntityId[id] |= ComponentMetadata<T>.Bitmask;
 			OnStructureChanged(id, BitmaskByEntityId[id]);
 		}
 
@@ -100,7 +117,7 @@ public class World
 	}
 
 	/// <summary>
-	/// Remove the component associated with the entity.
+	/// Removes the component associated with an entity.
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <param name="id">The entity ID.</param>
@@ -108,12 +125,12 @@ public class World
 	{
 		var store = GetComponentStore<T>();
 
-		if (Component<T>.Indexed)
+		if (ComponentMetadata<T>.Indexed)
 		{
 			OnIndexRemoved(id, store[id]);
 		}
 
-		BitmaskByEntityId[id] &= ~Component<T>.Bitmask;
+		BitmaskByEntityId[id] &= ~ComponentMetadata<T>.Bitmask;
 		OnStructureChanged(id, BitmaskByEntityId[id]);
 
 		store[id] = default;
@@ -121,7 +138,7 @@ public class World
 
 	private Dictionary<int, T> GetComponentStore<T>() where T : struct
 	{
-		var typeId = Component<T>.Id;
+		var typeId = ComponentMetadata<T>.Id;
 
 		if (!ComponentStoreByTypeId.TryGetValue(typeId, out var value))
 		{
@@ -135,14 +152,14 @@ public class World
 
 	#endregion
 
-	#region Views
+	#region Queries
 
 	/// <summary>
-	/// Get the entity IDs matching the filter.
+	/// Gets the entity IDs matching an filter.
 	/// </summary>
 	/// <param name="filter">The filter.</param>
 	/// <returns>The entity ID set.</returns>
-	public SparseSet GetView(Filter filter)
+	public SparseSet QueryEntities(Filter filter)
 	{
 		if (!EntityIdSetByFilter.TryGetValue(filter, out var value))
 		{
@@ -154,12 +171,12 @@ public class World
 	}
 
 	/// <summary>
-	/// Get the entity IDs matching the index.
+	/// Gets the entity IDs matching an index.
 	/// </summary>
 	/// <typeparam name="T">The index component type.</typeparam>
 	/// <param name="index">The index component.</param>
 	/// <returns>The entity ID set.</returns>
-	public SparseSet GetView<T>(T index) where T : struct
+	public SparseSet QueryEntities<T>(T index) where T : struct
 	{
 		return GetIndexStore<T>().TryGetValue(index, out var set) ? set : EmptySet;
 	}
@@ -168,7 +185,7 @@ public class World
 	{
 		foreach (var it in EntityIdSetByFilter)
 		{
-			if (it.Key.Compare(bitmask))
+			if (it.Key.Matches(bitmask))
 			{
 				it.Value.Add(id);
 			}
@@ -219,7 +236,7 @@ public class World
 
 	private Dictionary<T, SparseSet> GetIndexStore<T>() where T : struct
 	{
-		var typeId = Component<T>.Id;
+		var typeId = ComponentMetadata<T>.Id;
 
 		if (!IndexStoreByTypeId.TryGetValue(typeId, out var value))
 		{

@@ -6,7 +6,7 @@ namespace YetAnotherEcs.Test;
 [TestClass]
 public class SmokeTests
 {
-	[IndexedComponent]
+	[Indexed, Component]
 	private record struct Tag(char Value);
 
 	[Component]
@@ -23,9 +23,9 @@ public class SmokeTests
 
 		void ValidateCounts(int a, int b, int c)
 		{
-			Assert.AreEqual(a, world.GetView(filter).Count);
-			Assert.AreEqual(b, world.GetView(tag0).Count);
-			Assert.AreEqual(c, world.GetView(tag1).Count);
+			Assert.AreEqual(a, world.QueryEntities(filter).Count);
+			Assert.AreEqual(b, world.QueryEntities(tag0).Count);
+			Assert.AreEqual(c, world.QueryEntities(tag1).Count);
 		}
 
 		var entity0 = world.CreateEntity();

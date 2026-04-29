@@ -65,15 +65,15 @@ public class SparseSet : IEnumerable<int>, ICollection<int>
 		ItemByIndex.Clear();
 	}
 
-	/// <summary>
-	/// Traverses the set in reverse to avoid invalidation.
-	/// </summary>
-	/// <returns>The reverse enumerator.</returns>
 	public ReverseEnumerator GetEnumerator()
 	{
 		return new(this);
 	}
 
+	/// <summary>
+	/// Traverses the set in reverse to avoid invalidation.
+	/// </summary>
+	/// <param name="Set">The set to traverse.</param>
 	public struct ReverseEnumerator(SparseSet Set)
 	{
 		private int Index = Set.Count;

@@ -15,7 +15,7 @@ public record struct Filter
 	/// <returns>This filter.</returns>
 	public Filter Include<T>() where T : struct
 	{
-		IncludeBitmask |= ComponentMetadata<T>.Bitmask;
+		IncludeBitmask |= ComponentType<T>.Bitmask;
 		return this;
 	}
 
@@ -26,7 +26,7 @@ public record struct Filter
 	/// <returns>This filter.</returns>
 	public Filter Exclude<T>() where T : struct
 	{
-		ExcludeBitmask |= ComponentMetadata<T>.Bitmask;
+		ExcludeBitmask |= ComponentType<T>.Bitmask;
 		return this;
 	}
 

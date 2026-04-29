@@ -58,7 +58,7 @@ public class World
 	/// <returns>True if the component exists; otherwise, false.</returns>
 	public bool HasComponent<T>(int id) where T : struct
 	{
-		return (BitmaskByEntityId[id] & ComponentMetadata<T>.Bitmask) > 0;
+		return (BitmaskByEntityId[id] & ComponentType<T>.Bitmask) > 0;
 	}
 
 	/// <summary>
@@ -97,7 +97,7 @@ public class World
 		var store = GetComponentStore<T>();
 		var exists = HasComponent<T>(id);
 
-		if (ComponentMetadata<T>.Indexed)
+		if (ComponentType<T>.Indexed)
 		{
 			if (exists)
 			{
@@ -109,7 +109,7 @@ public class World
 
 		if (!exists)
 		{
-			BitmaskByEntityId[id] |= ComponentMetadata<T>.Bitmask;
+			BitmaskByEntityId[id] |= ComponentType<T>.Bitmask;
 			OnStructureChanged(id, BitmaskByEntityId[id]);
 		}
 
@@ -125,12 +125,12 @@ public class World
 	{
 		var store = GetComponentStore<T>();
 
-		if (ComponentMetadata<T>.Indexed)
+		if (ComponentType<T>.Indexed)
 		{
 			OnIndexRemoved(id, store[id]);
 		}
 
-		BitmaskByEntityId[id] &= ~ComponentMetadata<T>.Bitmask;
+		BitmaskByEntityId[id] &= ~ComponentType<T>.Bitmask;
 		OnStructureChanged(id, BitmaskByEntityId[id]);
 
 		store[id] = default;
@@ -138,7 +138,7 @@ public class World
 
 	private Dictionary<int, T> GetComponentStore<T>() where T : struct
 	{
-		var typeId = ComponentMetadata<T>.Id;
+		var typeId = ComponentType<T>.Id;
 
 		if (!ComponentStoreByTypeId.TryGetValue(typeId, out var value))
 		{
@@ -236,7 +236,7 @@ public class World
 
 	private Dictionary<T, SparseSet> GetIndexStore<T>() where T : struct
 	{
-		var typeId = ComponentMetadata<T>.Id;
+		var typeId = ComponentType<T>.Id;
 
 		if (!IndexStoreByTypeId.TryGetValue(typeId, out var value))
 		{

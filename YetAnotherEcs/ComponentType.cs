@@ -6,7 +6,7 @@ namespace YetAnotherEcs;
 /// Provides static metadata for a component type.
 /// </summary>
 /// <typeparam name="T">The component type.</typeparam>
-public static class ComponentMetadata<T> where T : struct
+public static class ComponentType<T> where T : struct
 {
 	public static int Id { get; }
 
@@ -14,7 +14,7 @@ public static class ComponentMetadata<T> where T : struct
 
 	public static bool Indexed { get; }
 
-	static ComponentMetadata()
+	static ComponentType()
 	{
 		var isComponent = Attribute.GetCustomAttribute(typeof(T), typeof(ComponentAttribute)) is not null;
 		var isIndex = Attribute.GetCustomAttribute(typeof(T), typeof(IndexedAttribute)) is not null;

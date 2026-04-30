@@ -12,21 +12,9 @@ public static class ComponentType<T> where T : struct
 
 	public static int Bitmask { get; }
 
-	public static bool Indexed { get; }
-
 	static ComponentType()
 	{
-		var isComponent = Attribute.GetCustomAttribute(typeof(T), typeof(ComponentAttribute)) is not null;
-		var isIndex = Attribute.GetCustomAttribute(typeof(T), typeof(IndexedAttribute)) is not null;
-
-		if (!isComponent)
-		{
-			throw new InvalidOperationException(
-				$"Cannot use the non-component type {typeof(T)} as a component.");
-		}
-
 		Id = TypedIdPool<World, T>.Id;
 		Bitmask = 1 << Id;
-		Indexed = isIndex;
 	}
 }

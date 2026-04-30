@@ -11,13 +11,36 @@ internal class Index
 
 	public bool RegisterFilter(Filter filter)
 	{
-		if (!EntityIdSetByFilter.ContainsKey(filter))
+		if (!ContainsFilter(filter))
 		{
 			EntityIdSetByFilter[filter] = [];
 			return false;
 		}
 
 		return true;
+	}
+
+	public bool RegisterComponentType<T>() where T : struct
+	{
+		var typeId = ComponentType<T>.Id;
+
+		if (!ContainsComponentType<T>())
+		{
+			IndexStoreByTypeId.Add(typeId, new Dictionary<T, SparseSet>());
+			return false;
+		}
+
+		return true;
+	}
+
+	public bool ContainsFilter(Filter filter)
+	{
+		return EntityIdSetByFilter.ContainsKey(filter);
+	}
+
+	public bool ContainsComponentType<T>() where T : struct
+	{
+		return IndexStoreByTypeId.ContainsKey(ComponentType<T>.Id);
 	}
 
 	public SparseSet GetEntities(Filter filter)

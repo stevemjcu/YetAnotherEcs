@@ -49,7 +49,7 @@ public readonly record struct Entity(World World, int Id)
 	{
 		var exists = Has<T>();
 
-		if (ComponentType<T>.Indexed)
+		if (World.Index.ContainsComponentType<T>())
 		{
 			if (exists)
 			{
@@ -73,7 +73,7 @@ public readonly record struct Entity(World World, int Id)
 	/// <typeparam name="T">The component type.</typeparam>
 	public void Remove<T>() where T : struct
 	{
-		if (ComponentType<T>.Indexed)
+		if (World.Index.ContainsComponentType<T>())
 		{
 			World.Index.OnComponentRemoved(Id, Get<T>());
 		}

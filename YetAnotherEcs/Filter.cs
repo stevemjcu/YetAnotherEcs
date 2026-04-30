@@ -1,7 +1,7 @@
 ﻿namespace YetAnotherEcs;
 
 /// <summary>
-/// Represents a filter for entities by their bitmask (component structure).
+/// Represents a filter for entities by their component type signature.
 /// </summary>
 public record struct Filter
 {

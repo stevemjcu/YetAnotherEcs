@@ -41,21 +41,31 @@ public class World
 	}
 
 	/// <summary>
+	/// Enables an index for a component type signature.
+	/// </summary>
+	/// <param name="filter">The filter.</param>
+	public void Register(Filter filter)
+	{
+		Index.RegisterFilter(filter);
+	}
+
+	/// <summary>
+	/// Enables an index for a component value.
+	/// </summary>
+	/// <typeparam name="T">The component type.</typeparam>
+	public void Register<T>() where T : struct
+	{
+		Index.RegisterComponentType<T>();
+	}
+
+	/// <summary>
 	/// Retrieves the set of entities with a matching component structure.
 	/// </summary>
 	/// <param name="filter">The filter.</param>
-	/// <returns>The view.</returns>
+	/// <returns>The entity set.</returns>
 	public View View(Filter filter)
 	{
-		// TODO: Allow non-cached filters
-		if (!Index.RegisterFilter(filter))
-		{
-			foreach (var (id, bitmask) in Table.GetEntities())
-			{
-				Index.OnStructureChanged(id, bitmask);
-			}
-		}
-
+		// TODO: Handle non-indexed
 		return new(this, Index.GetEntities(filter));
 	}
 
@@ -64,10 +74,10 @@ public class World
 	/// </summary>
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <param name="value">The component value.</param>
-	/// <returns>The view.</returns>
+	/// <returns>The entity set.</returns>
 	public View View<T>(T value) where T : struct
 	{
-		// TODO: Build if new or not indexed
+		// TODO: Handle non-indexed
 		return new(this, Index.GetEntities(value));
 	}
 }

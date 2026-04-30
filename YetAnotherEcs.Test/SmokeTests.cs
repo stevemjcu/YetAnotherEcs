@@ -6,10 +6,8 @@ namespace YetAnotherEcs.Test;
 [TestClass]
 public class SmokeTests
 {
-	[Component, Indexed]
 	private record struct Tag(char Value);
 
-	[Component]
 	private record struct Position(Vector2 Value);
 
 	[TestMethod]
@@ -27,6 +25,9 @@ public class SmokeTests
 			Assert.AreEqual(b, world.View(tag0).Count);
 			Assert.AreEqual(c, world.View(tag1).Count);
 		}
+
+		world.Register(filter);
+		world.Register<Tag>();
 
 		var entity0 = world.Create();
 		var entity1 = world.Create();

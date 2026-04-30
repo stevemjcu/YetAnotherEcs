@@ -65,37 +65,6 @@ public class SparseSet : IEnumerable<int>, ICollection<int>
 		ItemByIndex.Clear();
 	}
 
-	public ReverseEnumerator GetEnumerator()
-	{
-		return new(this);
-	}
-
-	/// <summary>
-	/// Traverses the set in reverse to avoid invalidation.
-	/// </summary>
-	/// <param name="Set">The set to traverse.</param>
-	public struct ReverseEnumerator(SparseSet Set)
-	{
-		private int Index = Set.Count;
-
-		public readonly int Current => Set[Index];
-
-		public bool MoveNext()
-		{
-			while (--Index >= 0)
-			{
-				return true;
-			}
-
-			return false;
-		}
-
-		public void Reset()
-		{
-			Index = Set.Count;
-		}
-	}
-
 	IEnumerator<int> IEnumerable<int>.GetEnumerator()
 	{
 		return ItemByIndex.GetEnumerator();

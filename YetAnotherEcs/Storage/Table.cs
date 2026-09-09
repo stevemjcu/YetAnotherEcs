@@ -9,13 +9,13 @@ internal class Table
 	private readonly List<int> BitmaskByEntityId = [];
 	private readonly Dictionary<int, object> ComponentStoreByTypeId = [];
 
-	public IEnumerable<(int Id, int Bitmask)> GetEntities()
+	public IEnumerable<int> GetEntities()
 	{
 		for (var i = 0; i < BitmaskByEntityId.Count; i++)
 		{
 			if (BitmaskByEntityId[i] > 0)
 			{
-				yield return (i, BitmaskByEntityId[i]);
+				yield return i;
 			}
 		}
 	}

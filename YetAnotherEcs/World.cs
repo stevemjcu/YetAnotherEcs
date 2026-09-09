@@ -50,9 +50,9 @@ public class World
 		if (!Index.ContainsFilter(filter))
 		{
 			Index.RegisterFilter(filter);
-			foreach (var (id, bitmask) in Table.GetEntities())
+			foreach (var id in Table.GetEntities())
 			{
-				Index.OnStructureChanged(id, bitmask);
+				Index.OnStructureChanged(id, Table.GetBitmask(id));
 			}
 		}
 
@@ -70,7 +70,7 @@ public class World
 		if (!Index.ContainsComponentType<T>())
 		{
 			Index.RegisterComponentType<T>();
-			foreach (var (id, _) in Table.GetEntities())
+			foreach (var id in Table.GetEntities())
 			{
 				Index.OnComponentAdded(id, Table.GetComponent<T>(id));
 			}

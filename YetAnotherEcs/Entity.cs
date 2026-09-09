@@ -5,7 +5,7 @@
 /// </summary>
 public readonly record struct Entity(World World, int Id)
 {
-	internal readonly int Bitmask => World.Table.GetBitmask(Id);
+	public readonly int Bitmask => World.Table.GetBitmask(Id);
 
 	/// <summary>
 	/// Determines if a component exists.

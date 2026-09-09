@@ -26,9 +26,6 @@ public class SmokeTests
 			Assert.AreEqual(c, world.View(tag1).Count);
 		}
 
-		world.Register(filter);
-		world.Register<Tag>();
-
 		var entity0 = world.Create();
 		var entity1 = world.Create();
 		Assert.AreEqual(0, entity0.Id);

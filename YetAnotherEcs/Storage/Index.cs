@@ -3,35 +3,11 @@ using YetAnotherEcs.Utility;
 
 namespace YetAnotherEcs.Storage;
 
-internal class Index
+internal class Index(Table Table)
 {
 	private static readonly SparseSet EmptySet = [];
 	private readonly Dictionary<Filter, SparseSet> EntityIdSetByFilter = [];
 	private readonly Dictionary<int, object> IndexStoreByTypeId = [];
-
-	public bool RegisterFilter(Filter filter)
-	{
-		if (!ContainsFilter(filter))
-		{
-			EntityIdSetByFilter[filter] = [];
-			return false;
-		}
-
-		return true;
-	}
-
-	public bool RegisterComponentType<T>() where T : struct
-	{
-		var typeId = ComponentType<T>.Id;
-
-		if (!ContainsComponentType<T>())
-		{
-			IndexStoreByTypeId.Add(typeId, new Dictionary<T, SparseSet>());
-			return false;
-		}
-
-		return true;
-	}
 
 	public bool ContainsFilter(Filter filter)
 	{
@@ -45,11 +21,30 @@ internal class Index
 
 	public SparseSet GetEntities(Filter filter)
 	{
+		if (!ContainsFilter(filter))
+		{
+			EntityIdSetByFilter[filter] = [];
+			foreach (var (id, bitmask) in Table.GetEntities())
+			{
+				OnStructureChanged(id, bitmask);
+			}
+		}
+
 		return EntityIdSetByFilter[filter];
 	}
 
 	public SparseSet GetEntities<T>(T value) where T : struct
 	{
+		if (!ContainsComponentType<T>())
+		{
+			IndexStoreByTypeId.Add(ComponentType<T>.Id, new Dictionary<T, SparseSet>());
+			foreach (var (id, _) in Table.GetEntities())
+			{
+				var key = Table.GetComponent<T>(id);
+				OnComponentAdded(id, key);
+			}
+		}
+
 		return GetIndexStore<T>().TryGetValue(value, out var set) ? set : EmptySet;
 	}
 

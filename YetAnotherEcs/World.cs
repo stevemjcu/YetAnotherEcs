@@ -8,8 +8,14 @@ namespace YetAnotherEcs;
 /// </summary>
 public class World
 {
-	internal readonly Table Table = new();
-	internal readonly Index Index = new();
+	internal readonly Table Table;
+	internal readonly Index Index;
+
+	public World()
+	{
+		Table = new Table();
+		Index = new Index(Table);
+	}
 
 	/// <summary>
 	/// Creates an entity with a unique ID.
@@ -17,7 +23,7 @@ public class World
 	/// <returns>The entity.</returns>
 	public Entity Create()
 	{
-		return new(this, Table.CreateEntity());
+		return new Entity(this, Table.CreateEntity());
 	}
 
 	/// <summary>
@@ -41,31 +47,12 @@ public class World
 	}
 
 	/// <summary>
-	/// Enables an index for a component type signature.
-	/// </summary>
-	/// <param name="filter">The filter.</param>
-	public void Register(Filter filter)
-	{
-		Index.RegisterFilter(filter);
-	}
-
-	/// <summary>
-	/// Enables an index for a component value.
-	/// </summary>
-	/// <typeparam name="T">The component type.</typeparam>
-	public void Register<T>() where T : struct
-	{
-		Index.RegisterComponentType<T>();
-	}
-
-	/// <summary>
 	/// Retrieves the set of entities with a matching component structure.
 	/// </summary>
 	/// <param name="filter">The filter.</param>
 	/// <returns>The entity set.</returns>
 	public View View(Filter filter)
 	{
-		// TODO: Handle non-indexed
 		return new(this, Index.GetEntities(filter));
 	}
 
@@ -77,7 +64,6 @@ public class World
 	/// <returns>The entity set.</returns>
 	public View View<T>(T value) where T : struct
 	{
-		// TODO: Handle non-indexed
 		return new(this, Index.GetEntities(value));
 	}
 }

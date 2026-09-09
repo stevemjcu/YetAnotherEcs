@@ -1,11 +1,12 @@
-﻿using YetAnotherEcs.Utility;
+﻿using System.Collections;
+using YetAnotherEcs.Utility;
 
 namespace YetAnotherEcs;
 
 /// <summary>
 /// Represents an arbitrary set of entities.
 /// </summary>
-public readonly struct View
+public readonly struct View : IEnumerable<Entity>
 {
 	private readonly World World;
 	private readonly SparseSet Set;
@@ -30,10 +31,20 @@ public readonly struct View
 		return new(World, Set);
 	}
 
+	IEnumerator<Entity> IEnumerable<Entity>.GetEnumerator()
+	{
+		return GetEnumerator();
+	}
+
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return GetEnumerator();
+	}
+
 	/// <summary>
 	/// Traverses the set in reverse to avoid invalidation.
 	/// </summary>
-	public struct ViewEnumerator
+	public struct ViewEnumerator : IEnumerator<Entity>
 	{
 		private readonly World World;
 		private readonly SparseSet Set;
@@ -41,6 +52,8 @@ public readonly struct View
 		private int Index;
 
 		public readonly Entity Current => new(World, Set[Index]);
+
+		object IEnumerator.Current => Current;
 
 		internal ViewEnumerator(World world, SparseSet set)
 		{
@@ -62,6 +75,10 @@ public readonly struct View
 		public void Reset()
 		{
 			Index = Set.Count;
+		}
+
+		void IDisposable.Dispose()
+		{
 		}
 	}
 }

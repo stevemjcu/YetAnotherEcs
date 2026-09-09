@@ -3,11 +3,21 @@ using YetAnotherEcs.Utility;
 
 namespace YetAnotherEcs.Storage;
 
-internal class Index(Table Table)
+internal class Index
 {
 	private static readonly SparseSet EmptySet = [];
 	private readonly Dictionary<Filter, SparseSet> EntityIdSetByFilter = [];
 	private readonly Dictionary<int, object> IndexStoreByTypeId = [];
+
+	public void RegisterFilter(Filter filter)
+	{
+		EntityIdSetByFilter[filter] = [];
+	}
+
+	public void RegisterComponentType<T>() where T : struct
+	{
+		IndexStoreByTypeId.Add(ComponentType<T>.Id, new Dictionary<T, SparseSet>());
+	}
 
 	public bool ContainsFilter(Filter filter)
 	{
@@ -21,37 +31,16 @@ internal class Index(Table Table)
 
 	public SparseSet GetEntities(Filter filter)
 	{
-		if (!ContainsFilter(filter))
-		{
-			EntityIdSetByFilter[filter] = [];
-			foreach (var id in Table.GetEntities())
-			{
-				OnStructureChanged(id);
-			}
-		}
-
 		return EntityIdSetByFilter[filter];
 	}
 
 	public SparseSet GetEntities<T>(T value) where T : struct
 	{
-		if (!ContainsComponentType<T>())
-		{
-			IndexStoreByTypeId.Add(ComponentType<T>.Id, new Dictionary<T, SparseSet>());
-			foreach (var id in Table.GetEntities())
-			{
-				var key = Table.GetComponent<T>(id);
-				OnComponentAdded(id, key);
-			}
-		}
-
 		return GetIndexStore<T>().TryGetValue(value, out var set) ? set : EmptySet;
 	}
 
-	public void OnStructureChanged(int id)
+	public void OnStructureChanged(int id, int bitmask)
 	{
-		var bitmask = Table.GetBitmask(id);
-
 		foreach (var it in EntityIdSetByFilter)
 		{
 			if (it.Key.Matches(bitmask))

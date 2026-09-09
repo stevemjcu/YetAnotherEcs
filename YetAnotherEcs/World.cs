@@ -8,14 +8,8 @@ namespace YetAnotherEcs;
 /// </summary>
 public class World
 {
-	private readonly Table Table;
-	private readonly Index Index;
-
-	public World()
-	{
-		Table = new Table();
-		Index = new Index(Table);
-	}
+	private readonly Table Table = new();
+	private readonly Index Index = new();
 
 	/// <summary>
 	/// Creates an entity with a unique ID.
@@ -53,6 +47,15 @@ public class World
 	/// <returns>The entity set.</returns>
 	public View View(Filter filter)
 	{
+		if (!Index.ContainsFilter(filter))
+		{
+			Index.RegisterFilter(filter);
+			foreach (var (id, bitmask) in Table.GetEntities())
+			{
+				Index.OnStructureChanged(id, bitmask);
+			}
+		}
+
 		return new(this, Index.GetEntities(filter));
 	}
 
@@ -64,6 +67,15 @@ public class World
 	/// <returns>The entity set.</returns>
 	public View View<T>(T value) where T : struct
 	{
+		if (!Index.ContainsComponentType<T>())
+		{
+			Index.RegisterComponentType<T>();
+			foreach (var (id, _) in Table.GetEntities())
+			{
+				Index.OnComponentAdded(id, Table.GetComponent<T>(id));
+			}
+		}
+
 		return new(this, Index.GetEntities(value));
 	}
 
@@ -102,7 +114,7 @@ public class World
 
 		if (!exists)
 		{
-			Index.OnStructureChanged(id);
+			Index.OnStructureChanged(id, Table.GetBitmask(id));
 		}
 	}
 
@@ -114,6 +126,6 @@ public class World
 		}
 
 		Table.RemoveComponent<T>(id);
-		Index.OnStructureChanged(id);
+		Index.OnStructureChanged(id, Table.GetBitmask(id));
 	}
 }

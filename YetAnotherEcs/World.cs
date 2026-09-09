@@ -45,7 +45,7 @@ public class World
 	/// </summary>
 	/// <param name="filter">The filter.</param>
 	/// <returns>The entity set.</returns>
-	public View View(Filter filter)
+	public View Query(Filter filter)
 	{
 		if (!Index.HasFilter(filter))
 		{
@@ -65,7 +65,7 @@ public class World
 	/// <typeparam name="T">The component type.</typeparam>
 	/// <param name="value">The component value.</param>
 	/// <returns>The entity set.</returns>
-	public View View<T>(T value) where T : struct
+	public View Query<T>(T value) where T : struct
 	{
 		if (!Index.HasComponentType<T>())
 		{

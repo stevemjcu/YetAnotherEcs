@@ -21,9 +21,9 @@ public class SmokeTests
 
 		void ValidateCounts(int a, int b, int c)
 		{
-			Assert.AreEqual(a, world.View(filter).Count);
-			Assert.AreEqual(b, world.View(tag0).Count);
-			Assert.AreEqual(c, world.View(tag1).Count);
+			Assert.AreEqual(a, world.Query(filter).Count);
+			Assert.AreEqual(b, world.Query(tag0).Count);
+			Assert.AreEqual(c, world.Query(tag1).Count);
 		}
 
 		var entity0 = world.Create();

@@ -4,31 +4,31 @@ using YetAnotherEcs.Utility;
 namespace YetAnotherEcs;
 
 /// <summary>
-/// An arbitrary set of entities.
+/// The set of entities returned by a query.
 /// </summary>
-public readonly struct View : IEnumerable<Entity>
+public readonly struct View : IEnumerable<Entity>, IReadOnlyCollection<Entity>
 {
 	private readonly World World;
-	private readonly SparseSet Set;
+	private readonly SparseSet Entities;
 
-	internal View(World world, SparseSet set)
+	internal View(World world, SparseSet ids)
 	{
 		World = world;
-		Set = set;
+		Entities = ids;
 	}
 
-	public readonly int Count => Set.Count;
+	public readonly int Count => Entities.Count;
 
-	public readonly Entity this[int index] => new(World, Set[index]);
+	public readonly Entity this[int index] => new(World, Entities[index]);
 
 	public readonly bool Contains(Entity entity)
 	{
-		return Set.Contains(entity.Id);
+		return Entities.Contains(entity.Id);
 	}
 
 	public readonly ViewEnumerator GetEnumerator()
 	{
-		return new(World, Set);
+		return new(World, Entities);
 	}
 
 	IEnumerator<Entity> IEnumerable<Entity>.GetEnumerator()
@@ -39,46 +39,5 @@ public readonly struct View : IEnumerable<Entity>
 	IEnumerator IEnumerable.GetEnumerator()
 	{
 		return GetEnumerator();
-	}
-
-	/// <summary>
-	/// Traverses the set in reverse to avoid invalidation.
-	/// </summary>
-	public struct ViewEnumerator : IEnumerator<Entity>
-	{
-		private readonly World World;
-		private readonly SparseSet Set;
-
-		private int Index;
-
-		public readonly Entity Current => new(World, Set[Index]);
-
-		object IEnumerator.Current => Current;
-
-		internal ViewEnumerator(World world, SparseSet set)
-		{
-			World = world;
-			Set = set;
-			Index = set.Count;
-		}
-
-		public bool MoveNext()
-		{
-			while (--Index >= 0)
-			{
-				return true;
-			}
-
-			return false;
-		}
-
-		public void Reset()
-		{
-			Index = Set.Count;
-		}
-
-		void IDisposable.Dispose()
-		{
-		}
 	}
 }

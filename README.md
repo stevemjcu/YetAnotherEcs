@@ -2,7 +2,7 @@
 
 Yet Another ECS (YAECS) is an entity-component-system (ECS) library made with the intent of having a minimal and non-prescriptive feature set.
 
-It allows you to create and destroy entities, add and remove components from those entities, and retrieve entities which match a component type signature or value.
+It allows you to create and destroy entities, add and remove components from those entities, and retrieve entities with a specific component structure or value.
 
 ```
 // Create a world.
@@ -17,29 +17,29 @@ entity.Set<Name>(new("Player"));
 // Get a component from an entity.
 var name = entity.Get<Name>().Value;
 
-// Enumerate entities with a component type signature (filter).
-var view = world.View(new Filter().Include<Name>().Exclude<Position>());
+// Enumerate entities with a component structure.
+var view = world.Query(new Filter().Include<Name>().Exclude<Position>());
 
-// Enumerate entities with a component value (index).
-var view = world.View<Name>(new(name));
+// Enumerate entities with a component value.
+var view = world.Query<Name>(new(name));
 ```
 
-A component can be defined as a record struct, with the optional `[Indexed]` attribute to allow it to be used in views.
+A component can be defined as a struct.
 
 ```
-[Indexed] private record struct Name(string Value);
+private record struct Name(string Value);
 
 private record struct Position(Vector2 Value);
 
-[Indexed] private record struct ChildOf(Entity Value);
+private record struct ChildOf(Entity Value);
 ```
 
-Notably, an indexed component can be used to describe relations.
+A component can also describe relations.
 
 ```
 // Get the parent of an entity.
 var parent = entity.Get<ChildOf>().Value;
 
 // Get the children of an entity.
-var children = world.View<ChildOf>(new(entity));
+var children = world.Query<ChildOf>(new(entity));
 ```

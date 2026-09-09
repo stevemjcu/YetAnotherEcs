@@ -8,8 +8,8 @@ namespace YetAnotherEcs;
 /// </summary>
 public class World
 {
-	internal readonly Table Table;
-	internal readonly Index Index;
+	private readonly Table Table;
+	private readonly Index Index;
 
 	public World()
 	{
@@ -65,5 +65,55 @@ public class World
 	public View View<T>(T value) where T : struct
 	{
 		return new(this, Index.GetEntities(value));
+	}
+
+	internal bool Has<T>(int id) where T : struct
+	{
+		return Table.HasComponent<T>(id);
+	}
+
+	internal T Get<T>(int id) where T : struct
+	{
+		return Table.GetComponent<T>(id);
+	}
+
+	internal bool TryGet<T>(int id, out T value) where T : struct
+	{
+		var exists = Has<T>(id);
+		value = exists ? Get<T>(id) : default;
+		return exists;
+	}
+
+	internal void Set<T>(int id, T value = default) where T : struct
+	{
+		var exists = Has<T>(id);
+
+		if (Index.ContainsComponentType<T>())
+		{
+			if (exists)
+			{
+				Index.OnComponentRemoved(id, Get<T>(id));
+			}
+
+			Index.OnComponentAdded(id, value);
+		}
+
+		Table.SetComponent(id, value);
+
+		if (!exists)
+		{
+			Index.OnStructureChanged(id);
+		}
+	}
+
+	internal void Remove<T>(int id) where T : struct
+	{
+		if (Index.ContainsComponentType<T>())
+		{
+			Index.OnComponentRemoved(id, Get<T>(id));
+		}
+
+		Table.RemoveComponent<T>(id);
+		Index.OnStructureChanged(id);
 	}
 }

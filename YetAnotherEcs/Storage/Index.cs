@@ -24,9 +24,9 @@ internal class Index(Table Table)
 		if (!ContainsFilter(filter))
 		{
 			EntityIdSetByFilter[filter] = [];
-			foreach (var (id, bitmask) in Table.GetEntities())
+			foreach (var id in Table.GetEntities())
 			{
-				OnStructureChanged(id, bitmask);
+				OnStructureChanged(id);
 			}
 		}
 
@@ -38,7 +38,7 @@ internal class Index(Table Table)
 		if (!ContainsComponentType<T>())
 		{
 			IndexStoreByTypeId.Add(ComponentType<T>.Id, new Dictionary<T, SparseSet>());
-			foreach (var (id, _) in Table.GetEntities())
+			foreach (var id in Table.GetEntities())
 			{
 				var key = Table.GetComponent<T>(id);
 				OnComponentAdded(id, key);
@@ -48,8 +48,10 @@ internal class Index(Table Table)
 		return GetIndexStore<T>().TryGetValue(value, out var set) ? set : EmptySet;
 	}
 
-	public void OnStructureChanged(int id, int bitmask)
+	public void OnStructureChanged(int id)
 	{
+		var bitmask = Table.GetBitmask(id);
+
 		foreach (var it in EntityIdSetByFilter)
 		{
 			if (it.Key.Matches(bitmask))

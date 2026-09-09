@@ -1,7 +1,7 @@
 ﻿namespace YetAnotherEcs;
 
 /// <summary>
-/// Represents a filter for entities by their component type signature.
+/// A filter for entities by their component structure.
 /// </summary>
 public record struct Filter
 {
@@ -30,12 +30,7 @@ public record struct Filter
 		return this;
 	}
 
-	/// <summary>
-	/// Determines if an entity bitmask matches the filter.
-	/// </summary>
-	/// <param name="bitmask">The entity bitmask.</param>
-	/// <returns>True if the bitmask matches; otherwise, false.</returns>
-	public readonly bool Matches(int bitmask)
+	internal readonly bool Matches(int bitmask)
 	{
 		return
 			(bitmask & IncludeBitmask) == IncludeBitmask &&

@@ -1,7 +1,7 @@
 ﻿namespace YetAnotherEcs;
 
 /// <summary>
-/// Represents a set of components associated with a unique ID.
+/// A unique identifier associated with a set of components.
 /// </summary>
 public readonly record struct Entity(World World, int Id)
 {

@@ -19,12 +19,12 @@ internal class Index
 		IndexStoreByTypeId.Add(ComponentType<T>.Id, new Dictionary<T, SparseSet>());
 	}
 
-	public bool ContainsFilter(Filter filter)
+	public bool HasFilter(Filter filter)
 	{
 		return EntityIdSetByFilter.ContainsKey(filter);
 	}
 
-	public bool ContainsComponentType<T>() where T : struct
+	public bool HasComponentType<T>() where T : struct
 	{
 		return IndexStoreByTypeId.ContainsKey(ComponentType<T>.Id);
 	}

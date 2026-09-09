@@ -4,7 +4,7 @@ using YetAnotherEcs.Utility;
 namespace YetAnotherEcs;
 
 /// <summary>
-/// Represents an arbitrary set of entities.
+/// An arbitrary set of entities.
 /// </summary>
 public readonly struct View : IEnumerable<Entity>
 {

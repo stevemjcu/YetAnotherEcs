@@ -4,7 +4,7 @@ using Index = YetAnotherEcs.Storage.Index;
 namespace YetAnotherEcs;
 
 /// <summary>
-/// Represents the storage for the entity component system.
+/// The storage for entities and their components.
 /// </summary>
 public class World
 {
@@ -17,7 +17,7 @@ public class World
 	/// <returns>The entity.</returns>
 	public Entity Create()
 	{
-		return new Entity(this, Table.CreateEntity());
+		return new(this, Table.CreateEntity());
 	}
 
 	/// <summary>
@@ -47,7 +47,7 @@ public class World
 	/// <returns>The entity set.</returns>
 	public View View(Filter filter)
 	{
-		if (!Index.ContainsFilter(filter))
+		if (!Index.HasFilter(filter))
 		{
 			Index.RegisterFilter(filter);
 			foreach (var id in Table.GetEntities())
@@ -67,7 +67,7 @@ public class World
 	/// <returns>The entity set.</returns>
 	public View View<T>(T value) where T : struct
 	{
-		if (!Index.ContainsComponentType<T>())
+		if (!Index.HasComponentType<T>())
 		{
 			Index.RegisterComponentType<T>();
 			foreach (var id in Table.GetEntities())
@@ -100,7 +100,7 @@ public class World
 	{
 		var exists = Has<T>(id);
 
-		if (Index.ContainsComponentType<T>())
+		if (Index.HasComponentType<T>())
 		{
 			if (exists)
 			{
@@ -120,7 +120,7 @@ public class World
 
 	internal void Remove<T>(int id) where T : struct
 	{
-		if (Index.ContainsComponentType<T>())
+		if (Index.HasComponentType<T>())
 		{
 			Index.OnComponentRemoved(id, Get<T>(id));
 		}

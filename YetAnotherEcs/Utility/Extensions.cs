@@ -4,11 +4,11 @@ namespace YetAnotherEcs.Utility;
 
 public static class Extensions
 {
-	public static void EnsureCount<T>(this List<T> list, int index)
+	public static void EnsureCount<T>(this List<T> list, int count)
 	{
-		if (index + 1 >= list.Count)
+		if (count > list.Count)
 		{
-			CollectionsMarshal.SetCount(list, index + 1);
+			CollectionsMarshal.SetCount(list, count);
 		}
 	}
 

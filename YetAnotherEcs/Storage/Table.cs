@@ -23,15 +23,16 @@ internal class Table
 	public int CreateEntity(out int version)
 	{
 		var id = EntityIdPool.Assign();
-		EntityInfoById.EnsureCount(id);
+		EntityInfoById.EnsureCount(id + 1);
 		version = EntityInfoById.AsSpan()[id].Version;
 		return id;
 	}
 
 	public void DeleteEntity(int id)
 	{
-		EntityInfoById.AsSpan()[id].Bitmask = 0;
-		EntityInfoById.AsSpan()[id].Version++;
+		ref var info = ref EntityInfoById.AsSpan()[id];
+		info.Bitmask = 0;
+		info.Version++;
 		EntityIdPool.Recycle(id);
 	}
 

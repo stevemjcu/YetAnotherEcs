@@ -1,5 +1,5 @@
-﻿using System.Runtime.InteropServices;
-using YetAnotherEcs.Utility;
+﻿using YetAnotherEcs.Utility;
+using static YetAnotherEcs.Utility.Extensions;
 
 namespace YetAnotherEcs.Storage;
 
@@ -8,8 +8,6 @@ internal class Table
 	private readonly IdPool EntityIdPool = new();
 	private readonly List<(int Bitmask, int Version)> EntityInfoById = [];
 	private readonly Dictionary<int, object> ComponentStoreByTypeId = [];
-
-	private Span<(int Bitmask, int Version)> EntityInfoByIdAsSpan => CollectionsMarshal.AsSpan(EntityInfoById);
 
 	public IEnumerable<int> GetEntities()
 	{
@@ -25,20 +23,15 @@ internal class Table
 	public int CreateEntity(out int version)
 	{
 		var id = EntityIdPool.Assign();
-
-		if (id >= EntityInfoById.Count)
-		{
-			CollectionsMarshal.SetCount(EntityInfoById, id + 1);
-		}
-
-		version = EntityInfoByIdAsSpan[id].Version;
+		EntityInfoById.EnsureCount(id);
+		version = EntityInfoById.AsSpan()[id].Version;
 		return id;
 	}
 
 	public void DeleteEntity(int id)
 	{
-		EntityInfoByIdAsSpan[id].Bitmask = 0;
-		EntityInfoByIdAsSpan[id].Version++;
+		EntityInfoById.AsSpan()[id].Bitmask = 0;
+		EntityInfoById.AsSpan()[id].Version++;
 		EntityIdPool.Recycle(id);
 	}
 
@@ -64,20 +57,15 @@ internal class Table
 
 	public void SetComponent<T>(int id, T value = default) where T : struct
 	{
-		EntityInfoByIdAsSpan[id].Bitmask |= ComponentType<T>.Bitmask;
-		var store = GetComponentStore<T>();
-
-		if (id >= store.Count)
-		{
-			CollectionsMarshal.SetCount(store, id + 1);
-		}
-
-		GetComponentStore<T>()[id] = value;
+		EntityInfoById.AsSpan()[id].Bitmask |= ComponentType<T>.Bitmask;
+		var store = GetComponentStore<T>()!;
+		store.EnsureCount(id + 1);
+		store[id] = value;
 	}
 
 	public void RemoveComponent<T>(int id) where T : struct
 	{
-		EntityInfoByIdAsSpan[id].Bitmask &= ~ComponentType<T>.Bitmask;
+		EntityInfoById.AsSpan()[id].Bitmask &= ~ComponentType<T>.Bitmask;
 		GetComponentStore<T>()[id] = default;
 	}
 

@@ -6,7 +6,7 @@ namespace YetAnotherEcs.Storage;
 internal class Database
 {
 	private readonly IdPool EntityIdPool = new();
-	private readonly List<(int Bitmask, int Version)> EntityInfoById = [];
+	private readonly List<(int Version, int Bitmask)> EntityInfoById = [];
 	private readonly Dictionary<int, object> ComponentStoreByTypeId = [];
 
 	public IEnumerable<int> GetEntities()
@@ -24,7 +24,7 @@ internal class Database
 	{
 		var id = EntityIdPool.Assign();
 		EntityInfoById.EnsureCount(id + 1);
-		version = EntityInfoById.AsSpan()[id].Version;
+		version = EntityInfoById[id].Version;
 		return id;
 	}
 

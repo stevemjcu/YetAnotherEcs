@@ -3,8 +3,19 @@
 /// <summary>
 /// A unique identifier associated with a set of components.
 /// </summary>
-public readonly record struct Entity(World World, int Id, int Version)
+public readonly record struct Entity
 {
+	public readonly World World;
+	public readonly int Id;
+	private readonly int Version;
+
+	internal Entity(World world, int id, int version)
+	{
+		World = world;
+		Id = id;
+		Version = version;
+	}
+
 	/// <summary>
 	/// Determines if a component exists.
 	/// </summary>

@@ -89,32 +89,32 @@ public class World
 		return new(this, Index.GetEntities(value));
 	}
 
-	internal bool Has<T>(int id) where T : struct
+	internal bool HasComponent<T>(int id) where T : struct
 	{
 		return Table.HasComponent<T>(id);
 	}
 
-	internal T Get<T>(int id) where T : struct
+	internal T GetComponent<T>(int id) where T : struct
 	{
 		return Table.GetComponent<T>(id);
 	}
 
-	internal bool TryGet<T>(int id, out T value) where T : struct
+	internal bool TryGetComponent<T>(int id, out T value) where T : struct
 	{
-		var exists = Has<T>(id);
-		value = exists ? Get<T>(id) : default;
+		var exists = HasComponent<T>(id);
+		value = exists ? GetComponent<T>(id) : default;
 		return exists;
 	}
 
-	internal void Set<T>(int id, T value = default) where T : struct
+	internal void SetComponent<T>(int id, T value = default) where T : struct
 	{
-		var exists = Has<T>(id);
+		var exists = HasComponent<T>(id);
 
 		if (Index.HasComponentType<T>())
 		{
 			if (exists)
 			{
-				Index.OnComponentRemoved(id, Get<T>(id));
+				Index.OnComponentRemoved(id, GetComponent<T>(id));
 			}
 
 			Index.OnComponentAdded(id, value);
@@ -128,11 +128,11 @@ public class World
 		}
 	}
 
-	internal void Remove<T>(int id) where T : struct
+	internal void RemoveComponent<T>(int id) where T : struct
 	{
 		if (Index.HasComponentType<T>())
 		{
-			Index.OnComponentRemoved(id, Get<T>(id));
+			Index.OnComponentRemoved(id, GetComponent<T>(id));
 		}
 
 		Table.RemoveComponent<T>(id);

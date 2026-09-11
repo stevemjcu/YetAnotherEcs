@@ -12,7 +12,7 @@ public readonly record struct Entity(World World, int Id, int Version)
 	/// <returns>True if the component exists; otherwise, false.</returns>
 	public readonly bool Has<T>() where T : struct
 	{
-		return World.Has<T>(Id);
+		return World.HasComponent<T>(Id);
 	}
 
 	/// <summary>
@@ -22,7 +22,7 @@ public readonly record struct Entity(World World, int Id, int Version)
 	/// <returns>The component value.</returns>
 	public readonly T Get<T>() where T : struct
 	{
-		return World.Get<T>(Id);
+		return World.GetComponent<T>(Id);
 	}
 
 	/// <summary>
@@ -33,7 +33,7 @@ public readonly record struct Entity(World World, int Id, int Version)
 	/// <returns>True if the component exists; otherwise, false.</returns>
 	public readonly bool TryGet<T>(out T value) where T : struct
 	{
-		return World.TryGet(Id, out value);
+		return World.TryGetComponent(Id, out value);
 	}
 
 	/// <summary>
@@ -43,7 +43,7 @@ public readonly record struct Entity(World World, int Id, int Version)
 	/// <param name="value">The component value.</param>
 	public readonly void Set<T>(T value = default) where T : struct
 	{
-		World.Set<T>(Id, value);
+		World.SetComponent<T>(Id, value);
 	}
 
 	/// <summary>
@@ -52,6 +52,6 @@ public readonly record struct Entity(World World, int Id, int Version)
 	/// <typeparam name="T">The component type.</typeparam>
 	public void Remove<T>() where T : struct
 	{
-		World.Remove<T>(Id);
+		World.RemoveComponent<T>(Id);
 	}
 }

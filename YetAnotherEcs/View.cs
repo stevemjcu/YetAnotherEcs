@@ -6,7 +6,7 @@ namespace YetAnotherEcs;
 /// <summary>
 /// The set of entities returned by a query.
 /// </summary>
-public readonly struct View : IEnumerable<Entity>, IReadOnlyCollection<Entity>
+public readonly struct View : IReadOnlyCollection<Entity>
 {
 	private readonly World World;
 	private readonly SparseSet Ids;

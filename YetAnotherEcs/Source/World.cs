@@ -45,7 +45,7 @@ public class World : IDisposable
 		Registry.Destroy(entity.Id);
 	}
 
-	public IIndexableSet<int> View(Filter filter)
+	public IIndexableSet<int> View(Signature filter)
 	{
 		return Manifest.View(filter);
 	}

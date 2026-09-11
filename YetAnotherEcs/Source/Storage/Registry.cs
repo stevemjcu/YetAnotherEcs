@@ -18,7 +18,7 @@ internal class Registry(World World)
 		{
 			if (BitmaskById[i] > 0)
 			{
-				yield return new(i, BitmaskById[i], World.Id);
+				yield return new(i, VersionById[i], World.Id);
 			}
 		}
 	}

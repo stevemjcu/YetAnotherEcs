@@ -16,7 +16,7 @@ public class SmokeTests
 	{
 		var world = new World();
 
-		var filter = new Filter().Include<Tag>();
+		var filter = new Signature().Include<Tag>();
 		var tag0 = new Tag('0');
 		var tag1 = new Tag('1');
 

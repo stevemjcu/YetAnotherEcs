@@ -7,11 +7,10 @@ internal class Manifest(World World)
 {
 	private static readonly SparseSet Empty = [];
 
-	private readonly Dictionary<Filter, SparseSet> IdSetByFilter = [];
+	private readonly Dictionary<Signature, SparseSet> IdSetByFilter = [];
 	private readonly Dictionary<int, object> IndexStoreByType = [];
 
-	// Rename to signatures? An index is sort of a filter too.
-	private readonly HashSet<Filter> Filters = [];
+	private readonly HashSet<Signature> Filters = [];
 	private readonly HashSet<int> Indexes = [];
 
 	private Registry Registry => World.Registry;
@@ -55,23 +54,23 @@ internal class Manifest(World World)
 		}
 	}
 
-	public void OnEntityRecycled(int id)
+	public void OnEntityRecycled(Entity entity)
 	{
 		foreach (var it in IdSetByFilter.Values)
 		{
-			it.Remove(id);
+			it.Remove(entity.Id);
 		}
 
 		foreach (IDictionary store in IndexStoreByType.Values)
 		{
 			foreach (SparseSet it in store.Values)
 			{
-				it.Remove(id);
+				it.Remove(entity.Id);
 			}
 		}
 	}
 
-	public IIndexableSet<int> View(Filter filter)
+	public IIndexableSet<int> View(Signature filter)
 	{
 		if (!Filters.Contains(filter))
 		{
@@ -107,7 +106,7 @@ internal class Manifest(World World)
 		return (Dictionary<T, SparseSet>)value;
 	}
 
-	private void Build(Filter filter)
+	private void Build(Signature filter)
 	{
 		IdSetByFilter[filter] = [];
 

@@ -5,8 +5,10 @@ namespace YetAnotherEcs.Storage;
 
 internal class Database
 {
+	private record struct EntityInfo(int Version, int Bitmask);
+
 	private readonly IdPool EntityIdPool = new();
-	private readonly List<(int Version, int Bitmask)> EntityInfoById = [];
+	private readonly List<EntityInfo> EntityInfoById = [];
 	private readonly Dictionary<int, object> ComponentStoreByTypeId = [];
 
 	public IEnumerable<int> GetEntities()
@@ -20,12 +22,11 @@ internal class Database
 		}
 	}
 
-	public int CreateEntity(out int version)
+	public (int Id, int Version) CreateEntity()
 	{
 		var id = EntityIdPool.Assign();
 		EntityInfoById.EnsureCount(id + 1);
-		version = EntityInfoById[id].Version;
-		return id;
+		return (id, EntityInfoById[id].Version);
 	}
 
 	public void DeleteEntity(int id)
@@ -59,7 +60,7 @@ internal class Database
 	public void SetComponent<T>(int id, T value = default) where T : struct
 	{
 		EntityInfoById.AsSpan()[id].Bitmask |= ComponentType<T>.Bitmask;
-		var store = GetComponentStore<T>()!;
+		var store = GetComponentStore<T>();
 		store.EnsureCount(id + 1);
 		store[id] = value;
 	}

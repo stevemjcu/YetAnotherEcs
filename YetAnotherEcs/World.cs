@@ -17,7 +17,8 @@ public class World
 	/// <returns>The entity.</returns>
 	public Entity Create()
 	{
-		return new(this, Database.CreateEntity(out var version), version);
+		var (id, version) = Database.CreateEntity();
+		return new(this, id, version);
 	}
 
 	/// <summary>

@@ -3,7 +3,7 @@ using static YetAnotherEcs.Utility.Extensions;
 
 namespace YetAnotherEcs.Storage;
 
-internal class Table
+internal class Database
 {
 	private readonly IdPool EntityIdPool = new();
 	private readonly List<(int Bitmask, int Version)> EntityInfoById = [];

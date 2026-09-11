@@ -8,7 +8,7 @@ namespace YetAnotherEcs;
 /// </summary>
 public class World
 {
-	private readonly Table Table = new();
+	private readonly Database Database = new();
 	private readonly Index Index = new();
 
 	/// <summary>
@@ -17,7 +17,7 @@ public class World
 	/// <returns>The entity.</returns>
 	public Entity Create()
 	{
-		return new(this, Table.CreateEntity(out var version), version);
+		return new(this, Database.CreateEntity(out var version), version);
 	}
 
 	/// <summary>
@@ -27,7 +27,7 @@ public class World
 	/// <returns>The entity.</returns>
 	public Entity Get(int id)
 	{
-		return new(this, id, Table.GetVersion(id));
+		return new(this, id, Database.GetVersion(id));
 	}
 
 	/// <summary>
@@ -36,7 +36,7 @@ public class World
 	/// <param name="entity">The entity.</param>
 	public void Delete(Entity entity)
 	{
-		Table.DeleteEntity(entity.Id);
+		Database.DeleteEntity(entity.Id);
 		Index.OnEntityDeleted(entity.Id);
 	}
 
@@ -60,9 +60,9 @@ public class World
 		if (!Index.HasFilter(filter))
 		{
 			Index.RegisterFilter(filter);
-			foreach (var id in Table.GetEntities())
+			foreach (var id in Database.GetEntities())
 			{
-				Index.OnStructureChanged(id, Table.GetBitmask(id));
+				Index.OnStructureChanged(id, Database.GetBitmask(id));
 			}
 		}
 
@@ -80,9 +80,9 @@ public class World
 		if (!Index.HasComponentType<T>())
 		{
 			Index.RegisterComponentType<T>();
-			foreach (var id in Table.GetEntities())
+			foreach (var id in Database.GetEntities())
 			{
-				Index.OnComponentAdded(id, Table.GetComponent<T>(id));
+				Index.OnComponentAdded(id, Database.GetComponent<T>(id));
 			}
 		}
 
@@ -91,12 +91,12 @@ public class World
 
 	internal bool HasComponent<T>(int id) where T : struct
 	{
-		return Table.HasComponent<T>(id);
+		return Database.HasComponent<T>(id);
 	}
 
 	internal T GetComponent<T>(int id) where T : struct
 	{
-		return Table.GetComponent<T>(id);
+		return Database.GetComponent<T>(id);
 	}
 
 	internal bool TryGetComponent<T>(int id, out T value) where T : struct
@@ -120,11 +120,11 @@ public class World
 			Index.OnComponentAdded(id, value);
 		}
 
-		Table.SetComponent(id, value);
+		Database.SetComponent(id, value);
 
 		if (!exists)
 		{
-			Index.OnStructureChanged(id, Table.GetBitmask(id));
+			Index.OnStructureChanged(id, Database.GetBitmask(id));
 		}
 	}
 
@@ -135,7 +135,7 @@ public class World
 			Index.OnComponentRemoved(id, GetComponent<T>(id));
 		}
 
-		Table.RemoveComponent<T>(id);
-		Index.OnStructureChanged(id, Table.GetBitmask(id));
+		Database.RemoveComponent<T>(id);
+		Index.OnStructureChanged(id, Database.GetBitmask(id));
 	}
 }

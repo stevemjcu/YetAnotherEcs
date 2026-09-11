@@ -19,7 +19,7 @@ public readonly struct View : IEnumerable<Entity>, IReadOnlyCollection<Entity>
 
 	public readonly int Count => Entities.Count;
 
-	public readonly Entity this[int index] => new(World, Entities[index]);
+	public readonly Entity this[int index] => World.Get(Entities[index]);
 
 	public readonly bool Contains(Entity entity)
 	{

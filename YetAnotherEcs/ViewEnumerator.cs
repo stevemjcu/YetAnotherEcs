@@ -13,7 +13,7 @@ public struct ViewEnumerator : IEnumerator<Entity>
 
 	private int Index;
 
-	public readonly Entity Current => new(World, Entities[Index]);
+	public readonly Entity Current => World.Get(Entities[Index]);
 
 	readonly object IEnumerator.Current => Current;
 

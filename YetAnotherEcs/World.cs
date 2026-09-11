@@ -17,7 +17,17 @@ public class World
 	/// <returns>The entity.</returns>
 	public Entity Create()
 	{
-		return new(this, Table.CreateEntity());
+		return new(this, Table.CreateEntity(out var version), version);
+	}
+
+	/// <summary>
+	/// Retrieves an entity.
+	/// </summary>
+	/// <param name="id">The entity id.</param>
+	/// <returns>The entity.</returns>
+	public Entity Get(int id)
+	{
+		return new(this, id, Table.GetVersion(id));
 	}
 
 	/// <summary>

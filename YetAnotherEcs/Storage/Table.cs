@@ -1,51 +1,50 @@
-﻿using System.Runtime.InteropServices;
-using YetAnotherEcs.Utility;
+﻿using YetAnotherEcs.Utility;
 
 namespace YetAnotherEcs.Storage;
 
 internal class Table
 {
 	private readonly IdPool EntityIdPool = new();
-	private readonly List<int> BitmaskByEntityId = [];
+	private readonly (int Bitmask, int Version)[] EntityInfoById = new (int Bitmask, int Version)[1000]; // TODO: Parameterize
 	private readonly Dictionary<int, object> ComponentStoreByTypeId = [];
 
 	public IEnumerable<int> GetEntities()
 	{
-		for (var i = 0; i < BitmaskByEntityId.Count; i++)
+		for (var i = 0; i < EntityInfoById.Length; i++)
 		{
-			if (BitmaskByEntityId[i] > 0)
+			if (EntityInfoById[i].Bitmask > 0)
 			{
 				yield return i;
 			}
 		}
 	}
 
-	public int CreateEntity()
+	public int CreateEntity(out int version)
 	{
 		var id = EntityIdPool.Assign();
-
-		if (BitmaskByEntityId.Count < id + 1)
-		{
-			CollectionsMarshal.SetCount(BitmaskByEntityId, id + 1);
-		}
-
+		version = EntityInfoById[id].Version++;
 		return id;
 	}
 
 	public void DeleteEntity(int id)
 	{
-		BitmaskByEntityId[id] = 0;
+		EntityInfoById[id].Bitmask = 0;
 		EntityIdPool.Recycle(id);
 	}
 
 	public int GetBitmask(int id)
 	{
-		return BitmaskByEntityId[id];
+		return EntityInfoById[id].Bitmask;
+	}
+
+	public int GetVersion(int id)
+	{
+		return EntityInfoById[id].Version;
 	}
 
 	public bool HasComponent<T>(int id) where T : struct
 	{
-		return (BitmaskByEntityId[id] & ComponentType<T>.Bitmask) > 0;
+		return (EntityInfoById[id].Bitmask & ComponentType<T>.Bitmask) > 0;
 	}
 
 	public T GetComponent<T>(int id) where T : struct
@@ -55,13 +54,13 @@ internal class Table
 
 	public void SetComponent<T>(int id, T value = default) where T : struct
 	{
-		BitmaskByEntityId[id] |= ComponentType<T>.Bitmask;
+		EntityInfoById[id].Bitmask |= ComponentType<T>.Bitmask;
 		GetComponentStore<T>()[id] = value;
 	}
 
 	public void RemoveComponent<T>(int id) where T : struct
 	{
-		BitmaskByEntityId[id] &= ~ComponentType<T>.Bitmask;
+		EntityInfoById[id].Bitmask &= ~ComponentType<T>.Bitmask;
 		GetComponentStore<T>()[id] = default;
 	}
 

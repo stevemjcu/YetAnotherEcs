@@ -3,7 +3,7 @@
 /// <summary>
 /// A unique identifier associated with a set of components.
 /// </summary>
-public readonly record struct Entity(World World, int Id)
+public readonly record struct Entity(World World, int Id, int Version)
 {
 	/// <summary>
 	/// Determines if a component exists.

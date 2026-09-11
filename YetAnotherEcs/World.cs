@@ -139,4 +139,20 @@ public class World
 		Database.RemoveComponent<T>(id);
 		Index.OnStructureChanged(id, Database.GetBitmask(id));
 	}
+
+	internal byte[] Serialize(int id)
+	{
+		// Write header to stream
+		// For each bit in bitmask
+		//   Write component to stream
+		// Write to byte array
+
+		using var stream = new MemoryStream();
+
+		// Serialize known type: MemoryMarshal.AsBytes(MemoryMarshal.CreateReadOnlySpan(ref header, 1))
+		// Serialize unknown type: JsonSerializer.SerializeToUtf8Bytes(obj, obj.GetType())
+		// Write to stream: stream.Write(payload);
+
+		return stream.ToArray();
+	}
 }

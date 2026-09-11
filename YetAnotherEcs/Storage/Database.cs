@@ -8,12 +8,14 @@ internal class Database
 	private record struct EntityInfo(int Version, int Bitmask);
 
 	private readonly IdPool EntityIdPool = new();
-	private readonly List<EntityInfo> EntityInfoById = [];
+	private readonly List<EntityInfo> EntityInfoByIdBacking = [];
 	private readonly Dictionary<int, object> ComponentStoreByTypeId = [];
+
+	private Span<EntityInfo> EntityInfoById => EntityInfoByIdBacking.AsSpan();
 
 	public IEnumerable<int> GetEntities()
 	{
-		for (var i = 0; i < EntityInfoById.Count; i++)
+		for (var i = 0; i < EntityInfoById.Length; i++)
 		{
 			if (EntityInfoById[i].Bitmask > 0)
 			{
@@ -25,13 +27,13 @@ internal class Database
 	public (int Id, int Version) CreateEntity()
 	{
 		var id = EntityIdPool.Assign();
-		EntityInfoById.EnsureCount(id + 1);
+		EntityInfoByIdBacking.EnsureCount(id + 1);
 		return (id, EntityInfoById[id].Version);
 	}
 
 	public void DeleteEntity(int id)
 	{
-		ref var info = ref EntityInfoById.AsSpan()[id];
+		ref var info = ref EntityInfoById[id];
 		info.Bitmask = 0;
 		info.Version++;
 		EntityIdPool.Recycle(id);
@@ -59,7 +61,7 @@ internal class Database
 
 	public void SetComponent<T>(int id, T value = default) where T : struct
 	{
-		EntityInfoById.AsSpan()[id].Bitmask |= ComponentType<T>.Bitmask;
+		EntityInfoById[id].Bitmask |= ComponentType<T>.Bitmask;
 		var store = GetComponentStore<T>();
 		store.EnsureCount(id + 1);
 		store[id] = value;
@@ -67,7 +69,7 @@ internal class Database
 
 	public void RemoveComponent<T>(int id) where T : struct
 	{
-		EntityInfoById.AsSpan()[id].Bitmask &= ~ComponentType<T>.Bitmask;
+		EntityInfoById[id].Bitmask &= ~ComponentType<T>.Bitmask;
 		GetComponentStore<T>()[id] = default;
 	}
 

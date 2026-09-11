@@ -9,26 +9,26 @@ namespace YetAnotherEcs;
 public readonly struct View : IEnumerable<Entity>, IReadOnlyCollection<Entity>
 {
 	private readonly World World;
-	private readonly SparseSet Entities;
+	private readonly SparseSet Ids;
 
 	internal View(World world, SparseSet ids)
 	{
 		World = world;
-		Entities = ids;
+		Ids = ids;
 	}
 
-	public readonly int Count => Entities.Count;
+	public readonly int Count => Ids.Count;
 
-	public readonly Entity this[int index] => World.Get(Entities[index]);
+	public readonly Entity this[int index] => World.Get(Ids[index]);
 
 	public readonly bool Contains(Entity entity)
 	{
-		return Entities.Contains(entity.Id);
+		return Ids.Contains(entity.Id);
 	}
 
 	public readonly ViewEnumerator GetEnumerator()
 	{
-		return new(World, Entities);
+		return new(World, Ids);
 	}
 
 	IEnumerator<Entity> IEnumerable<Entity>.GetEnumerator()

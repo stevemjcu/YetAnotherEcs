@@ -9,19 +9,19 @@ namespace YetAnotherEcs;
 public struct ViewEnumerator : IEnumerator<Entity>
 {
 	private readonly World World;
-	private readonly SparseSet Entities;
+	private readonly SparseSet Ids;
 
 	private int Index;
 
-	public readonly Entity Current => World.Get(Entities[Index]);
+	public readonly Entity Current => World.Get(Ids[Index]);
 
 	readonly object IEnumerator.Current => Current;
 
-	internal ViewEnumerator(World world, SparseSet entities)
+	internal ViewEnumerator(World world, SparseSet ids)
 	{
 		World = world;
-		Entities = entities;
-		Index = entities.Count;
+		Ids = ids;
+		Index = ids.Count;
 	}
 
 	public bool MoveNext()
@@ -36,7 +36,7 @@ public struct ViewEnumerator : IEnumerator<Entity>
 
 	public void Reset()
 	{
-		Index = Entities.Count;
+		Index = Ids.Count;
 	}
 
 	readonly void IDisposable.Dispose()

@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Runtime.InteropServices;
 
 namespace YetAnotherEcs.Utility;
 
@@ -32,11 +31,7 @@ public class SparseSet : IEnumerable<int>, ICollection<int>
 			return;
 		}
 
-		if (item >= IndexByItem.Count)
-		{
-			CollectionsMarshal.SetCount(IndexByItem, item + 1);
-		}
-
+		IndexByItem.EnsureCount(item + 1);
 		IndexByItem[item] = ItemByIndex.Count;
 		ItemByIndex.Add(item);
 	}

@@ -1,16 +1,19 @@
-﻿using YetAnotherEcs.Utility;
+﻿using System.Runtime.InteropServices;
+using YetAnotherEcs.Utility;
 
 namespace YetAnotherEcs.Storage;
 
 internal class Table
 {
 	private readonly IdPool EntityIdPool = new();
-	private readonly (int Bitmask, int Version)[] EntityInfoById = new (int Bitmask, int Version)[1000]; // TODO: Parameterize
+	private readonly List<(int Bitmask, int Version)> EntityInfoById = [];
 	private readonly Dictionary<int, object> ComponentStoreByTypeId = [];
+
+	private Span<(int Bitmask, int Version)> EntityInfoByIdAsSpan => CollectionsMarshal.AsSpan(EntityInfoById);
 
 	public IEnumerable<int> GetEntities()
 	{
-		for (var i = 0; i < EntityInfoById.Length; i++)
+		for (var i = 0; i < EntityInfoById.Count; i++)
 		{
 			if (EntityInfoById[i].Bitmask > 0)
 			{
@@ -22,13 +25,20 @@ internal class Table
 	public int CreateEntity(out int version)
 	{
 		var id = EntityIdPool.Assign();
-		version = EntityInfoById[id].Version++;
+
+		if (id >= EntityInfoById.Count)
+		{
+			CollectionsMarshal.SetCount(EntityInfoById, id + 1);
+		}
+
+		version = EntityInfoByIdAsSpan[id].Version;
 		return id;
 	}
 
 	public void DeleteEntity(int id)
 	{
-		EntityInfoById[id].Bitmask = 0;
+		EntityInfoByIdAsSpan[id].Bitmask = 0;
+		EntityInfoByIdAsSpan[id].Version++;
 		EntityIdPool.Recycle(id);
 	}
 
@@ -54,27 +64,33 @@ internal class Table
 
 	public void SetComponent<T>(int id, T value = default) where T : struct
 	{
-		EntityInfoById[id].Bitmask |= ComponentType<T>.Bitmask;
+		EntityInfoByIdAsSpan[id].Bitmask |= ComponentType<T>.Bitmask;
+		var store = GetComponentStore<T>();
+
+		if (id >= store.Count)
+		{
+			CollectionsMarshal.SetCount(store, id + 1);
+		}
+
 		GetComponentStore<T>()[id] = value;
 	}
 
 	public void RemoveComponent<T>(int id) where T : struct
 	{
-		EntityInfoById[id].Bitmask &= ~ComponentType<T>.Bitmask;
+		EntityInfoByIdAsSpan[id].Bitmask &= ~ComponentType<T>.Bitmask;
 		GetComponentStore<T>()[id] = default;
 	}
 
-	private Dictionary<int, T> GetComponentStore<T>() where T : struct
+	private List<T> GetComponentStore<T>() where T : struct
 	{
 		var typeId = ComponentType<T>.Id;
 
 		if (!ComponentStoreByTypeId.TryGetValue(typeId, out var value))
 		{
-			value = new Dictionary<int, T>();
+			value = new List<T>();
 			ComponentStoreByTypeId.Add(typeId, value);
 		}
 
-		// Maps component by entity ID
-		return (Dictionary<int, T>)value;
+		return (List<T>)value;
 	}
 }
